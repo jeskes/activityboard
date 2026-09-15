@@ -11,7 +11,7 @@ typedef struct StackEntry {
 static StackEntry* stack = 0;
 
 void pushRequest(MasterRequest request) {
-  // LOG("push request, module: %d, type : %d", request.moduleId, request.requestType);
+  LOG("push request, module: %d, type : %d", request.moduleId, request.requestType);
   if (request.requestType != RequestType::UNKNOWN) {
     StackEntry* entry = malloc(sizeof(StackEntry));
     MasterRequest* copy = malloc(sizeof(MasterRequest));

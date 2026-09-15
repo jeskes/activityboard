@@ -29,9 +29,10 @@ void setup() {
 }
 
 void loop() {
+  // LOG("run cycle");
   processCycle();
   handleRequest();
-  delay(200);
+  delay(50);
 }
 
 static void processCycle() {

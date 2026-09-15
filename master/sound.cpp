@@ -1,17 +1,26 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include <DFRobotDFPlayerMini.h>
+#include <Encoder.h>
 #include <ablib.h>
 #include "handler.h"
 #include "sound.h"
 
-#define PLAYER_RX 3
-#define PLAYER_TX 2
-#define PLAYER_BUSY 12
+// pins
+
+#define VOLUME_CLK 2
+#define VOLUME_DT 3
+#define VOLUME_SW 4
 #define PLAYER_LED 9
-#define VOLUME_CLK 6
-#define VOLUME_DT 7
-#define VOLUME_SW 8
+#define PLAYER_TX 10
+#define PLAYER_RX 11
+#define PLAYER_BUSY 12
+
+#define INITIAL_VOLUME 5
+#define MAXIMUM_VOLUME 25
+
+#define WAIT_FOR_BUSY_COUNT 5
+#define WAIT_FOR_BUSY_TIMEOUT 300
 
 static DFRobotDFPlayerMini player;
 
@@ -19,10 +28,8 @@ static DFRobotDFPlayerMini player;
 static SoftwareSerial playerSerial(PLAYER_RX, PLAYER_TX);
 
 // KY-040 Rotary Encoder
-static int lastClkState;
-static int lastSwState = HIGH;
-static unsigned long lastDebounceTime = 0;
-static const unsigned long DEBOUNCE_DELAY = 50;
+Encoder volumeEncoder(VOLUME_DT, VOLUME_CLK);
+long volumeEncoderPosition = -999;
 
 static void initializePlayer(MasterState* state);
 static bool checkPlayer(MasterState* state);
@@ -36,15 +43,16 @@ static void sendSoundResult(int moduleId, long requestId, long requestContext, R
 void initializeSound(MasterState* state) {
   pinMode(PLAYER_BUSY, INPUT);
   pinMode(PLAYER_LED, OUTPUT);
-  pinMode(VOLUME_CLK, INPUT_PULLUP);
-  pinMode(VOLUME_DT, INPUT_PULLUP);
+  pinMode(VOLUME_CLK, INPUT);
+  pinMode(VOLUME_DT, INPUT);
   pinMode(VOLUME_SW, INPUT_PULLUP);
-  lastClkState = digitalRead(VOLUME_CLK);
+  state->sound.volume = INITIAL_VOLUME;
   initializePlayer(state);
 }
 
 void processSound(MasterState* state) {
   bool playing = checkPlayer(state);
+  // LOG("playing : %d", playing);
   if (!playing) {
     stopSound(state, ResultCode::SUCCESS);
   }
@@ -75,7 +83,15 @@ static void initializePlayer(MasterState* state) {
     LOG("Player online.");
     blink(PLAYER_LED, 4, 250);
   }
+  LOG("try disable loop...");
   player.disableLoop();
+
+  LOG("try set volume...");
+  player.volume(state->sound.volume);
+
+  LOG("try read volume...");
+  int volume = player.readVolume();
+  LOG("volume : %d", volume);
   // player.setTimeOut(100);
   // player.EQ(DFPLAYER_EQ_NORMAL);
   // player.outputDevice(DFPLAYER_DEVICE_SD);
@@ -88,9 +104,23 @@ static bool checkPlayer(MasterState* state) {
 }
 
 static void playSound(MasterState* state, int folder, int track) {
-  LOG("play sound: folder=%d, track=%d", folder, track);
   player.playFolder(folder, track);
-  delay(500);
+  for (int idx = 0; idx < WAIT_FOR_BUSY_COUNT; idx++) {
+    delay(WAIT_FOR_BUSY_TIMEOUT);
+    if (checkPlayer(state)) {
+      break;
+    }
+  }
+
+  if (state->sound.moduleId) {
+    LOG("play sound for module=%d: folder=%d, track=%d", state->sound.moduleId, folder, track);
+    sendSoundResult(
+      state->sound.moduleId,
+      state->sound.requestId,
+      state->sound.requestContext,
+      RequestType::PLAY_SOUND,
+      checkPlayer(state) ? ResultCode::STARTED : ResultCode::FAILED);
+  }
 }
 
 static void stopSound(MasterState* state, ResultCode resultCode) {
@@ -108,6 +138,7 @@ static void stopSound(MasterState* state, ResultCode resultCode) {
 }
 
 static void sendSoundResult(int moduleId, long requestId, long requestContext, RequestType requestType, ResultCode resultCode) {
+  LOG("send result: module=%d, type=%d, context=%ld, code=%d", moduleId, requestType, requestContext, resultCode);
   MasterResult result;
   result.moduleId = moduleId;
   result.requestId = requestId;
@@ -119,44 +150,29 @@ static void sendSoundResult(int moduleId, long requestId, long requestContext, R
 
 static void updatePlayerVolume(MasterState* state) {
   bool updateVolume = false;
-  int currentClkState = digitalRead(VOLUME_CLK);
-  if (currentClkState != lastClkState && currentClkState == LOW) {
+  long position = volumeEncoder.read();
+
+  if (position != volumeEncoderPosition) {
     if (state->sound.mute) {
       state->sound.mute = false;
-      updateVolume = true;
-    }
-    if (digitalRead(VOLUME_DT) != currentClkState) {
-      if (state->sound.volume < 30) {
-        state->sound.volume++;
-        updateVolume = true;
-      }
     } else {
-      if (state->sound.volume > 0) {
-        state->sound.volume--;
-        updateVolume = true;
+      if (position > volumeEncoderPosition) {
+        state->sound.volume = min(state->sound.volume + 1, MAXIMUM_VOLUME);
+      } else {
+        state->sound.volume = max(state->sound.volume - 1, 0);
       }
     }
-  }
-  lastClkState = currentClkState;
+    updateVolume = true;
+    volumeEncoderPosition = position;
 
-  int currentSwState = digitalRead(VOLUME_SW);
-  if (currentSwState != lastSwState) {
-    lastDebounceTime = millis();
+  } else if (buttonPressed(VOLUME_SW)) {
+    LOG("volume button pressed");
+    state->sound.mute = !state->sound.mute;
+    updateVolume = true;
   }
-  if ((millis() - lastDebounceTime) > DEBOUNCE_DELAY && currentSwState == LOW) {
-    if (!state->sound.mute) {
-      state->sound.mute = true;
-      updateVolume = true;
-    } else {
-      state->sound.mute = false;
-      updateVolume = true;
-    }
-    while (digitalRead(VOLUME_SW) == LOW)
-      ;
-  }
-  lastSwState = currentSwState;
 
   if (updateVolume) {
+    LOG("set volume: mute=%d, volumne:%d", state->sound.mute, state->sound.volume);
     player.volume(state->sound.mute ? 0 : state->sound.volume);
   }
 }

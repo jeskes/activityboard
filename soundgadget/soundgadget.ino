@@ -15,6 +15,7 @@ int currentSound = -1;
 static void checkButtons();
 static void indicateBusy();
 static void receiveResult(MasterResult result);
+static void processPlaySoundResult(MasterResult result);
 
 void setup() {
   initActivityBoardLibrary(MODULE_ID, receiveResult);
@@ -41,14 +42,14 @@ static void checkButtons() {
     int pressed = buttonPressed(buttons[idx]);
     if (pressed) {
       if (currentSound != -1) {
-        LOG("stop sound");
+        LOG("stop sound: %d", currentSound);
         sendStopSoundRequest();
         currentSound = -1;
       } else {
         currentSound = idx;
         LOG("start sound: %d", idx);
-        sendPlaySoundRequest(SOUND_FOLDER, idx+1, idx);
         blink(indicators, countIndicators, 5, 50);
+        sendPlaySoundRequest(SOUND_FOLDER, idx + 1, idx);
       }
       break;
     }
@@ -64,8 +65,23 @@ static void indicateBusy() {
 
 static void receiveResult(MasterResult result) {
   if (result.requestType == RequestType::PLAY_SOUND) {
-    LOG("sound ended code=%d", result.resultCode);
-    digitalWrite(result.requestContext, LOW);
-    currentSound = -1;
+    processPlaySoundResult(result);
+  }
+}
+
+static void processPlaySoundResult(MasterResult result) {
+  LOG("process play-sound result: code=%d, context=%d", result.resultCode, result.requestContext);
+  switch (result.resultCode) {
+    case ResultCode::SUCCESS:
+    case ResultCode::STOPPED:
+    case ResultCode::PAUSED:
+    case ResultCode::INTERRUPTED:
+    case ResultCode::FAILED:
+      currentSound = -1;
+      break;
+    case ResultCode::STARTED:
+    case ResultCode::RESUMED:
+      currentSound = result.requestContext;
+      break;
   }
 }
