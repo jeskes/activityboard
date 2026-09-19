@@ -8,31 +8,29 @@ typedef struct StackEntry {
   MasterRequest* request;
 };
 
-static StackEntry* stack = 0;
+static MasterRequest buffer;
 
 void pushRequest(MasterRequest request) {
-  LOG("push request, module: %d, type : %d", request.moduleId, request.requestType);
-  if (request.requestType != RequestType::UNKNOWN) {
-    StackEntry* entry = malloc(sizeof(StackEntry));
-    MasterRequest* copy = malloc(sizeof(MasterRequest));
-    memcpy(copy, &request, sizeof(MasterRequest));
-    entry->prev = stack;
-    entry->request = copy;
-    stack = entry;
+  // LOG("push request to stack [%d]: id=%ld, module=%d, type=%d, context=%ld, folder=%d, track=%d", countRequests(), request.id, request.module, request.type, request.data.playSound.folder, request.data.playSound.track);
+  if (request.type != RequestType::UNKNOWN) {
+    memcpy(&buffer, &request, sizeof(MasterRequest));
+    // LOG("request pushed to stack [%d]", countRequests());
   }
 }
 
-int isRequestAvailable() {
-  return stack ? 1 : 0;
+bool isRequestAvailable() {
+  return buffer.type != RequestType::UNKNOWN;
+}
+
+int countRequests() {
+  return isRequestAvailable() ? 1 : 0;
 }
 
 MasterRequest pullRequest() {
+  LOG("pull request from stack [%d]", countRequests());
   MasterRequest request;
-  memcpy(&request, stack->request, sizeof(MasterRequest));
-  // LOG("pulled request, module: %d, type : %d", request.moduleId, request.requestType);
-  StackEntry* prev = stack->prev;
-  free(stack->request);
-  free(stack);
-  stack = prev;
+  memcpy(&request, &buffer, sizeof(MasterRequest));
+  LOG("pulled request from stack [%d]: id=%ld, module=%d, type=%d, context=%ld, folder=%d, track=%d", countRequests(), request.id, request.module, request.type, request.data.playSound.folder, request.data.playSound.track);
+  buffer.type = RequestType::UNKNOWN;
   return request;
 }

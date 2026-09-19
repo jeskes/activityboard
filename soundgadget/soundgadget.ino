@@ -2,7 +2,7 @@
 #include <ablib.h>
 
 #define MODULE_ID 10
-#define SOUND_FOLDER 1
+#define SOUND_FOLDER 10
 
 const int buttons[] = { 4, 5, 6, 7 };
 const int countButtons = sizeof(buttons) / sizeof(int);
@@ -34,7 +34,6 @@ void setup() {
 void loop() {
   checkButtons();
   indicateBusy();
-  delay(100);
 }
 
 static void checkButtons() {

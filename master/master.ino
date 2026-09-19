@@ -9,7 +9,7 @@ static void processCycle();
 static void handleRequest();
 static void receiveRequest(MasterRequest request);
 
-static MasterState state;
+static volatile MasterState* state;
 
 static const Processor processors[] = {
   processSound,
@@ -23,8 +23,9 @@ static const RequestHandler requestHandlers[] = {
 static const int countRequestHandlers = sizeof(requestHandlers) / sizeof(RequestHandler);
 
 void setup() {
+  state = new MasterState;
   initActivityBoardLibrary(pushRequest);
-  initializeSound(&state);
+  initializeSound(state);
   LOG("Master Module started");
 }
 
@@ -32,21 +33,21 @@ void loop() {
   // LOG("run cycle");
   processCycle();
   handleRequest();
-  delay(50);
+  // delay(300);
 }
 
 static void processCycle() {
   for (int idx = 0; idx < countProcessors; idx++) {
-    processors[idx](&state);
+    processors[idx](state);
   }
 }
 
 static void handleRequest() {
   if (isRequestAvailable()) {
     MasterRequest request = pullRequest();
-    int idx = (int)request.requestType - 1;
+    int idx = (int)request.type - 1;
     if (idx >= 0 && idx < countRequestHandlers) {
-      requestHandlers[idx](&state, &request);
+      requestHandlers[idx](state, &request);
     }
   }
 }

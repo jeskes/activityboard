@@ -38,7 +38,7 @@ static void stopSound(MasterState* state, ResultCode code);
 static void updatePlayerVolume(MasterState* state);
 static void setSoundState(MasterState* state, MasterRequest* request);
 static void clearSoundState(MasterState* state);
-static void sendSoundResult(int moduleId, long requestId, long requestContext, RequestType requestType, ResultCode resultCode);
+static void sendSoundResult(long requestId, int module, RequestType requestType, long requestContext, ResultCode resultCode);
 
 void initializeSound(MasterState* state) {
   pinMode(PLAYER_BUSY, INPUT);
@@ -61,16 +61,16 @@ void processSound(MasterState* state) {
 }
 
 void handlePlaySoundRequest(MasterState* state, MasterRequest* request) {
-  LOG("play sound request : moduleId=%d, requestId=%d, folder=%d, track=%d", request->moduleId, request->requestId, request->data.playSound.folder, request->data.playSound.track);
+  LOG("play sound request : id=%ld, module=%d, folder=%d, track=%d", request->id, request->module, request->data.playSound.folder, request->data.playSound.track);
   stopSound(state, ResultCode::INTERRUPTED);
   setSoundState(state, request);
   playSound(state, request->data.playSound.folder, request->data.playSound.track);
 }
 
 void handleStopSoundRequest(MasterState* state, MasterRequest* request) {
-  LOG("stop sound request : requestId=%d", request->requestId);
+  LOG("stop sound request : requestId=%ld", request->id);
   stopSound(state, ResultCode::STOPPED);
-  sendSoundResult(request->moduleId, request->requestId, request->requestContext, RequestType::STOP_SOUND, ResultCode::SUCCESS);
+  sendSoundResult(request->id, request->module, RequestType::STOP_SOUND, request->context, ResultCode::SUCCESS);
 }
 
 static void initializePlayer(MasterState* state) {
@@ -104,47 +104,49 @@ static bool checkPlayer(MasterState* state) {
 }
 
 static void playSound(MasterState* state, int folder, int track) {
+  LOG("play folder: folder=%d, track=%d", folder, track);
   player.playFolder(folder, track);
   for (int idx = 0; idx < WAIT_FOR_BUSY_COUNT; idx++) {
+    LOG("wait for player to become busy: cycle=%d", idx);
     delay(WAIT_FOR_BUSY_TIMEOUT);
     if (checkPlayer(state)) {
       break;
     }
   }
 
-  if (state->sound.moduleId) {
-    LOG("play sound for module=%d: folder=%d, track=%d", state->sound.moduleId, folder, track);
+  if (state->sound.module) {
+    LOG("play sound for module=%d: folder=%d, track=%d", state->sound.module, folder, track);
     sendSoundResult(
-      state->sound.moduleId,
       state->sound.requestId,
-      state->sound.requestContext,
+      state->sound.module,
       RequestType::PLAY_SOUND,
+      state->sound.requestContext,
       checkPlayer(state) ? ResultCode::STARTED : ResultCode::FAILED);
   }
 }
 
 static void stopSound(MasterState* state, ResultCode resultCode) {
   player.stop();
-  if (state->sound.moduleId) {
-    LOG("stopped sound for module=%d", state->sound.moduleId);
+  if (state->sound.module) {
+    LOG("stopped sound for module=%d", state->sound.module);
     sendSoundResult(
-      state->sound.moduleId,
       state->sound.requestId,
-      state->sound.requestContext,
+      state->sound.module,
       RequestType::PLAY_SOUND,
+      state->sound.requestContext,
       resultCode);
     clearSoundState(state);
   }
 }
 
-static void sendSoundResult(int moduleId, long requestId, long requestContext, RequestType requestType, ResultCode resultCode) {
-  LOG("send result: module=%d, type=%d, context=%ld, code=%d", moduleId, requestType, requestContext, resultCode);
+static void sendSoundResult(long requestId, int module, RequestType requestType, long requestContext, ResultCode resultCode) {
+  LOG("send sound result: id=%ld, module=%d, type=%d, context=%ld, code=%d", requestId, module, requestType, requestContext, resultCode);
   MasterResult result;
-  result.moduleId = moduleId;
-  result.requestId = requestId;
-  result.requestContext = requestContext;
-  result.requestType = requestType;
-  result.resultCode = resultCode;
+  result.id = requestId;
+  result.module = module;
+  result.context = requestContext;
+  result.type = requestType;
+  result.code = resultCode;
   sendMasterResult(&result);
 }
 
@@ -178,14 +180,14 @@ static void updatePlayerVolume(MasterState* state) {
 }
 
 static void setSoundState(MasterState* state, MasterRequest* request) {
-  state->sound.moduleId = request->moduleId;
-  state->sound.requestId = request->requestId;
-  state->sound.requestContext = request->requestContext;
+  state->sound.module = request->module;
+  state->sound.requestId = request->id;
+  state->sound.requestContext = request->context;
   state->sound.started = millis();
 }
 
 static void clearSoundState(MasterState* state) {
-  state->sound.moduleId = 0;
+  state->sound.module = 0;
   state->sound.requestId = 0;
   state->sound.requestContext = 0;
   state->sound.started = 0;

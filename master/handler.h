@@ -7,7 +7,7 @@ struct MasterState {
   struct {
     bool mute;
     int volume;
-    int moduleId;
+    int module;
     int requestId;
     long requestContext;
     long started;

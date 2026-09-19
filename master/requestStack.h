@@ -4,7 +4,8 @@
 #include <ablib.h>
 
 void pushRequest(MasterRequest request);
-int isRequestAvailable();
+bool isRequestAvailable();
+int countRequests();
 MasterRequest pullRequest();
 
 #endif
