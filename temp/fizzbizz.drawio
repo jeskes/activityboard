@@ -4,6 +4,72 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Bus Module" vertex="1">
+          <mxGeometry height="100" width="120" x="350" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Sound Module&lt;br&gt;0x10" vertex="1">
+          <mxGeometry height="60" width="120" x="130" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Display Module&lt;br&gt;0x11" vertex="1">
+          <mxGeometry height="60" width="120" x="350" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Numpad Module&lt;br&gt;0x12" vertex="1">
+          <mxGeometry height="60" width="120" x="570" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-5" edge="1" parent="1" source="GRXTktbQCoUpwFwh7S4j-1" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.25;exitY=0;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" target="GRXTktbQCoUpwFwh7S4j-2" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="390" y="330" as="sourcePoint" />
+            <mxPoint x="440" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-6" edge="1" parent="1" source="GRXTktbQCoUpwFwh7S4j-1" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="GRXTktbQCoUpwFwh7S4j-3" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="390" y="330" as="sourcePoint" />
+            <mxPoint x="440" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-7" edge="1" parent="1" source="GRXTktbQCoUpwFwh7S4j-1" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.75;exitY=0;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" target="GRXTktbQCoUpwFwh7S4j-4" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="390" y="330" as="sourcePoint" />
+            <mxPoint x="440" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Power Supply" vertex="1">
+          <mxGeometry height="60" width="120" x="80" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-9" edge="1" parent="1" source="GRXTktbQCoUpwFwh7S4j-1" style="endArrow=none;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="GRXTktbQCoUpwFwh7S4j-8" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="390" y="330" as="sourcePoint" />
+            <mxPoint x="440" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Lingo Bingo&lt;br&gt;Gadget 0x21" vertex="1">
+          <mxGeometry height="60" width="120" x="350" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-11" edge="1" parent="1" source="GRXTktbQCoUpwFwh7S4j-1" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="GRXTktbQCoUpwFwh7S4j-10" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="390" y="320" as="sourcePoint" />
+            <mxPoint x="440" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-12" edge="1" parent="1" source="GRXTktbQCoUpwFwh7S4j-1" style="endArrow=none;html=1;rounded=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0;exitY=0.75;exitDx=0;exitDy=0;" target="GRXTktbQCoUpwFwh7S4j-1" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="380" y="355" as="sourcePoint" />
+            <mxPoint x="440" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Sing Song&lt;br&gt;Module 0x20" vertex="1">
+          <mxGeometry height="60" width="120" x="200" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-15" edge="1" parent="1" source="GRXTktbQCoUpwFwh7S4j-14" style="endArrow=none;html=1;rounded=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;edgeStyle=orthogonalEdgeStyle;" target="GRXTktbQCoUpwFwh7S4j-1" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="390" y="320" as="sourcePoint" />
+            <mxPoint x="440" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GRXTktbQCoUpwFwh7S4j-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Pong Game&lt;br&gt;Module 0x22" vertex="1">
+          <mxGeometry height="60" width="120" x="500" y="460" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
