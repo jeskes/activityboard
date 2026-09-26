@@ -98,6 +98,7 @@ bool SoundService::checkPlayer() {
 
 void SoundService::play(int folder, int track) {
   LOG("play folder: folder=%d, track=%d", folder, track);
+  playerState = PlayerState::PLAYING;
   player.playFolder(folder, track);
   awaitPlayerBusy(true);
 }
