@@ -23,7 +23,8 @@
 const int indicators[] = {2, 3, 4, 5, 6, 7};
 const int countIndicators = sizeof(indicators) / sizeof(int);
 
-DiceGadget::DiceGadget() : sound(&this->scheduler) {}
+DiceGadget::DiceGadget() : sound(&this->scheduler) {
+}
 
 void DiceGadget::setup() {
   GadgetBase::setup();
@@ -103,6 +104,7 @@ void DiceGadget::showIndicators() {
 }
 
 bool DiceGadget::playerStateChanged(PlayerState playerState) {
+  // LOG("dice-status=%d, player-state=%d", status, playerState);
   if (playerState == PlayerState::IDLE) {
     switch (status) {
       case Status::JINGLE_SOUND_PLAYING:
