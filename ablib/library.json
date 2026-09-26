@@ -1,0 +1,21 @@
+{
+	"name": "ActivityBoard",
+	"version": "1.0.0",
+	"description": "Central Library for Activity Boards.",
+	"keywords": "activity",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com"
+	},
+	"authors": [
+		{
+			"name": "Sigi Jeske",
+			"email": "sigi@tecsi.de"
+		}
+	],
+	"frameworks": "arduino",
+	"platforms": "*",
+	"dependencies": {
+		"arkhipenko/TaskScheduler": "^4.0.8"
+	}
+}

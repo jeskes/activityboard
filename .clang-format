@@ -1,0 +1,13 @@
+Language: Cpp
+BasedOnStyle: Google
+PointerAlignment: Left
+ColumnLimit: 200
+AllowShortEnumsOnASingleLine: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterControlStatement: Never
+  BeforeElse: true
+AllowShortBlocksOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortLoopsOnASingleLine: false
