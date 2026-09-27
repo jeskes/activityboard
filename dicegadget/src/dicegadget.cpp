@@ -17,8 +17,10 @@
 #define START_BUTTON 10
 #define BUZZER 12
 
-#define AUTORESET_TIMEOUT 30000
 #define INDICATING_TIMEOUT 1000
+#define JINGLE_PLAYING_TIMEOUT 12000
+#define NUMBER_PLAYING_TIMEOUT 15000
+#define AUTORESET_TIMEOUT 20000
 
 const int indicators[] = {2, 3, 4, 5, 6, 7};
 const int countIndicators = sizeof(indicators) / sizeof(int);
@@ -28,6 +30,8 @@ DiceGadget::DiceGadget() : sound(&this->scheduler) {
 
 void DiceGadget::setup() {
   GadgetBase::setup();
+
+  numpad.setup();
 
   randomSeed(analogRead(NOISE_PIN));
   pinMode(START_BUTTON, INPUT_PULLUP);
@@ -53,13 +57,24 @@ void DiceGadget::stateMachine() {
     noTone(BUZZER);
   }
 
+  char num = numpad.getChar();
+  if (num) {
+    if (status == Status::IDLE) {
+      currentGuess = num - '0';
+    }
+    else {
+      tone(BUZZER, 150);
+      delay(200);
+      noTone(BUZZER);
+    }
+  }
+
   switch (status) {
     case Status::IDLE:
-      if (pressed) {
+      if (pressed || currentGuess) {
         startTime = millis();
         currentNumber = random(1, countIndicators + 1);
         currentLanguage = random(0, LANGUAGES_COUNT);
-        LOG("current number: %d, language: %d", currentNumber, currentLanguage);
         status = Status::JINGLE_SOUND_PLAYING;
         int jingle = 100 + random(1, JINGLES_COUNT + 1);
         sound.play(SOUND_FOLDER, jingle, this);
@@ -75,13 +90,26 @@ void DiceGadget::stateMachine() {
     case Status::NUMBER_SOUND_ENDED:
       status = Status::NUMBER_INDICATING;
       startTimeIndicator = millis();
+      if (currentGuess) {
+        sound.play(SOUND_FOLDER, 200 + (currentGuess == currentNumber ? 1 : 2), nullptr);
+      }
       break;
     case Status::NUMBER_INDICATING:
       if (millis() > startTimeIndicator + INDICATING_TIMEOUT) {
         reset();
       }
+    default:
+      break;
   }
 
+  if ((status == Status::JINGLE_SOUND_PLAYING) && (millis() > startTime + JINGLE_PLAYING_TIMEOUT)) {
+    LOG("jingle-playing-reset");
+    status = Status::JINGLE_SOUND_ENDED;
+  }
+  if ((status == Status::NUMBER_SOUND_PLAYING) && (millis() > startTime + NUMBER_PLAYING_TIMEOUT)) {
+    LOG("number-playing-reset");
+    status = Status::NUMBER_SOUND_ENDED;
+  }
   if ((status != Status::IDLE) && (millis() > startTime + AUTORESET_TIMEOUT)) {
     LOG("auto-reset");
     reset();
@@ -90,10 +118,12 @@ void DiceGadget::stateMachine() {
 
 void DiceGadget::reset() {
   status = Status::IDLE;
+  currentGuess = 0;
   currentNumber = 0;
   currentLanguage = 0;
   startTime = 0;
   startTimeIndicator = 0;
+  sound.setStatusHandler(nullptr);
 }
 
 void DiceGadget::showIndicators() {
@@ -113,6 +143,8 @@ bool DiceGadget::playerStateChanged(PlayerState playerState) {
       case Status::NUMBER_SOUND_PLAYING:
         status = Status::NUMBER_SOUND_ENDED;
         return true;
+      default:
+        break;
     }
   }
   return false;

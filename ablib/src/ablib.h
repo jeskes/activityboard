@@ -2,12 +2,13 @@
 #define _AB_LIB
 
 #include <Arduino.h>
+#include <I2CKeyPad.h>
 #include <TaskSchedulerDeclarations.h>
 
 /* constants */
 
 #define SOUND_MODULE_ID 0x10
-#define NUMPAD_MODULE_ID 0x11
+#define NUMPAD_MODULE_ID 0x20
 #define DISPLAY_MODULE_ID 0x12
 
 #define WIRE_CLOCK 50000
@@ -150,6 +151,21 @@ struct __attribute__((packed)) SoundStatus : public BaseStatus {
   SoundStatus() : BaseStatus(StatusType::SOUND_STATUS) {
   }
   PlayerState playerState;
+};
+
+/* numpad api */
+
+class ActivityNumpadClient {
+ private:
+  I2CKeyPad keyPad;
+
+ public:
+  ActivityNumpadClient();
+  
+  void setup();
+  
+  char getChar();
+  int readString(char* buffer, int length, int timeout = -1, char until = '#');
 };
 
 /* gadget base */

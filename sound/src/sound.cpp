@@ -21,22 +21,19 @@
 
 static long volumeEncoderPosition = -999;
 
-PeriphericalService* PeriphericalService::instance = nullptr;
-
 // pins at arduino correspond to pins at player, RX must be protected by 1k resistence
 // KY-040 Rotary Encoder
 
-SoundService::SoundService() : playerSerial(PLAYER_RX, PLAYER_TX), volumeEncoder(VOLUME_DT, VOLUME_CLK) {
+SoundService::SoundService() : pendingVolume(INITIAL_VOLUME), volumeEncoder(VOLUME_DT, VOLUME_CLK), playerSerial(PLAYER_RX, PLAYER_TX) {
 }
 
 void SoundService::setup() {
   PeriphericalService::setup(SOUND_MODULE_ID);
   pinMode(PLAYER_BUSY, INPUT);
-  pinMode(PLAYER_LED, OUTPUT);
-  pinMode(VOLUME_CLK, INPUT);
-  pinMode(VOLUME_DT, INPUT);
+  pinMode(VOLUME_CLK, INPUT_PULLUP);
+  pinMode(VOLUME_DT, INPUT_PULLUP);
   pinMode(VOLUME_SW, INPUT_PULLUP);
-  volume = INITIAL_VOLUME;
+  pinMode(PLAYER_LED, OUTPUT);
   setupPlayer();
 }
 
@@ -44,17 +41,19 @@ void SoundService::loop() {
   PeriphericalService::loop();
   playerState = checkPlayer() ? PlayerState::PLAYING : PlayerState::IDLE;
   digitalWrite(PLAYER_LED, playerState == PlayerState::PLAYING ? HIGH : LOW);
+  readPlayerVolume();
   updatePlayerVolume();
 }
 
 void SoundService::processRequest(BaseRequest* request) {
   switch (request->type) {
     case RequestType::SOUND_PLAY:
-      PlaySoundRequest* playRequest = (PlaySoundRequest*)request;
-      play(playRequest->folder, playRequest->track);
+      play(((PlaySoundRequest*)request)->folder, ((PlaySoundRequest*)request)->track);
       break;
     case RequestType::SOUND_STOP:
       stop();
+      break;
+    default:
       break;
   }
 }
@@ -62,6 +61,7 @@ void SoundService::processRequest(BaseRequest* request) {
 void SoundService::publishStatus() {
   SoundStatus status;
   status.playerState = playerState;
+  // LOG("publish status");
   sendStatus(&status, sizeof(SoundStatus));
 }
 
@@ -80,7 +80,7 @@ void SoundService::setupPlayer() {
   player.disableLoop();
 
   LOG("try set volume...");
-  player.volume(volume);
+  player.volume(pendingVolume);
 
   LOG("try read volume...");
   int volume = player.readVolume();
@@ -108,34 +108,41 @@ void SoundService::stop() {
   awaitPlayerBusy(false);
 }
 
-void SoundService::updatePlayerVolume() {
-  bool updateVolume = false;
+void SoundService::readPlayerVolume() {
   long position = volumeEncoder.read();
-
   if (position != volumeEncoderPosition) {
-    if (mute) {
-      mute = false;
+    if (currentMute) {
+      pendingMute = false;
     }
     else {
       if (position > volumeEncoderPosition) {
-        volume = min(volume + 1, MAXIMUM_VOLUME);
+        pendingVolume = min(currentVolume + 1, MAXIMUM_VOLUME);
       }
       else {
-        volume = max(volume - 1, 0);
+        pendingVolume = max(currentVolume - 1, 0);
       }
     }
-    updateVolume = true;
     volumeEncoderPosition = position;
   }
   else if (activityControls.buttonPressed(VOLUME_SW)) {
     LOG("volume button pressed");
-    mute = !mute;
-    updateVolume = true;
+    pendingMute = !currentMute;
   }
+}
 
-  if (updateVolume) {
-    LOG("set volume: mute=%d, volumne:%d", mute, volume);
-    player.volume(mute ? 0 : volume);
+static unsigned long volumeUpdateRate = 200;
+static unsigned long lastVolumeUpdate = 0;
+
+void SoundService::updatePlayerVolume() {
+  if (millis() > lastVolumeUpdate + volumeUpdateRate) {
+    lastVolumeUpdate = millis();
+    // LOG("mute [%d,%d], volume [%d,%d]", currentMute, pendingMute, currentVolume, pendingVolume);
+    if (pendingMute != currentMute || pendingVolume != currentVolume) {
+      currentMute = pendingMute;
+      currentVolume = pendingVolume;
+      LOG(" set volume mute=%d, volume=%d", currentMute, currentVolume);
+      player.volume(currentMute ? 0 : currentVolume);
+    }
   }
 }
 
@@ -143,7 +150,7 @@ void SoundService::awaitPlayerBusy(bool busy) {
   for (int idx = 0; idx < WAIT_FOR_BUSY_COUNT; idx++) {
     bool playing = checkPlayer();
     // LOG("await player to become busy: required=%d, current=%d, cycle=%d", busy, playing, idx);
-    if (busy && playing || !busy && !playing) {
+    if ((busy && playing) || (!busy && !playing)) {
       break;
     }
     // LOG("wait for player: cycle=%d", busy, idx);

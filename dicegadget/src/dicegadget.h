@@ -13,6 +13,7 @@ class DiceGadget : public GadgetBase, public SoundStatusHandler {
 
  private:
   ActivitySoundClient sound;
+  ActivityNumpadClient numpad;
 
   void stateMachine();
   void showIndicators();
@@ -29,10 +30,11 @@ class DiceGadget : public GadgetBase, public SoundStatusHandler {
 
   Status status = Status::IDLE;
 
+  int currentGuess = 0;
   int currentNumber = 0;
   int currentLanguage = 0;
-  long startTime = 0;
-  long startTimeIndicator = 0;
+  unsigned long startTime = 0;
+  unsigned long startTimeIndicator = 0;
 };
 
 #endif

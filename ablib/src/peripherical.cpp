@@ -17,7 +17,7 @@ bool PeriphericalClient::requestStatus(int module, BaseStatus* status, int lengt
   int received = Wire.requestFrom(module, length);
   if (received == length) {
     uint8_t* buffer = (uint8_t*)status;
-    for (size_t idx = 0; idx < length; idx++) {
+    for (int idx = 0; idx < length; idx++) {
       buffer[idx] = Wire.read();
     }
     return true;
@@ -32,6 +32,8 @@ bool PeriphericalClient::requestStatus(int module, BaseStatus* status, int lengt
 
 /* peripherical service */
 
+PeriphericalService* PeriphericalService::instance = nullptr;
+
 PeriphericalService::PeriphericalService() {
   PeriphericalService::instance = this;
 }
@@ -45,8 +47,10 @@ void PeriphericalService::setup(int module) {
 
 void PeriphericalService::loop() {
   if (currentRequest) {
-    processRequest(currentRequest);
+	byte buffer[REQUEST_BUFFER_SIZE];
+	memcpy( buffer, currentRequest, REQUEST_BUFFER_SIZE);
     currentRequest = nullptr;
+    processRequest((BaseRequest*)buffer);
   }
 }
 
@@ -54,11 +58,12 @@ void PeriphericalService::readRequest(int length) {
   byte* p = (byte*)&requestBuffer;
   memset(p, 0, REQUEST_BUFFER_SIZE);
 
-  for (unsigned int i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) {
     *p++ = Wire.read();
   }
-  currentRequest = (BaseRequest*)&requestBuffer;
+  currentRequest = (BaseRequest*)requestBuffer;
 }
+
 bool PeriphericalService::sendStatus(BaseStatus* status, int length) {
   Wire.write((uint8_t*)status, length);
   return true;

@@ -10,8 +10,12 @@ class SoundService : public PeriphericalService {
  public:
   SoundService();
 
-  bool mute;
-  int volume;
+  bool currentMute = false;
+  bool pendingMute = false;
+
+  int currentVolume;
+  int pendingVolume;
+
   PlayerState playerState;
 
   virtual void setup();
@@ -24,12 +28,13 @@ class SoundService : public PeriphericalService {
   void stop();
 
  private:
-  DFRobotDFPlayerMini player;
   Encoder volumeEncoder;
+  DFRobotDFPlayerMini player;
   SoftwareSerial playerSerial;
 
   void setupPlayer();
   bool checkPlayer();
+  void readPlayerVolume();
   void updatePlayerVolume();
   void awaitPlayerBusy(bool busy);
 };
