@@ -9,7 +9,9 @@ void ActivityBoard::init() {
   Wire.begin();
   Wire.setClock(WIRE_CLOCK);
   Wire.setTimeout(WIRE_TIMEOUT);
-  LOG("Wire initialized.");
+  LOG("Wire initialized for gadget.");
+  pinMode(LED_BUILTIN, OUTPUT);
+  activityControls.blink(LED_BUILTIN, 10, 100);
 }
 
 void ActivityBoard::init(int module) {
@@ -18,4 +20,6 @@ void ActivityBoard::init(int module) {
   Wire.setClock(WIRE_CLOCK);
   Wire.setTimeout(WIRE_TIMEOUT);
   LOG("Wire initialized for peripherical  %d.", module);
+  pinMode(LED_BUILTIN, OUTPUT);
+  activityControls.blink(LED_BUILTIN, 10, 100);
 }
