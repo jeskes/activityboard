@@ -24,7 +24,11 @@ static long volumeEncoderPosition = -999;
 // pins at arduino correspond to pins at player, RX must be protected by 1k resistence
 // KY-040 Rotary Encoder
 
-SoundService::SoundService() : pendingVolume(INITIAL_VOLUME), volumeEncoder(VOLUME_DT, VOLUME_CLK), playerSerial(PLAYER_RX, PLAYER_TX) {
+SoundService::SoundService()
+    : currentVolume(INITIAL_VOLUME),
+      pendingVolume(INITIAL_VOLUME),
+      volumeEncoder(VOLUME_DT, VOLUME_CLK),
+      playerSerial(PLAYER_RX, PLAYER_TX) {
 }
 
 void SoundService::setup() {
@@ -73,21 +77,15 @@ void SoundService::setupPlayer() {
     activityControls.blink(PLAYER_LED, 50, 50);
   }
   else {
-    LOG("Player online.");
     activityControls.blink(PLAYER_LED, 4, 250);
   }
-  LOG("try disable loop...");
   player.disableLoop();
-
-  LOG("try set volume...");
   player.volume(pendingVolume);
-
-  LOG("try read volume...");
-  int volume = player.readVolume();
-  LOG("volume : %d", volume);
   // player.setTimeOut(100);
   // player.EQ(DFPLAYER_EQ_NORMAL);
   // player.outputDevice(DFPLAYER_DEVICE_SD);
+
+  play(10, 100);
 }
 
 bool SoundService::checkPlayer() {
