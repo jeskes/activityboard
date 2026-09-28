@@ -11,3 +11,4 @@ AllowShortBlocksOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: None
 AllowShortLoopsOnASingleLine: false
+PackConstructorInitializers: Never
