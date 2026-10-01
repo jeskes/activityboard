@@ -14,6 +14,7 @@ class DiceGadget : public GadgetBase, public SoundStatusHandler {
  private:
   ActivitySoundClient sound;
   ActivityNumpadClient numpad;
+  ActivityDisplayClient display;
 
   void stateMachine();
   void showIndicators();

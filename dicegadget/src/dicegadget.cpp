@@ -3,7 +3,9 @@
 #include <Wire.h>
 #include <ablib.h>
 
-#define SOUND_FOLDER 11
+#define DICEGADGET_FOLDER 11
+
+#define MESSAGE_STARTED 1
 
 /* languages: 00x english, 01x bavarian, 02x russian, 03x german */
 #define LANGUAGES_COUNT 4
@@ -22,15 +24,18 @@
 #define NUMBER_PLAYING_TIMEOUT 15000
 #define AUTORESET_TIMEOUT 20000
 
-const int indicators[] = {2, 3, 4, 5, 6, 7};
-const int countIndicators = sizeof(indicators) / sizeof(int);
+const uint8_t indicators[] = {2, 3, 4, 5, 6, 7};
+const uint8_t countIndicators = sizeof(indicators) / sizeof(uint8_t);
 
-DiceGadget::DiceGadget() : sound(&this->scheduler) {
+DiceGadget::DiceGadget()
+    : sound(&this->scheduler) {
 }
 
 void DiceGadget::setup() {
   GadgetBase::setup();
 
+  sound.setup(DICEGADGET_FOLDER);
+  display.setup(DICEGADGET_FOLDER);
   numpad.setup();
 
   randomSeed(analogRead(NOISE_PIN));
@@ -60,7 +65,10 @@ void DiceGadget::stateMachine() {
   char num = numpad.getChar();
   if (num) {
     if (status == Status::IDLE) {
-      currentGuess = num - '0';
+      int d = num - (int)'0';
+      if (d >= 1 && d <= 6) {
+        currentGuess = d;
+      }
     }
     else {
       tone(BUZZER, 150);
@@ -76,8 +84,9 @@ void DiceGadget::stateMachine() {
         currentNumber = random(1, countIndicators + 1);
         currentLanguage = random(0, LANGUAGES_COUNT);
         status = Status::JINGLE_SOUND_PLAYING;
-        int jingle = 100 + random(1, JINGLES_COUNT + 1);
-        sound.play(SOUND_FOLDER, jingle, this);
+        uint16_t jingle = 100 + random(1, JINGLES_COUNT + 1);
+        sound.play(jingle, this);
+        display.displayMessage(MESSAGE_STARTED);
       }
       break;
     case Status::JINGLE_SOUND_PLAYING:
@@ -85,13 +94,14 @@ void DiceGadget::stateMachine() {
       break;
     case Status::JINGLE_SOUND_ENDED:
       status = Status::NUMBER_SOUND_PLAYING;
-      sound.play(SOUND_FOLDER, 10 * currentLanguage + currentNumber, this);
+      sound.play(10 * currentLanguage + currentNumber, this);
       break;
     case Status::NUMBER_SOUND_ENDED:
       status = Status::NUMBER_INDICATING;
       startTimeIndicator = millis();
+      LOG("current number: %d, current guess: %d", currentNumber, currentGuess);
       if (currentGuess) {
-        sound.play(SOUND_FOLDER, 200 + (currentGuess == currentNumber ? 1 : 2), nullptr);
+        sound.play(200 + (currentGuess == currentNumber ? 1 : 2), nullptr);
       }
       break;
     case Status::NUMBER_INDICATING:

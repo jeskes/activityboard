@@ -7,11 +7,11 @@
 SoundService soundService;
 
 void setup() {
-  soundService.setup();
+  soundService.setup(SOUND_MODULE_ID);
   LOG("Sound Module started.");
 }
 
 void loop() {
-	soundService.loop();
+  soundService.loop();
   // delay(300);
 }

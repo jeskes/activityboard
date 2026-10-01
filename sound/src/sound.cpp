@@ -19,6 +19,9 @@
 #define WAIT_FOR_BUSY_COUNT 5
 #define WAIT_FOR_BUSY_TIMEOUT 300
 
+#define INITIAL_FOLDER_ID 10
+#define STARTUP_TRACK_ID 100
+
 static long volumeEncoderPosition = -999;
 
 // pins at arduino correspond to pins at player, RX must be protected by 1k resistence
@@ -27,12 +30,13 @@ static long volumeEncoderPosition = -999;
 SoundService::SoundService()
     : currentVolume(INITIAL_VOLUME),
       pendingVolume(INITIAL_VOLUME),
+      folderId(INITIAL_FOLDER_ID),
       volumeEncoder(VOLUME_DT, VOLUME_CLK),
       playerSerial(PLAYER_RX, PLAYER_TX) {
 }
 
-void SoundService::setup() {
-  PeriphericalService::setup(SOUND_MODULE_ID);
+void SoundService::setup(uint8_t module) {
+  PeriphericalService::setup(module);
   pinMode(PLAYER_BUSY, INPUT);
   pinMode(VOLUME_CLK, INPUT_PULLUP);
   pinMode(VOLUME_DT, INPUT_PULLUP);
@@ -51,8 +55,11 @@ void SoundService::loop() {
 
 void SoundService::processRequest(BaseRequest* request) {
   switch (request->type) {
+    case RequestType::SOUND_SETUP:
+      clientSetup(((SetupSoundRequest*)request)->folderId);
+      break;
     case RequestType::SOUND_PLAY:
-      play(((PlaySoundRequest*)request)->folder, ((PlaySoundRequest*)request)->track);
+      play(((PlaySoundRequest*)request)->trackId);
       break;
     case RequestType::SOUND_STOP:
       stop();
@@ -85,7 +92,7 @@ void SoundService::setupPlayer() {
   // player.EQ(DFPLAYER_EQ_NORMAL);
   // player.outputDevice(DFPLAYER_DEVICE_SD);
 
-  play(10, 100);
+  play(STARTUP_TRACK_ID);
 }
 
 bool SoundService::checkPlayer() {
@@ -94,10 +101,16 @@ bool SoundService::checkPlayer() {
   return playing;
 }
 
-void SoundService::play(int folder, int track) {
-  LOG("play folder: folder=%d, track=%d", folder, track);
+void SoundService::clientSetup(uint16_t folderId) {
+  LOG("client setup sound: folder=%d", folderId);
+  this->folderId = folderId;
+  playerState = PlayerState::IDLE;
+}
+
+void SoundService::play(uint16_t trackId) {
+  LOG("play sound: track=%d", trackId);
   playerState = PlayerState::PLAYING;
-  player.playFolder(folder, track);
+  player.playFolder(folderId, trackId);
   awaitPlayerBusy(true);
 }
 

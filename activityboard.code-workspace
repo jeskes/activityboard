@@ -8,6 +8,10 @@
 		},
 		{
 			"path": "sound"
+		},
+		{
+			"name": "display",
+			"path": "display"
 		}
 	],
 	"settings": {}

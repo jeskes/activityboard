@@ -10,12 +10,21 @@ static SoundStatusHandler* statusHandler = nullptr;
 static PlayerState lastPlayerState = PlayerState::UNKNOWN;
 static Task statusPollingTask(POLLING_TIMEOUT, TASK_FOREVER, &pollSoundStatus);
 
-ActivitySoundClient::ActivitySoundClient(Scheduler* scheduler) { scheduler->addTask(statusPollingTask); }
+ActivitySoundClient::ActivitySoundClient(Scheduler* scheduler) {
+  scheduler->addTask(statusPollingTask);
+}
 
-void ActivitySoundClient::play(int folder, int track, SoundStatusHandler* handler) {
-  LOG("send play sound request : folder=%d, track=%d.", folder, track);
+void ActivitySoundClient::setup(uint16_t folderId) {
+  LOG("setuip sound module : folder=%d.", folderId);
+  SetupSoundRequest request(folderId);
+  sendRequest(SOUND_MODULE_ID, &request, sizeof(SetupSoundRequest));
+}
+
+void ActivitySoundClient::play(uint16_t trackId, SoundStatusHandler* handler) {
+  LOG("send play sound request : track=%d.", trackId);
   setStatusHandler(handler);
-  PlaySoundRequest request(folder, track);
+
+  PlaySoundRequest request(trackId);
   sendRequest(SOUND_MODULE_ID, &request, sizeof(PlaySoundRequest));
 }
 
@@ -40,6 +49,7 @@ static void pollSoundStatus() {
   if (statusHandler) {
     SoundStatus status;
     PeriphericalClient::requestStatus(SOUND_MODULE_ID, &status, sizeof(SoundStatus));
+
     if (lastPlayerState != status.playerState) {
       lastPlayerState = status.playerState;
       bool cancelHandler = statusHandler->playerStateChanged(lastPlayerState);

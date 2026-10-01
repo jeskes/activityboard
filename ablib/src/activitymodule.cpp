@@ -1,7 +1,7 @@
 #include "ablib.h"
 
 void GadgetBase::setup() {
-  activityBoard.init();
+  activityBoard.setup();
   LOG("activity boad initialized");
 }
 

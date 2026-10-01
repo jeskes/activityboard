@@ -18,16 +18,18 @@ class SoundService : public PeriphericalService {
 
   PlayerState playerState;
 
-  virtual void setup();
-  virtual void loop();
+  void setup(uint8_t module) override;
+  void loop() override;
 
-  virtual void processRequest(BaseRequest* request);
-  virtual void publishStatus();
+  void processRequest(BaseRequest* request) override;
+  void publishStatus() override;
 
-  void play(int folder, int track);
+  void clientSetup(uint16_t folderId);
+  void play(uint16_t trackId);
   void stop();
 
  private:
+  uint16_t folderId;
   Encoder volumeEncoder;
   DFRobotDFPlayerMini player;
   SoftwareSerial playerSerial;
