@@ -19,7 +19,7 @@
 #define WAIT_FOR_BUSY_COUNT 5
 #define WAIT_FOR_BUSY_TIMEOUT 300
 
-#define INITIAL_FOLDER_ID 10
+#define INITIAL_CLIENT_ID 10
 #define STARTUP_TRACK_ID 100
 
 static long volumeEncoderPosition = -999;
@@ -30,7 +30,7 @@ static long volumeEncoderPosition = -999;
 SoundService::SoundService()
     : currentVolume(INITIAL_VOLUME),
       pendingVolume(INITIAL_VOLUME),
-      folderId(INITIAL_FOLDER_ID),
+      clientId(INITIAL_CLIENT_ID),
       volumeEncoder(VOLUME_DT, VOLUME_CLK),
       playerSerial(PLAYER_RX, PLAYER_TX) {
 }
@@ -55,8 +55,8 @@ void SoundService::loop() {
 
 void SoundService::processRequest(BaseRequest* request) {
   switch (request->type) {
-    case RequestType::SOUND_SETUP:
-      clientSetup(((SetupSoundRequest*)request)->folderId);
+    case RequestType::SOUND_INIT:
+      init(((InitSoundRequest*)request)->clientId);
       break;
     case RequestType::SOUND_PLAY:
       play(((PlaySoundRequest*)request)->trackId);
@@ -101,16 +101,16 @@ bool SoundService::checkPlayer() {
   return playing;
 }
 
-void SoundService::clientSetup(uint16_t folderId) {
-  LOG("client setup sound: folder=%d", folderId);
-  this->folderId = folderId;
+void SoundService::init(uint16_t clientId) {
+  LOG("init sound: client=%d", clientId);
+  this->clientId = clientId;
   playerState = PlayerState::IDLE;
 }
 
 void SoundService::play(uint16_t trackId) {
   LOG("play sound: track=%d", trackId);
   playerState = PlayerState::PLAYING;
-  player.playFolder(folderId, trackId);
+  player.playFolder(clientId, trackId);
   awaitPlayerBusy(true);
 }
 

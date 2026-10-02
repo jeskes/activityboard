@@ -8,7 +8,8 @@ ActivityNumpadClient::ActivityNumpadClient()
     : keyPad(NUMPAD_MODULE_ID) {
 }
 
-void ActivityNumpadClient::setup() {
+void ActivityNumpadClient::init(uint16_t clientId) {
+  LOG("init numpad module : client=%d.", clientId);
   if (keyPad.begin() == false) {
     LOG("Error: numpad not found at address %d", NUMPAD_MODULE_ID);
   }

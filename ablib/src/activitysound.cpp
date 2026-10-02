@@ -14,10 +14,10 @@ ActivitySoundClient::ActivitySoundClient(Scheduler* scheduler) {
   scheduler->addTask(statusPollingTask);
 }
 
-void ActivitySoundClient::setup(uint16_t folderId) {
-  LOG("setuip sound module : folder=%d.", folderId);
-  SetupSoundRequest request(folderId);
-  sendRequest(SOUND_MODULE_ID, &request, sizeof(SetupSoundRequest));
+void ActivitySoundClient::init(uint16_t clientId) {
+  LOG("init sound module : client=%d.", clientId);
+  InitSoundRequest request(clientId);
+  sendRequest(SOUND_MODULE_ID, &request, sizeof(InitSoundRequest));
 }
 
 void ActivitySoundClient::play(uint16_t trackId, SoundStatusHandler* handler) {

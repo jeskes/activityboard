@@ -21,6 +21,7 @@
 #define LED_BUILTIN 14
 #endif
 
+#define ID_BUFFER_SIZE 16
 #define PRINT_BUFFER_SIZE 128
 #define REQUEST_BUFFER_SIZE 32
 
@@ -65,13 +66,14 @@ extern ActivityControls activityControls;
 
 enum class RequestType : uint16_t {
   UNKNOWN = 0,
-  SOUND_SETUP = 0x1000,
+  SOUND_INIT = 0x1000,
   SOUND_PLAY = 0x1001,
   SOUND_STOP = 0x1002,
-  DISPLAY_SETUP = 0x2000,
+  DISPLAY_INIT = 0x2000,
   DISPLAY_CLEAR = 0x2001,
-  DISPLAY_MESSAGE = 0x2002,
-  DISPLAY_BITMAP = 0x2003
+  DISPLAY_PARAMETER = 0x2002,
+  DISPLAY_MESSAGE = 0x2003,
+  DISPLAY_BITMAP = 0x2004,
 };
 
 enum class StatusType : uint16_t {
@@ -127,12 +129,12 @@ enum class PlayerState : uint8_t {
   PLAYING = 2
 };
 
-struct __attribute__((packed)) SetupSoundRequest : public BaseRequest {
-  SetupSoundRequest(uint16_t id)
-      : BaseRequest(RequestType::SOUND_SETUP),
-        folderId(id) {
+struct __attribute__((packed)) InitSoundRequest : public BaseRequest {
+  InitSoundRequest(uint16_t id)
+      : BaseRequest(RequestType::SOUND_INIT),
+        clientId(id) {
   }
-  uint16_t folderId;
+  uint16_t clientId;
 };
 
 struct __attribute__((packed)) PlaySoundRequest : public BaseRequest {
@@ -157,7 +159,7 @@ class SoundStatusHandler {
 class ActivitySoundClient : public PeriphericalClient {
  public:
   ActivitySoundClient(Scheduler* scheduler);
-  void setup(uint16_t folderId);
+  void init(uint16_t clientId);
   void play(uint16_t trackId, SoundStatusHandler* statusHandler = nullptr);
   void stop();
   void setStatusHandler(SoundStatusHandler* handler);
@@ -173,12 +175,12 @@ struct __attribute__((packed)) SoundStatus : public BaseStatus {
 
 /* display api */
 
-struct __attribute__((packed)) SetupDisplayRequest : public BaseRequest {
-  SetupDisplayRequest(uint16_t id)
-      : BaseRequest(RequestType::DISPLAY_SETUP),
-	  folderId(id) {
+struct __attribute__((packed)) InitDisplayRequest : public BaseRequest {
+  InitDisplayRequest(uint16_t id)
+      : BaseRequest(RequestType::DISPLAY_INIT),
+        clientId(id) {
   }
-  uint16_t folderId;
+  uint16_t clientId;
 };
 
 struct __attribute__((packed)) ClearDisplayRequest : public BaseRequest {
@@ -187,20 +189,35 @@ struct __attribute__((packed)) ClearDisplayRequest : public BaseRequest {
   }
 };
 
-struct __attribute__((packed)) DisplayMessageRequest : public BaseRequest {
-  DisplayMessageRequest(uint16_t id)
-      : BaseRequest(RequestType::DISPLAY_MESSAGE),
-        messageId(id) {
+/* 32 - 2 (request-type) - 16 (name-length) - 1 (append-flag) */
+#define DISPLAY_PARAM_VALUE_BUFFER_SIZE 13
+
+struct __attribute__((packed)) DisplayParameterRequest : public BaseRequest {
+  DisplayParameterRequest(const char* name, const char* value, bool append)
+      : BaseRequest(RequestType::DISPLAY_MESSAGE) {
+    strlcpy(this->name, name, ID_BUFFER_SIZE);
+    strlcpy(this->value, value, DISPLAY_PARAM_VALUE_BUFFER_SIZE);
+	this->append = append;
   }
-  uint16_t messageId;
+  char name[ID_BUFFER_SIZE];
+  byte append;
+  char value[DISPLAY_PARAM_VALUE_BUFFER_SIZE];
+};
+
+struct __attribute__((packed)) DisplayMessageRequest : public BaseRequest {
+  DisplayMessageRequest(const char* id)
+      : BaseRequest(RequestType::DISPLAY_MESSAGE) {
+    strlcpy(messageId, id, ID_BUFFER_SIZE);
+  }
+  char messageId[ID_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) DisplayBitmapRequest : public BaseRequest {
-  DisplayBitmapRequest(uint16_t id)
-      : BaseRequest(RequestType::DISPLAY_BITMAP),
-        bitmapId(id) {
+  DisplayBitmapRequest(const char* id)
+      : BaseRequest(RequestType::DISPLAY_BITMAP) {
+    strlcpy(bitmapId, id, ID_BUFFER_SIZE);
   }
-  uint16_t bitmapId;
+  char bitmapId[ID_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) DisplayStatus : public BaseStatus {
@@ -212,10 +229,12 @@ struct __attribute__((packed)) DisplayStatus : public BaseStatus {
 class ActivityDisplayClient : public PeriphericalClient {
  public:
   ActivityDisplayClient();
-  void setup(uint16_t folderId);
+  void init(uint16_t clientId);
   void clearDisplay();
-  void displayMessage(uint16_t messageId);
-  void displayBitmap(uint16_t bitmapId);
+  void putParam(const char* name, uint16_t value);
+  void putParam(const char* name, const char* value);
+  void displayMessage(const char* messageId);
+  void displayBitmap(const char* bitmapId);
 };
 
 /* numpad api */
@@ -226,7 +245,7 @@ class ActivityNumpadClient {
 
  public:
   ActivityNumpadClient();
-  void setup();
+  void init(uint16_t clientId);
   char getChar();
   int16_t readString(char* buffer, uint8_t length, int16_t timeout = -1, char until = '#');
 };

@@ -12,6 +12,9 @@
 		{
 			"name": "display",
 			"path": "display"
+		},
+		{
+			"path": "sdcard"
 		}
 	],
 	"settings": {}

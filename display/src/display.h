@@ -1,37 +1,32 @@
-#ifndef _AB_DISPLAY_SERVICE
-#define _AB_DISPLAY_SERVICE
+#ifndef _AB_TFT
+#define _AB_TFT
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
 #include <Adafruit_ImageReader.h>
-#include <ablib.h>
 
-#include "SPI.h"
+#include "storage.h"
 
-class DisplayService : public PeriphericalService {
+#define TFT_CS 5
+#define TFT_DC 2
+#define TFT_RST 4
+#define TFT_BL 14
+
+class Display {
  public:
-  DisplayService();
+  Display(Storage& storage);
 
-  Adafruit_ILI9341 tft;
-  Adafruit_ImageReader reader;
+  void setup();
+  void diagnostics();
 
-  void setup(uint8_t module) override;
-  void loop() override;
-
-  void processRequest(BaseRequest* request) override;
-  void publishStatus() override;
-
-  void clientSetup(uint16_t folderId);
-  void clearDisplay();
-  void displayMessage(const char* message);
-  void displayMessage(uint16_t backgroundColor, uint16_t textColor, const char* text);
-  void displayBitmap(const char* path);
+  void clear();
+  void drawText(const char* text);
+  void drawText(uint16_t backgroundColor, uint16_t textColor, const char* text);
+  void drawBitmap(const char* path);
 
  private:
-  uint16_t folderId;
-  void setupSDCard();
-  void setupDisplay();
-  void diagnostics();
+  Adafruit_ILI9341 tft;
+  Adafruit_ImageReader reader;
 };
 
 #endif

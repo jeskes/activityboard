@@ -3,9 +3,8 @@
 #include <Wire.h>
 #include <ablib.h>
 
-#define DICEGADGET_FOLDER 11
-
-#define MESSAGE_STARTED 1
+#define MESSAGE_WELCOME "WELCOME"
+#define MESSAGE_STARTED "STARTED"
 
 /* languages: 00x english, 01x bavarian, 02x russian, 03x german */
 #define LANGUAGES_COUNT 4
@@ -34,9 +33,9 @@ DiceGadget::DiceGadget()
 void DiceGadget::setup() {
   GadgetBase::setup();
 
-  sound.setup(DICEGADGET_FOLDER);
-  display.setup(DICEGADGET_FOLDER);
-  numpad.setup();
+  sound.init(DICEGADGET_ID);
+  display.init(DICEGADGET_ID);
+  numpad.init(DICEGADGET_ID);
 
   randomSeed(analogRead(NOISE_PIN));
   pinMode(START_BUTTON, INPUT_PULLUP);

@@ -7,7 +7,7 @@
 /* ========================================================================= */
 
 bool PeriphericalClient::sendRequest(uint8_t module, BaseRequest* request, uint8_t length) {
-  LOG("send request: module=%d, type=%d, length=%d", module, (uint16_t)request->type, length);
+  LOG("send request: module=%d, type=0x%04x, length=%d", module, (uint16_t)request->type, length);
 
   Wire.beginTransmission(module);
   Wire.write((uint8_t*)request, length);  // byte* -> uint8_t*
