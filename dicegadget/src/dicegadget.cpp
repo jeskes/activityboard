@@ -3,8 +3,14 @@
 #include <Wire.h>
 #include <ablib.h>
 
-#define MESSAGE_WELCOME "WELCOME"
-#define MESSAGE_STARTED "STARTED"
+const char* MESSAGE_WELCOME = "WELCOME";
+const char* MESSAGE_STARTED = "STARTED";
+const char* MESSAGE_NUMBER = "NUMBER";
+const char* MESSAGE_MATCH = "MATCH";
+const char* MESSAGE_SORRY = "SORRY";
+
+const char* PARAMETER_NUMBER = "number";
+const char* PARAMETER_GUESS = "guess";
 
 /* languages: 00x english, 01x bavarian, 02x russian, 03x german */
 #define LANGUAGES_COUNT 4
@@ -85,6 +91,8 @@ void DiceGadget::stateMachine() {
         status = Status::JINGLE_SOUND_PLAYING;
         uint16_t jingle = 100 + random(1, JINGLES_COUNT + 1);
         sound.play(jingle, this);
+        display.putParam(PARAMETER_GUESS, currentGuess);
+        display.putParam(PARAMETER_NUMBER, currentNumber);
         display.displayMessage(MESSAGE_STARTED);
       }
       break;
@@ -94,6 +102,7 @@ void DiceGadget::stateMachine() {
     case Status::JINGLE_SOUND_ENDED:
       status = Status::NUMBER_SOUND_PLAYING;
       sound.play(10 * currentLanguage + currentNumber, this);
+      display.displayMessage(MESSAGE_NUMBER);
       break;
     case Status::NUMBER_SOUND_ENDED:
       status = Status::NUMBER_INDICATING;
@@ -101,6 +110,7 @@ void DiceGadget::stateMachine() {
       LOG("current number: %d, current guess: %d", currentNumber, currentGuess);
       if (currentGuess) {
         sound.play(200 + (currentGuess == currentNumber ? 1 : 2), nullptr);
+	    display.displayMessage(currentGuess == currentNumber ? MESSAGE_MATCH : MESSAGE_SORRY);
       }
       break;
     case Status::NUMBER_INDICATING:

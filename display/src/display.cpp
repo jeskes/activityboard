@@ -1,56 +1,29 @@
 #include "display.h"
 
-#include "ablib.h"
+#include "const.h"
+
+static SPIClass spi(HSPI);
 
 Display::Display(Storage& storage)
-    : tft(TFT_CS, TFT_DC, TFT_RST),
-      reader(storage.fs) {
+    : tft(&spi, TFT_DC, TFT_CS, TFT_RST),
+      storage(storage) {
 }
 
 void Display::setup() {
-  pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, HIGH);
-
-  pinMode(TFT_RST, OUTPUT);
-  digitalWrite(TFT_RST, LOW);
-  delay(100);
-  digitalWrite(TFT_RST, HIGH);
+  LOG("Display: setup TFT display...");
+  spi.begin(TFT_CLK, TFT_MISO, TFT_MOSI, TFT_CS);
   delay(500);
-
   tft.begin();
   tft.setRotation(1);
-
-  delay(100);
-  diagnostics();
-  clear();
-}
-
-void Display::diagnostics() {
-  LOG("--- ILI9341 DIAGNOSE START ---");
-  LOG("Display Power Mode: 0x%x", tft.readcommand8(ILI9341_RDMODE));
-  LOG("MADCTL Mode:        0x%x", tft.readcommand8(ILI9341_RDMADCTL));
-  LOG("Pixel Format:       0x%x", tft.readcommand8(ILI9341_RDPIXFMT));
-  LOG("Image Format:       0x%x", tft.readcommand8(ILI9341_RDIMGFMT));
-  LOG("Self Diagnostic:    0x%x", tft.readcommand8(ILI9341_RDSELFDIAG));
-  LOG("------------------------------");
+  LOG("Display: display initialized.");
 }
 
 void Display::clear() {
-  LOG("Display: clearing");
-  tft.fillScreen(ILI9341_BLACK);
-  delay(100);
-  tft.setTextColor(ILI9341_WHITE);
-  delay(100);
-  tft.setTextSize(12);
-  delay(100);
-  tft.setCursor(20, 20);
-  delay(100);
-  drawBitmap("/system/clear.bmp");
-  LOG("Display: cleared");
+  drawText("display initialized");
 }
 
 void Display::drawText(const char* text) {
-	drawText(ILI9341_BLACK, ILI9341_WHITE, text);
+  drawText(ILI9341_BLACK, ILI9341_WHITE, text);
 }
 
 void Display::drawText(uint16_t backgroundColor, uint16_t textColor, const char* text) {
@@ -66,10 +39,54 @@ void Display::drawText(uint16_t backgroundColor, uint16_t textColor, const char*
   tft.print(text);
 }
 
-void Display::drawBitmap(const char* path) {
-  ImageReturnCode stat = reader.drawBMP(path, tft, 0, 0);
-  if (stat != IMAGE_SUCCESS) {
-    LOG("Display: missing bitmap %s.", path);
-    drawText("Display: missing bitmap");
+void Display::drawBitmap(const char* path, int16_t x, int16_t y) {
+  File file = storage.open(path);
+  if (!file) {
+    LOG("Display: cannot draw bitmap: file=%s", path);
+    return;
   }
+
+  if (file.read() != 'B' || file.read() != 'M') {
+    LOG("Display: file is not a bitmap: file=%s", path);
+    file.close();
+    return;
+  }
+
+  file.seek(0x12);
+  int32_t width = file.read() | (file.read() << 8) | (file.read() << 16) | (file.read() << 24);
+  int32_t height = file.read() | (file.read() << 8) | (file.read() << 16) | (file.read() << 24);
+
+  file.seek(0x1C);
+  uint16_t depth = file.read() | (file.read() << 8);
+
+  if (depth != 24) {
+    LOG("Display: invalid bitmap color depth: file=%s, found=%d, expected=24", path, depth);
+    file.close();
+    return;
+  }
+
+  file.seek(0x0A);
+  uint32_t dataOffset = file.read() | (file.read() << 8) | (file.read() << 16) | (file.read() << 24);
+  file.seek(dataOffset);
+
+  // bottom-up
+  int rowSize = (width * 3 + 3) & ~3;
+  uint8_t sbuf[width * 3];
+
+  tft.startWrite();
+  for (int i = 0; i < height; i++) {
+    uint32_t pos = dataOffset + (height - 1 - i) * rowSize;
+    file.seek(pos);
+    file.read(sbuf, sizeof(sbuf));
+
+    for (int j = 0; j < width; j++) {
+      uint8_t b = sbuf[j * 3];
+      uint8_t g = sbuf[j * 3 + 1];
+      uint8_t r = sbuf[j * 3 + 2];
+      uint16_t color = tft.color565(r, g, b);
+      tft.writePixel(x + j, y + i, color);
+    }
+  }
+  tft.endWrite();
+  file.close();
 }

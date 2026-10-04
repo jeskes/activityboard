@@ -1,19 +1,25 @@
 #ifndef _AB_SDCARD
 #define _AB_SDCARD
 
-#include <SdFat.h>
 #include <ArduinoJson.h>
-
-#define SD_CS 15
+#include <FS.h>
+#include <SD.h>
+#include <ablib.h>
 
 class Storage {
  public:
-  SdFat fs;
+  Storage();
+
+  fs::SDFS& sd;
 
   void setup();
+  void diagnostics();
 
-  File32 open(const char* path, oflag_t flags);
+  File open(const char* path);
   bool loadJson(const char* path, JsonDocument& json);
+
+ private:
+  void list(const char* folder = "/");
 };
 
 #endif

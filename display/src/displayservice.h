@@ -20,9 +20,10 @@ class DisplayService : public PeriphericalService {
   void loop() override;
 
   void processRequest(BaseRequest* request) override;
-  void publishStatus() override;
-
- private:
+  
+  private:
+  static void publishStatus();
+  
   void handleRequest(InitDisplayRequest* request);
   void handleRequest(ClearDisplayRequest* request);
   void handleRequest(DisplayParameterRequest* request);

@@ -27,8 +27,11 @@ static long volumeEncoderPosition = -999;
 // pins at arduino correspond to pins at player, RX must be protected by 1k resistence
 // KY-040 Rotary Encoder
 
+PlayerState SoundService::playerState = PlayerState::UNKNOWN;
+
 SoundService::SoundService()
-    : currentVolume(INITIAL_VOLUME),
+    : PeriphericalService(publishStatus),
+      currentVolume(INITIAL_VOLUME),
       pendingVolume(INITIAL_VOLUME),
       clientId(INITIAL_CLIENT_ID),
       volumeEncoder(VOLUME_DT, VOLUME_CLK),
@@ -70,9 +73,8 @@ void SoundService::processRequest(BaseRequest* request) {
 }
 
 void SoundService::publishStatus() {
-  SoundStatus status;
-  status.playerState = playerState;
-  // LOG("publish status");
+  SoundStatus status(playerState);
+  LOG("SoundService: publish status: player-state=%d", playerState);
   sendStatus(&status, sizeof(SoundStatus));
 }
 

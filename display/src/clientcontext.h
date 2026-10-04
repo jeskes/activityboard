@@ -2,8 +2,9 @@
 #define _AB_TEXT
 
 #include <ArduinoJson.h>
+#include <ablib.h>
 
-#include <unordered_map>
+#include <map>
 
 #include "storage.h"
 
@@ -27,7 +28,7 @@ class ClientContext {
   Storage& storage;
   uint16_t clientId;
 
-  std::unordered_map<const char*, String> params;
+  std::map<String, String> params;
   void initParams(uint16_t clientId);
 
   JsonDocument messages;
@@ -35,6 +36,8 @@ class ClientContext {
 
   JsonDocument bitmaps;
   void initBitmaps(uint16_t clientId);
+
+  String utf8ToExtendedAscii(const String& utf8);
 };
 
 #endif

@@ -1,16 +1,25 @@
-#include <ablib.h>
 #include "storage.h"
 
+#include "const.h"
+
+Storage::Storage()
+    : sd(SD) {
+}
 
 void Storage::setup() {
   LOG("Storage: setup SD card...");
-  if (!fs.begin(SD_CS, SD_SCK_MHZ(25))) {
+  delay(500);
+  SPI.begin(SD_CLK, SD_MISO, SD_MOSI, SD_CS);
+  if (!sd.begin(SD_CS, SPI, 10000000)) {
     LOG("Storage: SD card not available.");
+    return;
   }
+  diagnostics();
+  LOG("Storage: SD card successfully initialized.");
 }
 
-File32 Storage::open(const char* path, oflag_t flags) {
-  File32 file = fs.open(path, flags);
+File Storage::open(const char* path) {
+  File file = sd.open(path, FILE_READ, false);
   if (!file) {
     LOG("Storage: cannot load file: %s.", path);
   }
@@ -18,7 +27,7 @@ File32 Storage::open(const char* path, oflag_t flags) {
 }
 
 bool Storage::loadJson(const char* path, JsonDocument& json) {
-  File32 file = open(path, FILE_READ);
+  File file = open(path);
   if (!file) {
     LOG("Storage: failed to open json file: path=%s.", path);
     return false;
@@ -34,4 +43,35 @@ bool Storage::loadJson(const char* path, JsonDocument& json) {
   LOG("Storage: failed to parse json: path=%s, error=%s.", path, result.c_str());
 
   return false;
+}
+
+void Storage::diagnostics() {
+  list();
+}
+
+void Storage::list(const char* folder) {
+  LOG("Storage: listing directory: %s.", folder);
+
+  File root = sd.open(folder);
+  if (!root) {
+    LOG("Storage: failed to open directory.");
+    return;
+  }
+
+  if (!root.isDirectory()) {
+    LOG("Storage: not a directory.");
+    return;
+  }
+
+  File file = root.openNextFile();
+  while (file) {
+    if (file.isDirectory()) {
+      LOG("  dir : %s", file.name());
+      list(file.path());
+    }
+    else {
+      LOG("  file: %s [%d bytes]", file.name(), file.size());
+    }
+    file = root.openNextFile();
+  }
 }

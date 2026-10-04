@@ -8,17 +8,16 @@
 
 /* constants */
 
+#define SERIAL_BAUD 115200
+
 #define SOUND_MODULE_ID 0x10
 #define DISPLAY_MODULE_ID 0x11
 #define NUMPAD_MODULE_ID 0x20
 
-#define WIRE_CLOCK 50000
-#define WIRE_TIMEOUT 3000
-
 #ifdef ARDUINO_ARCH_ESP32
-#define WIRE_SDA 21
-#define WIRE_SCL 22
-#define LED_BUILTIN 14
+const int WIRE_SDA = 21;
+const int WIRE_SCL = 22;
+const uint8_t LED_BUILTIN = 14;
 #endif
 
 #define ID_BUFFER_SIZE 16
@@ -104,26 +103,19 @@ class PeriphericalClient {
 
 class PeriphericalService {
  public:
-  PeriphericalService();
+  PeriphericalService(void (*statusSender)());
+
   virtual void setup(uint8_t module);
   virtual void loop();
+
   virtual void processRequest(BaseRequest* request) = 0;
-  virtual void publishStatus() = 0;
-
- protected:
+  
   static bool sendStatus(BaseStatus* status, uint8_t length);
-  void readRequest(int length);  // Bleibt int, da von Wire (onReceive) vorgegeben
-  BaseRequest* currentRequest = nullptr;
-  uint8_t requestBuffer[REQUEST_BUFFER_SIZE];  // byte -> uint8_t
-
-  static PeriphericalService* instance;
-  static void onReceive(int length);
-  static void onRequest();
 };
 
 /* sound api */
 
-enum class PlayerState : uint8_t {
+enum class PlayerState : uint16_t {
   UNKNOWN = 0,
   IDLE = 1,
   PLAYING = 2
@@ -166,9 +158,9 @@ class ActivitySoundClient : public PeriphericalClient {
 };
 
 struct __attribute__((packed)) SoundStatus : public BaseStatus {
-  SoundStatus()
+  SoundStatus(PlayerState playerState = PlayerState::UNKNOWN)
       : BaseStatus(StatusType::SOUND_STATUS),
-        playerState(PlayerState::UNKNOWN) {
+        playerState(playerState) {
   }
   PlayerState playerState;
 };
@@ -194,10 +186,10 @@ struct __attribute__((packed)) ClearDisplayRequest : public BaseRequest {
 
 struct __attribute__((packed)) DisplayParameterRequest : public BaseRequest {
   DisplayParameterRequest(const char* name, const char* value, bool append)
-      : BaseRequest(RequestType::DISPLAY_MESSAGE) {
+      : BaseRequest(RequestType::DISPLAY_PARAMETER) {
     strlcpy(this->name, name, ID_BUFFER_SIZE);
     strlcpy(this->value, value, DISPLAY_PARAM_VALUE_BUFFER_SIZE);
-	this->append = append;
+    this->append = append;
   }
   char name[ID_BUFFER_SIZE];
   byte append;

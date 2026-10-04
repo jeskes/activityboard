@@ -16,13 +16,13 @@ class SoundService : public PeriphericalService {
   int currentVolume;
   int pendingVolume;
 
-  PlayerState playerState;
+  static PlayerState playerState;
+  static void publishStatus();
 
   void setup(uint8_t module) override;
   void loop() override;
 
   void processRequest(BaseRequest* request) override;
-  void publishStatus() override;
 
   void init(uint16_t clientId);
   void play(uint16_t trackId);

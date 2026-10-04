@@ -49,6 +49,8 @@ static void pollSoundStatus() {
   if (statusHandler) {
     SoundStatus status;
     PeriphericalClient::requestStatus(SOUND_MODULE_ID, &status, sizeof(SoundStatus));
+	
+	// LOG("ActivitySoundClient: received status from sound-service: player-state=%d", status.playerState);
 
     if (lastPlayerState != status.playerState) {
       lastPlayerState = status.playerState;
