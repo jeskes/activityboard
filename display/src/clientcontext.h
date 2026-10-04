@@ -10,11 +10,6 @@
 
 class ClientContext {
  public:
-  ClientContext(Storage& storage);
-
-  void setup();
-  void init(uint16_t clientId);
-
   void clearParams();
   void clearParam(const char* name);
   void putParam(const char* name, const char* value, byte append);
@@ -23,21 +18,26 @@ class ClientContext {
   const char* getMessage(const char* id);
 
   String getBitmapPath(const char* id);
+  String utf8ToExtendedAscii(const String& utf8);
+
+ private:
+  ClientId client;
+  std::map<String, String> params;
+  JsonDocument messages;
+  JsonDocument bitmaps;
+
+  friend class ClientContexts;
+};
+
+class ClientContexts {
+ public:
+  ClientContexts(Storage& storage);
+  ClientContext& get(ClientId client);
 
  private:
   Storage& storage;
-  uint16_t clientId;
-
-  std::map<String, String> params;
-  void initParams(uint16_t clientId);
-
-  JsonDocument messages;
-  void initMessages(uint16_t clientId);
-
-  JsonDocument bitmaps;
-  void initBitmaps(uint16_t clientId);
-
-  String utf8ToExtendedAscii(const String& utf8);
+  std::map<ClientId, ClientContext> contexts;
+  void init(ClientId client, ClientContext& context);
 };
 
 #endif

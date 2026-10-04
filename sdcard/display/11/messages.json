@@ -1,6 +1,6 @@
 {
 	"WELCOME": "Willkommen bei Lingo Bingo",
-	"STARTED": "ich würfle, bitte warten ...",
+	"STARTED": "ich würfle, bitte warten",
 	"NUMBER": "Gewürfelt : {{number}}",
 	"MATCH": "Du hast richtig getippt",
 	"SORRY": "Deine {{guess}} ist leider falsch"

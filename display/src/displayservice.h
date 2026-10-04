@@ -7,6 +7,7 @@
 #include "storage.h"
 #include "display.h"
 #include "clientcontext.h"
+#include "taskrunner.h"
 
 class DisplayService : public PeriphericalService {
  public:
@@ -14,7 +15,9 @@ class DisplayService : public PeriphericalService {
 
   Storage storage;
   Display display;
-  ClientContext context;
+  ClientContexts contexts;
+
+  TaskRunner runner;
 
   void setup(uint8_t module) override;
   void loop() override;
@@ -24,7 +27,6 @@ class DisplayService : public PeriphericalService {
   private:
   static void publishStatus();
   
-  void handleRequest(InitDisplayRequest* request);
   void handleRequest(ClearDisplayRequest* request);
   void handleRequest(DisplayParameterRequest* request);
   void handleRequest(DisplayMessageRequest* request);

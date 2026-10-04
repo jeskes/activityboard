@@ -4,7 +4,7 @@
 
 DisplayService::DisplayService()
     : PeriphericalService(publishStatus),
-      context(storage),
+      contexts(storage),
       display(storage) {
 }
 
@@ -16,8 +16,8 @@ void DisplayService::setup(uint8_t module) {
   digitalWrite(TFT_BL, HIGH);
 
   storage.setup();
-  context.setup();
   display.setup();
+  runner.setup();
 
   LOG("Display Module started.");
 }
@@ -29,9 +29,6 @@ void DisplayService::loop() {
 void DisplayService::processRequest(BaseRequest* request) {
   LOG("request arrived: %d", request->type);
   switch (request->type) {
-    case RequestType::DISPLAY_INIT:
-      handleRequest((InitDisplayRequest*)request);
-      break;
     case RequestType::DISPLAY_PARAMETER:
       handleRequest((DisplayParameterRequest*)request);
       break;
@@ -54,28 +51,24 @@ void DisplayService::publishStatus() {
   PeriphericalService::sendStatus(&status, sizeof(DisplayStatus));
 }
 
-void DisplayService::handleRequest(InitDisplayRequest* request) {
-  LOG("init display: client=%d.", request->clientId);
-  context.init(request->clientId);
-}
-
 void DisplayService::handleRequest(ClearDisplayRequest* request) {
   display.clear();
 }
 
 void DisplayService::handleRequest(DisplayParameterRequest* request) {
-  LOG("DisplayService: put param: name=%s, value=%s.", request->name, request->value);
-  context.putParam(request->name, request->value, request->append);
+  LOG("DisplayService: put param: client=%d, id=%s, value=%s.", request->client, request->id, request->value);
+  contexts.get(request->client).putParam(request->id, request->value, request->append);
 }
 
 void DisplayService::handleRequest(DisplayMessageRequest* request) {
-  String message = context.formatMessage(request->messageId);
+  String message = contexts.get(request->client).formatMessage(request->messageId);
   LOG("DisplayService: draw message: id=%s, message=%s.", request->messageId, message.c_str());
   display.drawText(message.c_str());
 }
 
 void DisplayService::handleRequest(DisplayBitmapRequest* request) {
-  const char* path = context.getBitmapPath(request->bitmapId).c_str();
-  LOG("DisplayService: draw bitmap: id=%s, path=%s.", request->bitmapId, path ? path : "not found");
-  display.drawBitmap(path, 0, 0);
+  String path = contexts.get(request->client).getBitmapPath(request->bitmapId);
+  LOG("DisplayService: draw bitmap: id=%s, path=%s.", request->bitmapId, path.c_str());
+  auto& dsp = display;
+  runner.schedule([&dsp,path]() { dsp.drawBitmap(path.c_str(), 0, 0); });
 }

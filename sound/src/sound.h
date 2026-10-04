@@ -24,12 +24,10 @@ class SoundService : public PeriphericalService {
 
   void processRequest(BaseRequest* request) override;
 
-  void init(uint16_t clientId);
-  void play(uint16_t trackId);
+  void play(ClientId client, TrackId track);
   void stop();
 
  private:
-  uint16_t clientId;
   Encoder volumeEncoder;
   DFRobotDFPlayerMini player;
   SoftwareSerial playerSerial;

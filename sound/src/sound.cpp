@@ -19,7 +19,6 @@
 #define WAIT_FOR_BUSY_COUNT 5
 #define WAIT_FOR_BUSY_TIMEOUT 300
 
-#define INITIAL_CLIENT_ID 10
 #define STARTUP_TRACK_ID 100
 
 static long volumeEncoderPosition = -999;
@@ -33,7 +32,6 @@ SoundService::SoundService()
     : PeriphericalService(publishStatus),
       currentVolume(INITIAL_VOLUME),
       pendingVolume(INITIAL_VOLUME),
-      clientId(INITIAL_CLIENT_ID),
       volumeEncoder(VOLUME_DT, VOLUME_CLK),
       playerSerial(PLAYER_RX, PLAYER_TX) {
 }
@@ -58,11 +56,8 @@ void SoundService::loop() {
 
 void SoundService::processRequest(BaseRequest* request) {
   switch (request->type) {
-    case RequestType::SOUND_INIT:
-      init(((InitSoundRequest*)request)->clientId);
-      break;
     case RequestType::SOUND_PLAY:
-      play(((PlaySoundRequest*)request)->trackId);
+      play(((PlaySoundRequest*)request)->client, ((PlaySoundRequest*)request)->track);
       break;
     case RequestType::SOUND_STOP:
       stop();
@@ -94,7 +89,7 @@ void SoundService::setupPlayer() {
   // player.EQ(DFPLAYER_EQ_NORMAL);
   // player.outputDevice(DFPLAYER_DEVICE_SD);
 
-  play(STARTUP_TRACK_ID);
+  play(SYSTEM_CLIENT_ID, STARTUP_TRACK_ID);
 }
 
 bool SoundService::checkPlayer() {
@@ -103,16 +98,10 @@ bool SoundService::checkPlayer() {
   return playing;
 }
 
-void SoundService::init(uint16_t clientId) {
-  LOG("init sound: client=%d", clientId);
-  this->clientId = clientId;
-  playerState = PlayerState::IDLE;
-}
-
-void SoundService::play(uint16_t trackId) {
-  LOG("play sound: track=%d", trackId);
+void SoundService::play(ClientId client, TrackId track) {
+  LOG("play sound: client=%d, track=%d", client, track);
   playerState = PlayerState::PLAYING;
-  player.playFolder(clientId, trackId);
+  player.playFolder(client, track);
   awaitPlayerBusy(true);
 }
 

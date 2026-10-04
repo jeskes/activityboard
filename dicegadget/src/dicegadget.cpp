@@ -3,14 +3,16 @@
 #include <Wire.h>
 #include <ablib.h>
 
-const char* MESSAGE_WELCOME = "WELCOME";
-const char* MESSAGE_STARTED = "STARTED";
-const char* MESSAGE_NUMBER = "NUMBER";
-const char* MESSAGE_MATCH = "MATCH";
-const char* MESSAGE_SORRY = "SORRY";
+const MessageId MESSAGE_WELCOME = "WELCOME";
+const MessageId MESSAGE_STARTED = "STARTED";
+const MessageId MESSAGE_NUMBER = "NUMBER";
+const MessageId MESSAGE_MATCH = "MATCH";
+const MessageId MESSAGE_SORRY = "SORRY";
 
-const char* PARAMETER_NUMBER = "number";
-const char* PARAMETER_GUESS = "guess";
+const BitmapId BITMAP_STARTUP = "STARTUP";
+
+const ParameterId PARAMETER_NUMBER = "number";
+const ParameterId PARAMETER_GUESS = "guess";
 
 /* languages: 00x english, 01x bavarian, 02x russian, 03x german */
 #define LANGUAGES_COUNT 4
@@ -33,22 +35,24 @@ const uint8_t indicators[] = {2, 3, 4, 5, 6, 7};
 const uint8_t countIndicators = sizeof(indicators) / sizeof(uint8_t);
 
 DiceGadget::DiceGadget()
-    : sound(&this->scheduler) {
+    : sound(DICEGADGET_ID, this->scheduler),
+      display(DICEGADGET_ID) {
 }
 
 void DiceGadget::setup() {
   GadgetBase::setup();
 
-  sound.init(DICEGADGET_ID);
-  display.init(DICEGADGET_ID);
-  numpad.init(DICEGADGET_ID);
+  numpad.setup();
 
   randomSeed(analogRead(NOISE_PIN));
   pinMode(START_BUTTON, INPUT_PULLUP);
   for (int idx = 0; idx < countIndicators; idx++) {
     pinMode(indicators[idx], OUTPUT);
   }
+
   activityControls.blink(indicators, countIndicators, 2, 200);
+
+  display.displayBitmap(BITMAP_STARTUP);
 
   LOG("Dice Gadget started.");
 }
@@ -110,7 +114,7 @@ void DiceGadget::stateMachine() {
       LOG("current number: %d, current guess: %d", currentNumber, currentGuess);
       if (currentGuess) {
         sound.play(200 + (currentGuess == currentNumber ? 1 : 2), nullptr);
-	    display.displayMessage(currentGuess == currentNumber ? MESSAGE_MATCH : MESSAGE_SORRY);
+        display.displayMessage(currentGuess == currentNumber ? MESSAGE_MATCH : MESSAGE_SORRY);
       }
       break;
     case Status::NUMBER_INDICATING:

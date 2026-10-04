@@ -10,27 +10,22 @@ static SoundStatusHandler* statusHandler = nullptr;
 static PlayerState lastPlayerState = PlayerState::UNKNOWN;
 static Task statusPollingTask(POLLING_TIMEOUT, TASK_FOREVER, &pollSoundStatus);
 
-ActivitySoundClient::ActivitySoundClient(Scheduler* scheduler) {
-  scheduler->addTask(statusPollingTask);
+ActivitySoundClient::ActivitySoundClient(ClientId client, Scheduler& scheduler)
+    : PeriphericalClient(client) {
+  scheduler.addTask(statusPollingTask);
 }
 
-void ActivitySoundClient::init(uint16_t clientId) {
-  LOG("init sound module : client=%d.", clientId);
-  InitSoundRequest request(clientId);
-  sendRequest(SOUND_MODULE_ID, &request, sizeof(InitSoundRequest));
-}
-
-void ActivitySoundClient::play(uint16_t trackId, SoundStatusHandler* handler) {
-  LOG("send play sound request : track=%d.", trackId);
+void ActivitySoundClient::play(TrackId track, SoundStatusHandler* handler) {
+  LOG("send play sound request : track=%d.", track);
   setStatusHandler(handler);
 
-  PlaySoundRequest request(trackId);
+  PlaySoundRequest request(client, track);
   sendRequest(SOUND_MODULE_ID, &request, sizeof(PlaySoundRequest));
 }
 
 void ActivitySoundClient::stop() {
   LOG("send play stop request.");
-  StopSoundRequest request;
+  StopSoundRequest request(client);
   sendRequest(SOUND_MODULE_ID, &request, sizeof(StopSoundRequest));
 }
 
@@ -49,8 +44,8 @@ static void pollSoundStatus() {
   if (statusHandler) {
     SoundStatus status;
     PeriphericalClient::requestStatus(SOUND_MODULE_ID, &status, sizeof(SoundStatus));
-	
-	// LOG("ActivitySoundClient: received status from sound-service: player-state=%d", status.playerState);
+
+    // LOG("ActivitySoundClient: received status from sound-service: player-state=%d", status.playerState);
 
     if (lastPlayerState != status.playerState) {
       lastPlayerState = status.playerState;

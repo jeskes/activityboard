@@ -3,44 +3,39 @@
 
 #include "ablib.h"
 
-ActivityDisplayClient::ActivityDisplayClient() {
-}
-
-void ActivityDisplayClient::init(uint16_t clientId) {
-  LOG("init display module : client=%d.", clientId);
-  InitDisplayRequest request(clientId);
-  sendRequest(DISPLAY_MODULE_ID, &request, sizeof(InitDisplayRequest));
+ActivityDisplayClient::ActivityDisplayClient(ClientId client)
+    : PeriphericalClient(client) {
 }
 
 void ActivityDisplayClient::clearDisplay() {
   LOG("send clear display request.");
-  ClearDisplayRequest request;
+  ClearDisplayRequest request(client);
   sendRequest(DISPLAY_MODULE_ID, &request, sizeof(ClearDisplayRequest));
 }
 
-void ActivityDisplayClient::putParam(const char* name, uint16_t value) {
-  LOG("send display param request : id=%s, value=%d.", name, value);
+void ActivityDisplayClient::putParam(ParameterId id, uint16_t value) {
+  LOG("send display param request : id=%s, value=%d.", id, value);
   char text[10];
-  itoa(value, text,10);
-  DisplayParameterRequest request(name, text, 0);
+  itoa(value, text, 10);
+  DisplayParameterRequest request(client, id, text, 0);
   sendRequest(DISPLAY_MODULE_ID, &request, sizeof(DisplayParameterRequest));
 }
 
-void ActivityDisplayClient::putParam(const char* name, const char* value) {
-  LOG("send display param request : id=%s, value=%s.", name, value);
+void ActivityDisplayClient::putParam(ParameterId id, const char* value) {
+  LOG("send display param request : id=%s, value=%s.", id, value);
   // TODO ---- chunks...
-  DisplayParameterRequest request(name, value, 0);
+  DisplayParameterRequest request(client, id, value, 0);
   sendRequest(DISPLAY_MODULE_ID, &request, sizeof(DisplayParameterRequest));
 }
 
-void ActivityDisplayClient::displayMessage(const char* messageId) {
-  LOG("send display message request : id=%s.", messageId);
-  DisplayMessageRequest request(messageId);
+void ActivityDisplayClient::displayMessage(MessageId id) {
+  LOG("send display message request : id=%s.", id);
+  DisplayMessageRequest request(client, id);
   sendRequest(DISPLAY_MODULE_ID, &request, sizeof(DisplayMessageRequest));
 }
 
-void ActivityDisplayClient::displayBitmap(const char* bitmapId) {
-  LOG("send display bitmap request : id=%s.", bitmapId);
-  DisplayBitmapRequest request(bitmapId);
+void ActivityDisplayClient::displayBitmap(BitmapId id) {
+  LOG("send display bitmap request : id=%s.", id);
+  DisplayBitmapRequest request(client, id);
   sendRequest(DISPLAY_MODULE_ID, &request, sizeof(DisplayBitmapRequest));
 }

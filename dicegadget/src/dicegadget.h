@@ -3,7 +3,7 @@
 
 #include <ablib.h>
 
-#define DICEGADGET_ID 11
+const ClientId DICEGADGET_ID = 11;
 
 class DiceGadget : public GadgetBase, public SoundStatusHandler {
  public:

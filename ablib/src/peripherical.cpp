@@ -6,14 +6,17 @@
 /* PERIPHERICAL CLIENT                                                       */
 /* ========================================================================= */
 
-bool PeriphericalClient::sendRequest(uint8_t module, BaseRequest* request, uint8_t length) {
+PeriphericalClient::PeriphericalClient(ClientId client)
+    : client(client) {
+}
+bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint8_t length) {
   LOG("send request: module=%d, type=0x%04x, length=%d", module, (uint16_t)request->type, length);
 
   Wire.beginTransmission(module);
   Wire.write((uint8_t*)request, length);
   Wire.endTransmission();
 
-  LOG("sent peripherical request: %d bytes", length);
+  // LOG("sent peripherical request: %d bytes", length);
   // TODO --- throttle or request buffer at service side
   delay(100);
 

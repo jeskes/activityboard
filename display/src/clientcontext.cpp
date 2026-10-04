@@ -7,66 +7,63 @@
 #define VALUE_BUFFER_SIZE 128
 #define INITIAL_CLIENT_ID 10
 
-ClientContext::ClientContext(Storage& storage)
-    : clientId(INITIAL_CLIENT_ID),
-      storage(storage) {
+/* contexts (manager) */
+
+ClientContexts::ClientContexts(Storage& storage)
+    : storage(storage) {
 }
 
-void ClientContext::setup() {
-  /* nothing yet */
+ClientContext& ClientContexts::get(ClientId client) {
+  auto iter = contexts.find(client);
+  if (iter != contexts.end()) {
+    return iter->second;
+  }
+
+  ClientContext& context = contexts[client];
+  init(client, context);
+
+  return context;
 }
 
-void ClientContext::init(uint16_t clientId) {
-  LOG("ClientContext: initialize client: id=%d", clientId);
-  this->clientId = clientId;
-  initParams(clientId);
-  initMessages(clientId);
-  initBitmaps(clientId);
-}
+void ClientContexts::init(ClientId client, ClientContext& context) {
+  context.client = client;
 
-void ClientContext::initParams(uint16_t clientId) {
   char path[PATH_BUFFER_SIZE];
-  sprintf(path, "/%02d/parameters.json", clientId);
+  sprintf(path, "/%02d/parameters.json", client);
 
   JsonDocument doc;
   if (!storage.loadJson(path, doc)) {
     LOG("ClientContext: cannot load parameter file: path=%s.", path);
-    return;
+  }
+  else {
+    JsonArray names = doc.as<JsonArray>();
+    for (JsonVariant v : names) {
+      const char* name = v.as<const char*>();
+      context.params[name] = "";
+      context.params[name].reserve(VALUE_BUFFER_SIZE);
+    }
+    LOG("ClientContext: initialized parameters: client=%d, count=%d.", client, names.size());
   }
 
-  JsonArray names = doc.as<JsonArray>();
-  params.clear();
-
-  for (JsonVariant v : names) {
-    const char* name = v.as<const char*>();
-    params[name] = "";
-    params[name].reserve(VALUE_BUFFER_SIZE);
-  }
-
-  LOG("ClientContext: initialized parameters: count=%d.", names.size());
-}
-
-void ClientContext::initMessages(uint16_t clientId) {
-  char path[PATH_BUFFER_SIZE];
-  sprintf(path, "/%02d/messages.json", clientId);
-  if (!storage.loadJson(path, messages)) {
+  sprintf(path, "/%02d/messages.json", client);
+  if (!storage.loadJson(path, context.messages)) {
     LOG("ClientContext: cannot load messages file: %s.", path);
-    return;
+  }
+  else {
+    LOG("ClientContext: initialized messages: client=%d, count=%d.", client, context.messages.size());
   }
 
-  LOG("ClientContext: initialized messages: count=%d.", messages.size());
-}
-
-void ClientContext::initBitmaps(uint16_t clientId) {
-  char path[PATH_BUFFER_SIZE];
-  sprintf(path, "/%02d/bitmaps.json", clientId);
-  if (!storage.loadJson(path, bitmaps)) {
+  sprintf(path, "/%02d/bitmaps.json", client);
+  if (!storage.loadJson(path, context.bitmaps)) {
     LOG("ClientContext: cannot load bitmaps file: %s.", path);
     return;
   }
-
-  LOG("ClientContext: initialized bitmaps: count=%d.", bitmaps.size());
+  else {
+    LOG("ClientContext: initialized bitmaps: client=%d, count=%d.", client, context.bitmaps.size());
+  }
 }
+
+/* context */
 
 void ClientContext::putParam(const char* name, const char* value, byte append) {
   if (append) {
@@ -113,12 +110,13 @@ String ClientContext::formatMessage(const char* id) {
 }
 
 String ClientContext::getBitmapPath(const char* id) {
-  if (!bitmaps[id].is<const char*>()) {
+  const char* bitmap = bitmaps[id];
+  if (!bitmap) {
     LOG("ClientContext: bitmap id %d not found.", id);
     return "/10/fallback.bmp";
   }
   char path[PATH_BUFFER_SIZE];
-  sprintf(path, "/%02d/%s", clientId, bitmaps[id]);
+  sprintf(path, "/%02d/%s", client, bitmap);
   return String(path);
 }
 

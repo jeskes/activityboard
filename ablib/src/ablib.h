@@ -26,10 +26,12 @@ const uint8_t LED_BUILTIN = 14;
 
 /* common operations */
 
+using ModuleId = uint8_t;
+
 class ActivityBoard {
  public:
   void setup();
-  void setup(uint8_t moduleId);
+  void setup(ModuleId moduleId);
 };
 extern ActivityBoard activityBoard;
 
@@ -63,12 +65,14 @@ extern ActivityControls activityControls;
 
 /* peripherical api */
 
+using ClientId = uint8_t;
+
+const ClientId SYSTEM_CLIENT_ID = 10;
+
 enum class RequestType : uint16_t {
   UNKNOWN = 0,
-  SOUND_INIT = 0x1000,
   SOUND_PLAY = 0x1001,
   SOUND_STOP = 0x1002,
-  DISPLAY_INIT = 0x2000,
   DISPLAY_CLEAR = 0x2001,
   DISPLAY_PARAMETER = 0x2002,
   DISPLAY_MESSAGE = 0x2003,
@@ -82,9 +86,11 @@ enum class StatusType : uint16_t {
 };
 
 struct __attribute__((packed)) BaseRequest {
+  ClientId client;
   RequestType type;
-  BaseRequest(RequestType t)
-      : type(t) {
+  BaseRequest(ClientId client, RequestType t)
+      : client(client),
+        type(t) {
   }
 };
 
@@ -97,23 +103,29 @@ struct __attribute__((packed)) BaseStatus {
 
 class PeriphericalClient {
  public:
-  static bool sendRequest(uint8_t module, BaseRequest* request, uint8_t length);
-  static bool requestStatus(uint8_t module, BaseStatus* status, uint8_t length);
+  static bool sendRequest(ModuleId module, BaseRequest* request, uint8_t length);
+  static bool requestStatus(ModuleId module, BaseStatus* status, uint8_t length);
+
+ protected:
+  PeriphericalClient(ClientId client);
+  ClientId client;
 };
 
 class PeriphericalService {
  public:
   PeriphericalService(void (*statusSender)());
 
-  virtual void setup(uint8_t module);
+  virtual void setup(ModuleId module);
   virtual void loop();
 
   virtual void processRequest(BaseRequest* request) = 0;
-  
+
   static bool sendStatus(BaseStatus* status, uint8_t length);
 };
 
 /* sound api */
+
+using TrackId = uint16_t;
 
 enum class PlayerState : uint16_t {
   UNKNOWN = 0,
@@ -121,25 +133,17 @@ enum class PlayerState : uint16_t {
   PLAYING = 2
 };
 
-struct __attribute__((packed)) InitSoundRequest : public BaseRequest {
-  InitSoundRequest(uint16_t id)
-      : BaseRequest(RequestType::SOUND_INIT),
-        clientId(id) {
-  }
-  uint16_t clientId;
-};
-
 struct __attribute__((packed)) PlaySoundRequest : public BaseRequest {
-  PlaySoundRequest(uint16_t id)
-      : BaseRequest(RequestType::SOUND_PLAY),
-        trackId(id) {
+  PlaySoundRequest(ClientId client, TrackId track)
+      : BaseRequest(client, RequestType::SOUND_PLAY),
+        track(track) {
   }
-  uint16_t trackId;
+  TrackId track;
 };
 
 struct __attribute__((packed)) StopSoundRequest : public BaseRequest {
-  StopSoundRequest()
-      : BaseRequest(RequestType::SOUND_STOP) {
+  StopSoundRequest(ClientId client)
+      : BaseRequest(client, RequestType::SOUND_STOP) {
   }
 };
 
@@ -150,9 +154,8 @@ class SoundStatusHandler {
 
 class ActivitySoundClient : public PeriphericalClient {
  public:
-  ActivitySoundClient(Scheduler* scheduler);
-  void init(uint16_t clientId);
-  void play(uint16_t trackId, SoundStatusHandler* statusHandler = nullptr);
+  ActivitySoundClient(ClientId client, Scheduler& scheduler);
+  void play(TrackId track, SoundStatusHandler* statusHandler = nullptr);
   void stop();
   void setStatusHandler(SoundStatusHandler* handler);
 };
@@ -167,46 +170,43 @@ struct __attribute__((packed)) SoundStatus : public BaseStatus {
 
 /* display api */
 
-struct __attribute__((packed)) InitDisplayRequest : public BaseRequest {
-  InitDisplayRequest(uint16_t id)
-      : BaseRequest(RequestType::DISPLAY_INIT),
-        clientId(id) {
-  }
-  uint16_t clientId;
-};
+using ParameterId = const char*;
+using MessageId = const char*;
+using BitmapId = const char*;
 
 struct __attribute__((packed)) ClearDisplayRequest : public BaseRequest {
-  ClearDisplayRequest()
-      : BaseRequest(RequestType::DISPLAY_CLEAR) {
+  ClearDisplayRequest(ClientId client)
+      : BaseRequest(client, RequestType::DISPLAY_CLEAR) {
   }
 };
 
-/* 32 - 2 (request-type) - 16 (name-length) - 1 (append-flag) */
-#define DISPLAY_PARAM_VALUE_BUFFER_SIZE 13
+/* 32 - 1 (client) - 2 (request-type) - 16 (id-length) - 1 (append-flag) */
+
+#define DISPLAY_PARAM_VALUE_BUFFER_SIZE 12
 
 struct __attribute__((packed)) DisplayParameterRequest : public BaseRequest {
-  DisplayParameterRequest(const char* name, const char* value, bool append)
-      : BaseRequest(RequestType::DISPLAY_PARAMETER) {
-    strlcpy(this->name, name, ID_BUFFER_SIZE);
+  DisplayParameterRequest(ClientId client, ParameterId id, const char* value, bool append)
+      : BaseRequest(client, RequestType::DISPLAY_PARAMETER) {
+    strlcpy(this->id, id, ID_BUFFER_SIZE);
     strlcpy(this->value, value, DISPLAY_PARAM_VALUE_BUFFER_SIZE);
     this->append = append;
   }
-  char name[ID_BUFFER_SIZE];
+  char id[ID_BUFFER_SIZE];
   byte append;
   char value[DISPLAY_PARAM_VALUE_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) DisplayMessageRequest : public BaseRequest {
-  DisplayMessageRequest(const char* id)
-      : BaseRequest(RequestType::DISPLAY_MESSAGE) {
+  DisplayMessageRequest(ClientId client, MessageId id)
+      : BaseRequest(client, RequestType::DISPLAY_MESSAGE) {
     strlcpy(messageId, id, ID_BUFFER_SIZE);
   }
   char messageId[ID_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) DisplayBitmapRequest : public BaseRequest {
-  DisplayBitmapRequest(const char* id)
-      : BaseRequest(RequestType::DISPLAY_BITMAP) {
+  DisplayBitmapRequest(ClientId client, BitmapId id)
+      : BaseRequest(client, RequestType::DISPLAY_BITMAP) {
     strlcpy(bitmapId, id, ID_BUFFER_SIZE);
   }
   char bitmapId[ID_BUFFER_SIZE];
@@ -220,8 +220,7 @@ struct __attribute__((packed)) DisplayStatus : public BaseStatus {
 
 class ActivityDisplayClient : public PeriphericalClient {
  public:
-  ActivityDisplayClient();
-  void init(uint16_t clientId);
+  ActivityDisplayClient(ClientId clientId);
   void clearDisplay();
   void putParam(const char* name, uint16_t value);
   void putParam(const char* name, const char* value);
@@ -237,7 +236,7 @@ class ActivityNumpadClient {
 
  public:
   ActivityNumpadClient();
-  void init(uint16_t clientId);
+  void setup();
   char getChar();
   int16_t readString(char* buffer, uint8_t length, int16_t timeout = -1, char until = '#');
 };
