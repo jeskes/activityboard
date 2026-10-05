@@ -12,13 +12,18 @@ void ActivityBoard::setup() {
   delay(100);
   LOG("ActivityBoard: initialize wire as gadget (master).");
 #if defined(ARDUINO_ARCH_ESP32)
-  Wire.begin(WIRE_SDA, WIRE_SCL);
+  if (!Wire.begin(WIRE_SDA, WIRE_SCL, 100000)) {
+    LOG("ActivityBoard: failed to initialize wire.");
+  }
+  else {
+    LOG("ActivityBoard: Wire initialized for gadget (master).");
+  }
 #else
   Wire.begin();
-#endif
-  LOG("Wire initialized for gadget (master).");
+  LOG("ActivityBoard: Wire initialized for gadget (master).");
   pinMode(LED_BUILTIN, OUTPUT);
   activityControls.blink(LED_BUILTIN, 10, 100);
+#endif
 }
 
 void ActivityBoard::setup(uint8_t module) {
@@ -40,7 +45,7 @@ void ActivityBoard::setup(uint8_t module) {
     LOG("ActivityBoard: Wire initialized for peripherical slave %d.", module);
   }
   else {
-	LOG("ActivityBoard: Wire initialization failed.");
+    LOG("ActivityBoard: Wire initialization failed.");
   }
 #else
   Wire.begin(module);

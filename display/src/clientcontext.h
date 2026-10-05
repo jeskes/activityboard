@@ -14,10 +14,11 @@ class ClientContext {
   void clearParam(const char* name);
   void putParam(const char* name, const char* value, byte append);
 
-  String formatMessage(const char* id);
-  const char* getMessage(const char* id);
-
-  String getBitmapPath(const char* id);
+  const char* getMessage(MessageId id);
+  String formatMessage(MessageId id);
+  String getBitmapPath(BitmapId id);
+  JsonObject getMenuDef(MenuId id);
+  
   String utf8ToExtendedAscii(const String& utf8);
 
  private:
@@ -25,6 +26,7 @@ class ClientContext {
   std::map<String, String> params;
   JsonDocument messages;
   JsonDocument bitmaps;
+  JsonDocument menus;
 
   friend class ClientContexts;
 };

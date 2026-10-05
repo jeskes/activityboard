@@ -2,7 +2,7 @@
 
 void GadgetBase::setup() {
   activityBoard.setup();
-  LOG("activity boad initialized");
+  LOG("GadgetBase: activity board initialized.");
 }
 
 void GadgetBase::loop() {

@@ -1,0 +1,35 @@
+{
+	"start": "langweilig",
+	"chapters": {
+		"langweilig": {
+			"track": 101,
+			"bitmap": "romanLangweilig",
+			"menu": {
+				"id": "romanMenu1",
+				"options": [
+					"schlafen",
+					"spazieren"
+				]
+			}
+		},
+		"schlafen": {
+			"track": 102,
+			"bitmap": "romanSchlafen",
+			"next": "gluecklich"
+		},
+		"spazieren": {
+			"track": 103,
+			"bitmap": "romanSpazieren",
+			"next": "gluecklich"
+		},
+		"gluecklich": {
+			"track": 104,
+			"bitmap": "romanGluecklich",
+			"next": "zuhause"
+		},
+		"zuhause": {
+			"track": 105,
+			"bitmap": "romanZuhause"
+		}
+	}
+}

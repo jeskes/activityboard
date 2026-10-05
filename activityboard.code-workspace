@@ -15,6 +15,10 @@
 		},
 		{
 			"path": "sdcard"
+		},
+		{
+			"name": "storygadget",
+			"path": "storygadget"
 		}
 	],
 	"settings": {}

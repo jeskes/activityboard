@@ -31,6 +31,7 @@ class DisplayService : public PeriphericalService {
   void handleRequest(DisplayParameterRequest* request);
   void handleRequest(DisplayMessageRequest* request);
   void handleRequest(DisplayBitmapRequest* request);
+  void handleRequest(DisplayMenuRequest* request);
 };
 
 #endif

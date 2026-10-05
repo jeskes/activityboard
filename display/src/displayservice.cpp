@@ -41,6 +41,9 @@ void DisplayService::processRequest(BaseRequest* request) {
     case RequestType::DISPLAY_BITMAP:
       handleRequest((DisplayBitmapRequest*)request);
       break;
+    case RequestType::DISPLAY_MENU:
+      handleRequest((DisplayMenuRequest*)request);
+      break;
     default:
       break;
   }
@@ -71,4 +74,11 @@ void DisplayService::handleRequest(DisplayBitmapRequest* request) {
   LOG("DisplayService: draw bitmap: id=%s, path=%s.", request->bitmapId, path.c_str());
   auto& dsp = display;
   runner.schedule([&dsp,path]() { dsp.drawBitmap(path.c_str(), 0, 0); });
+}
+
+void DisplayService::handleRequest(DisplayMenuRequest* request) {
+  JsonObject menuDef = contexts.get(request->client).getMenuDef(request->menuId);
+  LOG("DisplayService: open menu: id=%s.", request->menuId);
+  auto& dsp = display;
+  runner.schedule([&dsp,menuDef]() { dsp.drawMenu(menuDef); });
 }

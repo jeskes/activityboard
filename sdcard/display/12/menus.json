@@ -1,0 +1,9 @@
+{
+	"romanMenu1": {
+		"title": "Was soll Roman tun?",
+		"options": [
+			"Roman geht schlafen",
+			"Roman geht spazieren"
+		]
+	}
+}

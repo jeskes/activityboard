@@ -4,6 +4,7 @@
 
 static SPIClass spi(HSPI);
 
+
 Display::Display(Storage& storage)
     : tft(&spi, TFT_DC, TFT_CS, TFT_RST),
       storage(storage) {
@@ -42,7 +43,7 @@ void Display::drawText(uint16_t backgroundColor, uint16_t textColor, const char*
 void Display::drawBitmap(const char* path, int16_t x, int16_t y) {
   File file = storage.open(path);
   if (!file) {
-    LOG("Display: cannot draw bitmap: file=%s", path);
+    LOG("Display: bitmap file not found: file=%s", path);
     return;
   }
 
@@ -89,4 +90,9 @@ void Display::drawBitmap(const char* path, int16_t x, int16_t y) {
   }
   tft.endWrite();
   file.close();
+}
+
+void Display::drawMenu(JsonObject menuDef) {
+  const char* title = menuDef["title"].as<const char*>();
+  drawText(title);
 }

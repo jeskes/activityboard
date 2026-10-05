@@ -33,7 +33,7 @@ void ClientContexts::init(ClientId client, ClientContext& context) {
 
   JsonDocument doc;
   if (!storage.loadJson(path, doc)) {
-    LOG("ClientContext: cannot load parameter file: path=%s.", path);
+    LOG("ClientContext: no parameters file found: path=%s.", path);
   }
   else {
     JsonArray names = doc.as<JsonArray>();
@@ -47,7 +47,7 @@ void ClientContexts::init(ClientId client, ClientContext& context) {
 
   sprintf(path, "/%02d/messages.json", client);
   if (!storage.loadJson(path, context.messages)) {
-    LOG("ClientContext: cannot load messages file: %s.", path);
+    LOG("ClientContext: no messages file found: %s.", path);
   }
   else {
     LOG("ClientContext: initialized messages: client=%d, count=%d.", client, context.messages.size());
@@ -55,11 +55,18 @@ void ClientContexts::init(ClientId client, ClientContext& context) {
 
   sprintf(path, "/%02d/bitmaps.json", client);
   if (!storage.loadJson(path, context.bitmaps)) {
-    LOG("ClientContext: cannot load bitmaps file: %s.", path);
-    return;
+    LOG("ClientContext: no bitmaps file found: %s.", path);
   }
   else {
     LOG("ClientContext: initialized bitmaps: client=%d, count=%d.", client, context.bitmaps.size());
+  }
+
+  sprintf(path, "/%02d/menus.json", client);
+  if (!storage.loadJson(path, context.menus)) {
+    LOG("ClientContext: no menus file found: %s.", path);
+  }
+  else {
+    LOG("ClientContext: initialized menus: client=%d, count=%d.", client, context.menus.size());
   }
 }
 
@@ -84,7 +91,7 @@ const char* ClientContext::getMessage(const char* id) {
   return message;
 }
 
-String ClientContext::formatMessage(const char* id) {
+String ClientContext::formatMessage(MessageId id) {
   String output = String(getMessage(id));
   output.reserve(VALUE_BUFFER_SIZE);
 
@@ -109,7 +116,7 @@ String ClientContext::formatMessage(const char* id) {
   return utf8ToExtendedAscii(output);
 }
 
-String ClientContext::getBitmapPath(const char* id) {
+String ClientContext::getBitmapPath(BitmapId id) {
   const char* bitmap = bitmaps[id];
   if (!bitmap) {
     LOG("ClientContext: bitmap id %d not found.", id);
@@ -118,6 +125,10 @@ String ClientContext::getBitmapPath(const char* id) {
   char path[PATH_BUFFER_SIZE];
   sprintf(path, "/%02d/%s", client, bitmap);
   return String(path);
+}
+
+JsonObject ClientContext::getMenuDef(MenuId id) {
+	return menus[id];
 }
 
 String ClientContext::utf8ToExtendedAscii(const String& utf8Str) {

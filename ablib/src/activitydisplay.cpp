@@ -39,3 +39,9 @@ void ActivityDisplayClient::displayBitmap(BitmapId id) {
   DisplayBitmapRequest request(client, id);
   sendRequest(DISPLAY_MODULE_ID, &request, sizeof(DisplayBitmapRequest));
 }
+
+void ActivityDisplayClient::displayMenu(MenuId id) {
+  LOG("send display menu request : id=%s.", id);
+  DisplayMenuRequest request(client, id);
+  sendRequest(DISPLAY_MODULE_ID, &request, sizeof(DisplayMenuRequest));
+}

@@ -20,7 +20,8 @@ const int WIRE_SCL = 22;
 const uint8_t LED_BUILTIN = 14;
 #endif
 
-#define ID_BUFFER_SIZE 16
+#define ID_BUFFER_SIZE 26
+#define PARAM_BUFFER_SIZE 10
 #define PRINT_BUFFER_SIZE 128
 #define REQUEST_BUFFER_SIZE 32
 
@@ -77,6 +78,7 @@ enum class RequestType : uint16_t {
   DISPLAY_PARAMETER = 0x2002,
   DISPLAY_MESSAGE = 0x2003,
   DISPLAY_BITMAP = 0x2004,
+  DISPLAY_MENU = 0x2005,
 };
 
 enum class StatusType : uint16_t {
@@ -173,6 +175,7 @@ struct __attribute__((packed)) SoundStatus : public BaseStatus {
 using ParameterId = const char*;
 using MessageId = const char*;
 using BitmapId = const char*;
+using MenuId = const char*;
 
 struct __attribute__((packed)) ClearDisplayRequest : public BaseRequest {
   ClearDisplayRequest(ClientId client)
@@ -180,18 +183,18 @@ struct __attribute__((packed)) ClearDisplayRequest : public BaseRequest {
   }
 };
 
-/* 32 - 1 (client) - 2 (request-type) - 16 (id-length) - 1 (append-flag) */
+/* 32 - 1 (client) - 2 (request-type) - 10 (id-length) - 1 (append-flag) - 2 terminating 0 */
 
-#define DISPLAY_PARAM_VALUE_BUFFER_SIZE 12
+#define DISPLAY_PARAM_VALUE_BUFFER_SIZE 16
 
 struct __attribute__((packed)) DisplayParameterRequest : public BaseRequest {
   DisplayParameterRequest(ClientId client, ParameterId id, const char* value, bool append)
       : BaseRequest(client, RequestType::DISPLAY_PARAMETER) {
-    strlcpy(this->id, id, ID_BUFFER_SIZE);
+    strlcpy(this->id, id, PARAM_BUFFER_SIZE);
     strlcpy(this->value, value, DISPLAY_PARAM_VALUE_BUFFER_SIZE);
     this->append = append;
   }
-  char id[ID_BUFFER_SIZE];
+  char id[PARAM_BUFFER_SIZE];
   byte append;
   char value[DISPLAY_PARAM_VALUE_BUFFER_SIZE];
 };
@@ -212,6 +215,14 @@ struct __attribute__((packed)) DisplayBitmapRequest : public BaseRequest {
   char bitmapId[ID_BUFFER_SIZE];
 };
 
+struct __attribute__((packed)) DisplayMenuRequest : public BaseRequest {
+  DisplayMenuRequest(ClientId client, MenuId id)
+      : BaseRequest(client, RequestType::DISPLAY_MENU) {
+    strlcpy(menuId, id, ID_BUFFER_SIZE);
+  }
+  char menuId[ID_BUFFER_SIZE];
+};
+
 struct __attribute__((packed)) DisplayStatus : public BaseStatus {
   DisplayStatus()
       : BaseStatus(StatusType::DISPLAY_STATUS) {
@@ -224,8 +235,9 @@ class ActivityDisplayClient : public PeriphericalClient {
   void clearDisplay();
   void putParam(const char* name, uint16_t value);
   void putParam(const char* name, const char* value);
-  void displayMessage(const char* messageId);
-  void displayBitmap(const char* bitmapId);
+  void displayMessage(MessageId messageId);
+  void displayBitmap(BitmapId bitmapId);
+  void displayMenu(MenuId menuId);
 };
 
 /* numpad api */
