@@ -3,7 +3,6 @@
 #include <ArduinoJson.h>
 #include <ablib.h>
 
-#define PATH_BUFFER_SIZE 64
 #define VALUE_BUFFER_SIZE 128
 #define INITIAL_CLIENT_ID 10
 
@@ -53,20 +52,20 @@ void ClientContexts::init(ClientId client, ClientContext& context) {
     LOG("ClientContext: initialized messages: client=%d, count=%d.", client, context.messages.size());
   }
 
-  sprintf(path, "/%02d/bitmaps.json", client);
-  if (!storage.loadJson(path, context.bitmaps)) {
-    LOG("ClientContext: no bitmaps file found: %s.", path);
-  }
-  else {
-    LOG("ClientContext: initialized bitmaps: client=%d, count=%d.", client, context.bitmaps.size());
-  }
-
   sprintf(path, "/%02d/menus.json", client);
   if (!storage.loadJson(path, context.menus)) {
     LOG("ClientContext: no menus file found: %s.", path);
   }
   else {
     LOG("ClientContext: initialized menus: client=%d, count=%d.", client, context.menus.size());
+  }
+
+  sprintf(path, "/%02d/bitmaps.json", client);
+  if (!storage.loadJson(path, context.bitmaps)) {
+    LOG("ClientContext: no bitmaps file found: %s.", path);
+  }
+  else {
+    LOG("ClientContext: initialized bitmaps: client=%d, count=%d.", client, context.bitmaps.size());
   }
 }
 
@@ -116,19 +115,41 @@ String ClientContext::formatMessage(MessageId id) {
   return utf8ToExtendedAscii(output);
 }
 
-String ClientContext::getBitmapPath(BitmapId id) {
-  const char* bitmap = bitmaps[id];
-  if (!bitmap) {
-    LOG("ClientContext: bitmap id %d not found.", id);
-    return "/10/fallback.bmp";
+MenuDef ClientContext::getMenuDef(MenuId id) {
+  MenuDef def;
+  if (menus[id].is<JsonObject>()) {
+    JsonObject object = menus[id].as<JsonObject>();
+    def.title = object["title"].as<const char*>();
+    int idx = 0;
+    for (JsonVariant option : object["options"].as<JsonArray>()) {
+      if (idx < MAX_MENU_OPTIONS) {
+        def.options[idx] = option.as<const char*>();
+      }
+    }
   }
-  char path[PATH_BUFFER_SIZE];
-  sprintf(path, "/%02d/%s", client, bitmap);
-  return String(path);
+  return def;
 }
 
-JsonObject ClientContext::getMenuDef(MenuId id) {
-	return menus[id];
+BitmapDef ClientContext::getBitmapDef(BitmapId id) {
+  BitmapDef def;
+  if (bitmaps[id].is<const char*>()) {
+    sprintf(def.path, "/%02d/%s", client, bitmaps[id].as<const char*>());
+  }
+  else if (bitmaps[id].is<JsonObject>()) {
+    JsonObject object = bitmaps[id].as<JsonObject>();
+    sprintf(def.path, "/%02d/%s", client, object["path"].as<const char*>());
+    if (object["width"].is<int>()) {
+      def.width = object["width"].as<int>();
+    }
+    if (object["height"].is<int>()) {
+      def.width = object["height"].as<int>();
+    }
+  }
+  else {
+    LOG("ClientContext: bitmap id %d not found.", id);
+    strcpy(def.path, "/10/fallback.raw");
+  }
+  return def;
 }
 
 String ClientContext::utf8ToExtendedAscii(const String& utf8Str) {

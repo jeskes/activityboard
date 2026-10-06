@@ -8,6 +8,19 @@
 
 #include "storage.h"
 
+#define MAX_MENU_OPTIONS 4
+
+struct MenuDef {
+  const char* title = nullptr;
+  const char* options[MAX_MENU_OPTIONS];
+};
+
+struct BitmapDef {
+  char path[PATH_BUFFER_SIZE];
+  uint16_t width = DEFAULT_BITMAP_WIDTH;
+  uint16_t height = DEFAULT_BITMAP_HEIGHT;
+};
+
 class ClientContext {
  public:
   void clearParams();
@@ -16,17 +29,17 @@ class ClientContext {
 
   const char* getMessage(MessageId id);
   String formatMessage(MessageId id);
-  String getBitmapPath(BitmapId id);
-  JsonObject getMenuDef(MenuId id);
-  
+  MenuDef getMenuDef(MenuId id);
+  BitmapDef getBitmapDef(BitmapId id);
+
   String utf8ToExtendedAscii(const String& utf8);
 
  private:
   ClientId client;
   std::map<String, String> params;
   JsonDocument messages;
-  JsonDocument bitmaps;
   JsonDocument menus;
+  JsonDocument bitmaps;
 
   friend class ClientContexts;
 };

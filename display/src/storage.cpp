@@ -9,7 +9,7 @@ Storage::Storage()
 void Storage::setup() {
   LOG("Storage: setup SD card...");
   delay(500);
-  SPI.begin(SD_CLK, SD_MISO, SD_MOSI, SD_CS);
+  SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!sd.begin(SD_CS, SPI, 10000000)) {
     LOG("Storage: SD card not available.");
     return;

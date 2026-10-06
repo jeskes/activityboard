@@ -30,8 +30,8 @@ class DisplayService : public PeriphericalService {
   void handleRequest(ClearDisplayRequest* request);
   void handleRequest(DisplayParameterRequest* request);
   void handleRequest(DisplayMessageRequest* request);
-  void handleRequest(DisplayBitmapRequest* request);
   void handleRequest(DisplayMenuRequest* request);
+  void handleRequest(DisplayBitmapRequest* request);
 };
 
 #endif

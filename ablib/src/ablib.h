@@ -24,6 +24,10 @@ const uint8_t LED_BUILTIN = 14;
 #define PARAM_BUFFER_SIZE 10
 #define PRINT_BUFFER_SIZE 128
 #define REQUEST_BUFFER_SIZE 32
+#define PATH_BUFFER_SIZE 64
+
+#define DEFAULT_BITMAP_WIDTH 320
+#define DEFAULT_BITMAP_HEIGHT 240
 
 /* common operations */
 

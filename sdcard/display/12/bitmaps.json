@@ -1,9 +1,9 @@
 {
-	"STARTUP": "startup.bmp",
-	"roman": "roman/cover.bmp",
-	"romanLangweilig": "roman/langweilig.bmp",
-	"romanSchlafen": "roman/schlafen.bmp",
-	"romanSpazieren": "roman/spazieren.bmp",
-	"romanGluecklich": "roman/gluecklich.bmp",
-	"romanZuhause": "roman/zuhause.bmp"
+	"STARTUP": "startup.raw",
+	"roman": "roman/cover.raw",
+	"romanLangweilig": "roman/langweilig.raw",
+	"romanSchlafen": "roman/schlafen.raw",
+	"romanSpazieren": "roman/spazieren.raw",
+	"romanGluecklich": "roman/gluecklich.raw",
+	"romanZuhause": "roman/zuhause.raw"
 }

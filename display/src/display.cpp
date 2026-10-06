@@ -2,20 +2,23 @@
 
 #include "const.h"
 
-static SPIClass spi(HSPI);
-
+Arduino_ESP32SPI bus = Arduino_ESP32SPI(TFT_DC, TFT_CS, TFT_SCK, TFT_MOSI, TFT_MISO, 2);
 
 Display::Display(Storage& storage)
-    : tft(&spi, TFT_DC, TFT_CS, TFT_RST),
+    : tft(&bus, TFT_RST, 0, true),
       storage(storage) {
 }
 
 void Display::setup() {
   LOG("Display: setup TFT display...");
-  spi.begin(TFT_CLK, TFT_MISO, TFT_MOSI, TFT_CS);
+
+  if (!tft.begin()) {
+    LOG("Display-Initialisierung fehlgeschlagen!");
+  }
+
   delay(500);
-  tft.begin();
   tft.setRotation(1);
+  tft.invertDisplay(true);
   LOG("Display: display initialized.");
 }
 
@@ -24,7 +27,7 @@ void Display::clear() {
 }
 
 void Display::drawText(const char* text) {
-  drawText(ILI9341_BLACK, ILI9341_WHITE, text);
+  drawText(BLACK, WHITE, text);
 }
 
 void Display::drawText(uint16_t backgroundColor, uint16_t textColor, const char* text) {
@@ -40,6 +43,40 @@ void Display::drawText(uint16_t backgroundColor, uint16_t textColor, const char*
   tft.print(text);
 }
 
+void Display::drawMenu(MenuDef def) {
+  if (!def.title) {
+    return;
+  }
+  drawText(def.title);
+  // TODO options.
+}
+
+/* always convert images with ffmpeg -i myimage.bmp -f rawvideo -pix_fmt rgb565be myimage.raw */
+
+void Display::drawBitmap(BitmapDef def, int16_t x, int16_t y) {
+  drawBitmap(def.path, x, y, def.width, def.height);
+}
+
+void Display::drawBitmap(const char* path, int16_t x, int16_t y, uint16_t width, uint16_t height) {
+  if (!path || !*path) {
+    LOG("Display: bitmap file path is undefined.");
+    return;
+  }
+
+  File file = storage.open(path);
+  if (!file) {
+    LOG("Display: bitmap file not found: file=%s", path);
+    return;
+  }
+
+  uint16_t rowBuffer[width]; /* 2 bytes per pixel (16bit rgb565be) */
+  for (int16_t row = 0; row < height; row++) {
+    file.read((uint8_t*)rowBuffer, width * 2);
+    tft.draw16bitRGBBitmap(x, y + row, rowBuffer, width, 1);
+  }
+}
+
+#ifdef NEVERDEF
 void Display::drawBitmap(const char* path, int16_t x, int16_t y) {
   File file = storage.open(path);
   if (!file) {
@@ -53,46 +90,55 @@ void Display::drawBitmap(const char* path, int16_t x, int16_t y) {
     return;
   }
 
-  file.seek(0x12);
-  int32_t width = file.read() | (file.read() << 8) | (file.read() << 16) | (file.read() << 24);
-  int32_t height = file.read() | (file.read() << 8) | (file.read() << 16) | (file.read() << 24);
+  file.seek(10);
+  uint32_t dataOffset;
+  file.read((uint8_t*)&dataOffset, 4);
 
-  file.seek(0x1C);
-  uint16_t depth = file.read() | (file.read() << 8);
+  file.seek(18);
+  int32_t width, height;
+  file.read((uint8_t*)&width, 4);
+  file.read((uint8_t*)&height, 4);
 
-  if (depth != 24) {
-    LOG("Display: invalid bitmap color depth: file=%s, found=%d, expected=24", path, depth);
+  uint16_t bitCount;
+  file.seek(28);
+  file.read((uint8_t*)&bitCount, 2);
+
+  if (bitCount != 24) {
+    Serial.println("Fehler: Bitte ein 24-Bit BMP aus Paint nutzen!");
     file.close();
     return;
   }
 
-  file.seek(0x0A);
-  uint32_t dataOffset = file.read() | (file.read() << 8) | (file.read() << 16) | (file.read() << 24);
-  file.seek(dataOffset);
+  // 2. Padding berechnen (BMP Zeilen muessen immer ein Vielfaches von 4 Bytes sein)
+  uint32_t rowSize = (width * 3 + 3) & ~3;
 
-  // bottom-up
-  int rowSize = (width * 3 + 3) & ~3;
-  uint8_t sbuf[width * 3];
+  // Dynamische Buffer im RAM des ESP32 anlegen
+  uint8_t readBuffer[width * 3];  // Nimmt die 24-Bit Zeile der SD-Karte auf
+  uint16_t writeBuffer[width];    // Wandelt sie in 16-Bit fuers Display um
 
-  tft.startWrite();
-  for (int i = 0; i < height; i++) {
-    uint32_t pos = dataOffset + (height - 1 - i) * rowSize;
-    file.seek(pos);
-    file.read(sbuf, sizeof(sbuf));
+  // 3. Zeilenweise von unten nach oben zeichnen (Paint Standard)
+  for (int32_t row = 0; row < height; row++) {
+    // Ziel-Y-Koordinate auf dem Display berechnen
+    int32_t tftY = y + (height - 1 - row);
 
-    for (int j = 0; j < width; j++) {
-      uint8_t b = sbuf[j * 3];
-      uint8_t g = sbuf[j * 3 + 1];
-      uint8_t r = sbuf[j * 3 + 2];
-      uint16_t color = tft.color565(r, g, b);
-      tft.writePixel(x + j, y + i, color);
+    // Springe exakt zur gewuenschten Zeile in der Datei
+    file.seek(dataOffset + (row * rowSize));
+    file.read(readBuffer, width * 3);
+
+    // 24-Bit (BGR) zu 16-Bit (RGB565) konvertieren
+    for (int32_t col = 0; col < width; col++) {
+      uint8_t b = readBuffer[col * 3];
+      uint8_t g = readBuffer[col * 3 + 1];
+      uint8_t r = readBuffer[col * 3 + 2];
+
+      // Konvertierung in das hardwarenahe RGB565-Format
+      writeBuffer[col] = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
     }
+
+    // Die komplette Zeile als High-Speed-Block an das Display senden
+    tft.draw16bitRGBBitmap(x, tftY, writeBuffer, width, 1);
   }
-  tft.endWrite();
+
   file.close();
 }
-
-void Display::drawMenu(JsonObject menuDef) {
-  const char* title = menuDef["title"].as<const char*>();
-  drawText(title);
-}
+#endif
