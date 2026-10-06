@@ -1,17 +1,22 @@
-#include <Arduino.h>
+#pragma once
+
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 
 #include <functional>
-#include <queue>
 
 class TaskRunner {
  public:
-  void setup();
+  TaskRunner();
+  ~TaskRunner();
 
+  bool setup();
   void schedule(std::function<void()> task);
 
  private:
-  std::queue<std::function<void()>> taskQueue;
-  SemaphoreHandle_t queueMutex;
+  QueueHandle_t xTaskQueue;
+  TaskHandle_t xWorkerHandle;
+  static const int QUEUE_SIZE = 10;
 
   static void workerTask(void* pvParameters);
 };

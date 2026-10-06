@@ -1,36 +1,55 @@
 #include "TaskRunner.h"
 
-void TaskRunner::setup() {
-  queueMutex = xSemaphoreCreateMutex();
-  /* worker function, name, stack-size, this-instance, priority, task-handle, core number */
-  xTaskCreatePinnedToCore(TaskRunner::workerTask, "TaskWorker", 8192, this, 1, NULL, 0);
+#include <ablib.h>
+
+TaskRunner::TaskRunner()
+    : xTaskQueue(nullptr),
+      xWorkerHandle(nullptr) {
+  xTaskQueue = xQueueCreate(QUEUE_SIZE, sizeof(std::function<void()>*));
+  if (xTaskQueue == nullptr) {
+    LOG("TaskRunner: cannot create task-queue.");
+  }
+}
+
+TaskRunner::~TaskRunner() {
+  if (xWorkerHandle != nullptr) {
+    vTaskDelete(xWorkerHandle);
+  }
+  if (xTaskQueue != nullptr) {
+    vQueueDelete(xTaskQueue);
+  }
+}
+
+bool TaskRunner::setup() {
+  if (xTaskQueue == nullptr)
+    return false;
+
+  BaseType_t result = xTaskCreatePinnedToCore(workerTask, "TaskRunnerWorker", 8192, this, 1, &xWorkerHandle, 0);
+
+  return (result == pdPASS);
 }
 
 void TaskRunner::schedule(std::function<void()> task) {
-  if (xSemaphoreTake(queueMutex, portMAX_DELAY) == pdTRUE) {
-    taskQueue.push(task);
-    xSemaphoreGive(queueMutex);
+  if (xTaskQueue == nullptr)
+    return;
+
+  auto* taskPtr = new std::function<void()>(std::move(task));
+
+  if (xQueueSend(xTaskQueue, &taskPtr, pdMS_TO_TICKS(10)) != pdTRUE) {
+    LOG("TaskRunner: queue overflow - discard task.");
+    delete taskPtr;
   }
 }
 
 void TaskRunner::workerTask(void* pvParameters) {
-  TaskRunner* _this = (TaskRunner*)pvParameters;
-
+  TaskRunner* _this = static_cast<TaskRunner*>(pvParameters);
+  std::function<void()>* incomingTaskPtr = nullptr;
   while (true) {
-    std::function<void()> currentTask = nullptr;
-
-    if (xSemaphoreTake(_this->queueMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
-      if (!_this->taskQueue.empty()) {
-        currentTask = _this->taskQueue.front();
-        _this->taskQueue.pop();
+    if (xQueueReceive(_this->xTaskQueue, &incomingTaskPtr, portMAX_DELAY) == pdTRUE) {
+      if (incomingTaskPtr != nullptr) {
+        (*incomingTaskPtr)();
+        delete incomingTaskPtr;
       }
-      xSemaphoreGive(_this->queueMutex);
     }
-
-    if (currentTask != nullptr) {
-      currentTask();
-    }
-
-    vTaskDelay(pdMS_TO_TICKS(1));
   }
 }
