@@ -5,5 +5,16 @@
 	"romanSchlafen": "roman/schlafen.raw",
 	"romanSpazieren": "roman/spazieren.raw",
 	"romanGluecklich": "roman/gluecklich.raw",
-	"romanZuhause": "roman/zuhause.raw"
+	"romanZuhause": "roman/zuhause.raw",
+	"noddy": "noddy/cover.raw",
+	"noddySunnyday": "noddy/sunnyday.raw",
+	"noddyDucks": "noddy/ducks.raw",
+	"noddyFarmerstraw": "noddy/farmerstraw.raw",
+	"noddyPig": "noddy/pig.raw",
+	"noddySheep": "noddy/sheep.raw",
+	"noddyDog": "noddy/dog.raw",
+	"noddyGoat": "noddy/goat.raw",
+	"noddyPooroldnoddy": "noddy/pooroldnoddy.raw",
+	"noddyMilk": "noddy/milk.raw",
+	"noddyGoodbye": "noddy/goodbye.raw"
 }
