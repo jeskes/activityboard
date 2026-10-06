@@ -2,23 +2,18 @@
 
 #include "const.h"
 
-Arduino_ESP32SPI bus = Arduino_ESP32SPI(TFT_DC, TFT_CS, TFT_SCK, TFT_MOSI, TFT_MISO, 2);
+static SPIClass spi(HSPI);
 
 Display::Display(Storage& storage)
-    : tft(&bus, TFT_RST, 0, true),
+    : tft(&spi, TFT_DC, TFT_CS, TFT_RST),
       storage(storage) {
 }
 
 void Display::setup() {
   LOG("Display: setup TFT display...");
-
-  if (!tft.begin()) {
-    LOG("Display-Initialisierung fehlgeschlagen!");
-  }
-
-  delay(500);
+  spi.begin(TFT_SCK, TFT_MISO, TFT_MOSI, TFT_CS);
+  tft.begin();
   tft.setRotation(1);
-  tft.invertDisplay(true);
   LOG("Display: display initialized.");
 }
 
@@ -27,7 +22,7 @@ void Display::clear() {
 }
 
 void Display::drawText(const char* text) {
-  drawText(BLACK, WHITE, text);
+  drawText(ILI9341_BLACK, ILI9341_WHITE, text);
 }
 
 void Display::drawText(uint16_t backgroundColor, uint16_t textColor, const char* text) {
@@ -72,7 +67,7 @@ void Display::drawBitmap(const char* path, int16_t x, int16_t y, uint16_t width,
   uint16_t rowBuffer[width]; /* 2 bytes per pixel (16bit rgb565be) */
   for (int16_t row = 0; row < height; row++) {
     file.read((uint8_t*)rowBuffer, width * 2);
-    tft.draw16bitRGBBitmap(x, y + row, rowBuffer, width, 1);
+    tft.drawRGBBitmap(x, y + row, rowBuffer, width, 1);
   }
 }
 

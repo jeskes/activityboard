@@ -1,8 +1,7 @@
 #ifndef _AB_TFT
 #define _AB_TFT
 
-#include <Arduino_GFX.h>
-#include <Arduino_GFX_Library.h>
+#include <Adafruit_ILI9341.h>
 #include <ablib.h>
 
 #include "storage.h"
@@ -22,7 +21,7 @@ class Display {
   void drawBitmap(const char* path, int16_t x, int16_t y, uint16_t width = DEFAULT_BITMAP_WIDTH, uint16_t height = DEFAULT_BITMAP_HEIGHT);
 
  private:
-  Arduino_ILI9341 tft;
+  Adafruit_ILI9341 tft;
   Storage& storage;
 };
 
