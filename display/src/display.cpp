@@ -57,10 +57,10 @@ void Display::drawMenu(MenuDef def) {
   uint16_t rowHeight = 40;
 
   for (uint8_t idx = 0; idx < MAX_MENU_OPTIONS; idx++) {
-    if (def.options[idx]) {
+    if (def.options[idx] != nullptr) {
       tft.setCursor(15, optionY);
       tft.setTextColor(ILI9341_GREEN, ILI9341_BLACK);
-      tft.print("option---------------");
+      tft.print(def.options[idx]);
       optionY += rowHeight;
     }
   }

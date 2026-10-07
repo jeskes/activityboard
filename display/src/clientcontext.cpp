@@ -124,8 +124,13 @@ MenuDef ClientContext::getMenuDef(MenuId id) {
     for (JsonVariant option : object["options"].as<JsonArray>()) {
       if (idx < MAX_MENU_OPTIONS) {
         def.options[idx] = option.as<const char*>();
+		idx++;
       }
     }
+	while( idx < MAX_MENU_OPTIONS ) {
+		def.options[idx] = nullptr;
+		idx++;
+	}
   }
   return def;
 }
