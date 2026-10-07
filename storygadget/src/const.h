@@ -1,10 +1,8 @@
-#ifndef _AB_CONST
-#define _AB_CONST
+#pragma once
 
 #include <ablib.h>
 
 #define MAX_STORIES 3
-#define MAX_TITLE_LENGTH 32
 
 /* sd card module */
 
@@ -13,22 +11,19 @@
 #define SD_MISO MISO
 #define SD_CLK  SCK
 
-/* button pins */
+/* pins */
 
-#define BUTTON_1 27
-#define BUTTON_2 14
-#define BUTTON_3 12
-#define BUTTON_4 13
-
-/* indicator pins */
-
-#define LED_1 32
-#define LED_2 33
-#define LED_3 25
-#define LED_4 26
+#define START_BUTTON  32
+#define SELECT_BUTTON 33
+#define SELECTING_LED 25
+#define READING_LED   26
 
 /* global constants */
 
 const BitmapId BITMAP_STARTUP = "STARTUP";
+const long SELECTION_TIMEOUT = 10000;
 
-#endif
+/* global types */
+
+using StoryId = const char*;
+using ChapterId = const char*;

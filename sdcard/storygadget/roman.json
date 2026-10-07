@@ -6,6 +6,7 @@
 			"bitmap": "romanLangweilig",
 			"menu": {
 				"id": "romanMenu1",
+				"track": 191,
 				"options": [
 					"schlafen",
 					"spazieren"

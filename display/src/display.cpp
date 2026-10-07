@@ -42,8 +42,28 @@ void Display::drawMenu(MenuDef def) {
   if (!def.title) {
     return;
   }
-  drawText(def.title);
-  // TODO options.
+
+  tft.fillScreen(ILI9341_BLACK);
+
+  if (def.title) {
+    tft.setTextSize(2);
+    tft.setTextColor(ILI9341_YELLOW, ILI9341_BLACK);
+    tft.setCursor(10, 10);
+    tft.print(def.title);
+  }
+
+  tft.setTextSize(1);
+  uint16_t optionY = 80;
+  uint16_t rowHeight = 40;
+
+  for (uint8_t idx = 0; idx < MAX_MENU_OPTIONS; idx++) {
+    if (def.options[idx]) {
+      tft.setCursor(15, optionY);
+      tft.setTextColor(ILI9341_GREEN, ILI9341_BLACK);
+      tft.print("option---------------");
+      optionY += rowHeight;
+    }
+  }
 }
 
 /* always convert images with ffmpeg -i myimage.bmp -f rawvideo -pix_fmt rgb565be myimage.raw */

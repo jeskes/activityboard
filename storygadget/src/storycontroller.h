@@ -1,40 +1,37 @@
-#ifndef _AB_STORYCONTROLLER
-#define AB_STORYCONTROLLER
+#pragma once
 
 #include <ArduinoJson.h>
 
 #include "const.h"
 #include "storage.h"
 
-class StoryController : public SoundStatusHandler {
+class StoryController : SoundStatusHandler {
  public:
   StoryController(Storage& storage, ActivitySoundClient& sound, ActivityNumpadClient& numpad, ActivityDisplayClient& display);
 
+  bool run(StoryId story);
   void loop();
-
-  bool run(const char* story);
-  bool next();
-  bool stop();
   bool isBusy();
-
-  const char* activeStory;
-  bool chapterTrackStopped;
-  uint8_t menuSelectionPending;
-  const char* currentChapter;
-  bool playerStateChanged(PlayerState state);
-
-  ActivitySoundClient& sound;
-  ActivityNumpadClient& numpad;
-  ActivityDisplayClient& display;
 
  private:
   Storage& storage;
   JsonDocument definition;
   bool loadDefinition();
 
-  void runChapter(const char* chapter);
+  ActivitySoundClient& sound;
+  ActivityNumpadClient& numpad;
+  ActivityDisplayClient& display;
+
+  StoryId activeStory;
+  bool chapterTrackStopped;
+  uint8_t menuSelectionPending;
+  ChapterId currentChapter;
+  
+  bool next();
+  bool stop();
+
+  void startChapter(ChapterId chapter);
   void onChapterEnded();
   void onMenuSelected(uint8_t selectedIndex);
+  bool playerStateChanged(PlayerState state);
 };
-
-#endif

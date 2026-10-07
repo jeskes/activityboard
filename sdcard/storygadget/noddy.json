@@ -14,7 +14,15 @@
 		"farmerstraw": {
 			"track": 203,
 			"bitmap": "noddyFarmerstraw",
-			"next": "pig"
+			"menu": {
+				"id": "noddyFarmerstraw",
+				"track": 291,
+				"options": [
+					"pig",
+					"dog",
+					"goodbye"
+				]
+			}
 		},
 		"pig": {
 			"track": 204,

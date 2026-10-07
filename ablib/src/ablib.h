@@ -1,5 +1,4 @@
-#ifndef _AB_LIB
-#define _AB_LIB
+#pragma once
 
 #include <Arduino.h>
 #include <I2CKeyPad.h>
@@ -265,5 +264,3 @@ class GadgetBase {
   virtual void setup();
   virtual void loop();
 };
-
-#endif

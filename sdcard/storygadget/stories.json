@@ -1,0 +1,11 @@
+{
+	"roman": {
+		"track": 100,
+		"bitmap": "romanCover"
+	},
+	"noddy": {
+		"track": 200,
+		"bitmap": "noddyCover"
+	}
+}
+,

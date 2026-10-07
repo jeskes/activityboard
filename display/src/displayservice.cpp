@@ -10,11 +10,11 @@ DisplayService::DisplayService()
 
 void DisplayService::setup(uint8_t module) {
   PeriphericalService::setup(module);
-
+/*
   pinMode(TFT_BL, OUTPUT);
   activityControls.blink(TFT_BL, 10, 300);
   digitalWrite(TFT_BL, HIGH);
-
+*/
   storage.setup();
   display.setup();
   runner.setup();

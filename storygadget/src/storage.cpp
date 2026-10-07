@@ -31,6 +31,7 @@ bool Storage::loadJson(const char* path, JsonDocument& json) {
     return false;
   }
 
+  json.clear();
   DeserializationError result = deserializeJson(json, file);
   file.close();
 

@@ -13,52 +13,55 @@ void StoryController::loop() {
     onChapterEnded();
   }
 
-  if (isBusy()) {
-    char ch = numpad.getChar();
-    if (ch == '#') {
-      LOG("STOP selected at numpad.");
-      stop();
-    }
-    else if (ch == '*') {
-      LOG("NEXT selected at numpad.");
-	  sound.stop();
-    }
-    else if (menuSelectionPending) {
-      uint8_t idx = numpad.getChar() - (int)'1';
-      if (idx >= 0 && idx < menuSelectionPending) {
-        LOG("menu option %d selected at numpad.", idx + 1);
-        onMenuSelected(idx);
-      }
+  char ch = numpad.getChar();
+  if (ch == '#') {
+    LOG("STOP selected at numpad.");
+    stop();
+  }
+  else if (ch == '*') {
+    LOG("NEXT selected at numpad.");
+    sound.stop();
+  }
+  else if (menuSelectionPending) {
+    uint8_t idx = numpad.getChar() - (int)'1';
+    if (idx >= 0 && idx < menuSelectionPending) {
+      LOG("menu option %d selected at numpad.", idx + 1);
+      onMenuSelected(idx);
     }
   }
 }
 
-bool StoryController::run(const char* story) {
+bool StoryController::run(StoryId story) {
   activeStory = story;
+  currentChapter = nullptr;
+  chapterTrackStopped = false;
+  menuSelectionPending = false;
+
   if (!loadDefinition()) {
     activeStory = nullptr;
     return false;
   }
 
-  const char* startChapter = definition["start"].as<const char*>();
-  if (!startChapter) {
+  ChapterId start = definition["start"].as<ChapterId>();
+  if (!start) {
     activeStory = nullptr;
     return false;
   }
 
-  runChapter(startChapter);
+  startChapter(start);
 
   return true;
 }
 
-void StoryController::runChapter(const char* chapterId) {
-  currentChapter = chapterId;
+void StoryController::startChapter(ChapterId chapter) {
+  LOG("start chapter : %s", chapter);
+  currentChapter = chapter;
   JsonObject chapterDef = definition["chapters"][currentChapter].as<JsonObject>();
 
-  BitmapId bitmap = chapterDef["bitmap"].as<const char*>();
+  BitmapId bitmap = chapterDef["bitmap"].as<BitmapId>();
   display.displayBitmap(bitmap);
 
-  TrackId track = chapterDef["track"].as<int>();
+  TrackId track = chapterDef["track"].as<TrackId>();
   chapterTrackStopped = false;
   sound.play(track, this);
 }
@@ -71,13 +74,17 @@ void StoryController::onChapterEnded() {
 
   if (chapterDef["menu"].is<JsonObject>()) {
     JsonObject menuDef = chapterDef["menu"].as<JsonObject>();
-    MenuId menuId = menuDef["id"].as<const char*>();
-    display.displayMenu(menuId);
+
+    MenuId menu = menuDef["id"].as<MenuId>();
+    display.displayMenu(menu);
     menuSelectionPending = menuDef["options"].as<JsonArray>().size();
+
+    TrackId track = menuDef["id"].as<TrackId>();
+    sound.play(track);
   }
-  else if (chapterDef["next"].is<const char*>()) {
-    const char* nextChapter = chapterDef["next"].as<const char*>();
-    runChapter(nextChapter);
+  else if (chapterDef["next"].is<ChapterId>()) {
+    ChapterId nextChapter = chapterDef["next"].as<ChapterId>();
+    startChapter(nextChapter);
   }
   else {
     stop();
@@ -94,8 +101,8 @@ void StoryController::onMenuSelected(uint8_t selectedIndex) {
   }
   JsonObject menuDef = chapterDef["menu"].as<JsonObject>();
   JsonArray options = menuDef["options"].as<JsonArray>();
-  const char* nextChapter = options[selectedIndex].as<const char*>();
-  runChapter(nextChapter);
+  ChapterId nextChapter = options[selectedIndex].as<ChapterId>();
+  startChapter(nextChapter);
 }
 
 bool StoryController::next() {
