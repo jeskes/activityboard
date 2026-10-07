@@ -22,8 +22,12 @@ void StoryController::loop() {
     LOG("NEXT selected at numpad.");
     sound.stop();
   }
+  else if (ch == '0') {
+    LOG("REPLAY (0) selected at numpad.");
+    startChapter(currentChapter);
+  }
   else if (menuSelectionPending) {
-    uint8_t idx = numpad.getChar() - (int)'1';
+    uint8_t idx = ch - (int)'1';
     if (idx >= 0 && idx < menuSelectionPending) {
       LOG("menu option %d selected at numpad.", idx + 1);
       onMenuSelected(idx);

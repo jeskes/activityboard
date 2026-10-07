@@ -11,6 +11,14 @@ void SelectionController::setup() {
   loadStories();
 }
 
+uint8_t SelectionController::getStoriesCount() {
+	return storiesCount;
+}
+
+StoryId SelectionController::getStory(uint8_t index) {
+	return stories[index];
+}
+
 void SelectionController::run() {
   currentIndex = -1;
   currentTimeout = 0;

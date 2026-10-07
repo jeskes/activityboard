@@ -16,6 +16,9 @@ class SelectionController {
   StoryId loop();
   bool isBusy();
 
+  uint8_t getStoriesCount();
+  StoryId getStory(uint8_t index);
+
  private:
   uint8_t storiesCount;
   StoryId stories[MAX_STORIES];

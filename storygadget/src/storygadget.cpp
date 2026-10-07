@@ -49,6 +49,14 @@ void StoryGadget::loop() {
       selectionController.run();
       resetPending = true;
     }
+    else {
+      int idx = numpad.getChar() - (int)'1';
+      if (idx >= 0 && idx < selectionController.getStoriesCount()) {
+        LOG("story %d directly selected at numpad.", idx + 1);
+		resetPending = true;
+		storyController.run(selectionController.getStory(idx));
+      }
+    }
   }
 
   digitalWrite(SELECTING_LED, selectionController.isBusy() ? HIGH : LOW);
