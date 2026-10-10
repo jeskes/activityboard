@@ -9,13 +9,14 @@ ActivityNumpadClient::ActivityNumpadClient()
 }
 
 void ActivityNumpadClient::setup() {
-  LOG("init numpad module.");
+  LOG("ActivityNumpadClient: init numpad module.");
   if (keyPad.begin() == false) {
-    LOG("Error: numpad not found at address %d", NUMPAD_MODULE_ID);
+    LOG("ActivityNumpadClient: numpad not found at address %d", NUMPAD_MODULE_ID);
   }
   else {
+    LOG("ActivityNumpadClient: loading keymap: %d", keymap);
     keyPad.loadKeyMap(keymap);
-    LOG("Numpad initialized at address %d", NUMPAD_MODULE_ID);
+    LOG("ActivityNumpadClient: numpad initialized at address %d", NUMPAD_MODULE_ID);
   }
 }
 

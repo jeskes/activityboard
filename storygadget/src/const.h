@@ -11,12 +11,21 @@
 #define SD_MISO MISO
 #define SD_CLK  SCK
 
-/* pins */
+/* local pins */
 
 #define START_BUTTON  32
 #define SELECT_BUTTON 33
 #define SELECTING_LED 25
 #define READING_LED   26
+
+/* master select rotary encoder behind PCF8574 pins (attach INT to pin 25) */
+
+#define MASTERSELECT_MODULE_ID 0x21
+#define MASTERSELECT_INTERRUPT 25
+
+#define MASTERSELECT_ENCODER_CLK P0
+#define MASTERSELECT_ENCODER_DT  P1
+#define MASTERSELECT_ENCODER_SW  P2
 
 /* global constants */
 

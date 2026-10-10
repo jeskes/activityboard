@@ -46,3 +46,9 @@ bool ActivityControls::buttonPressed(uint8_t pin) {
   }
   return pressed;
 }
+
+void ActivityControls::buzzer(uint8_t buzzer, int frequency, long timeout) {
+  tone(buzzer, frequency);
+  delay(timeout);
+  noTone(buzzer);
+}

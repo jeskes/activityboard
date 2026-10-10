@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <I2CKeyPad.h>
 #include <TaskSchedulerDeclarations.h>
-#include <stdint.h>  // Zwingend erforderlich für plattformunabhängige Datentypen
+#include <stdint.h>
 
 /* constants */
 
@@ -12,6 +12,7 @@
 #define SOUND_MODULE_ID 0x10
 #define DISPLAY_MODULE_ID 0x11
 #define NUMPAD_MODULE_ID 0x20
+#define ROTARY_ENCODER_MODULE_ID 0x27
 
 #ifdef ARDUINO_ARCH_ESP32
 const int WIRE_SDA = 21;
@@ -27,6 +28,10 @@ const uint8_t LED_BUILTIN = 14;
 
 #define DEFAULT_BITMAP_WIDTH 320
 #define DEFAULT_BITMAP_HEIGHT 240
+
+#define DEFAULT_BUZZER 12
+#define DEFAULT_BUZZER_FREQUENCY 150
+#define DEFAULT_BUZZER_TIMEOUT 250
 
 /* common operations */
 
@@ -64,6 +69,7 @@ class ActivityControls {
   void blink(uint8_t pin, uint16_t cycleCount, uint16_t timeout);
   void blink(const uint8_t pins[], uint8_t pinCount, uint16_t cycleCount, uint16_t timeout);
   bool buttonPressed(uint8_t pin);
+  void buzzer(uint8_t buzzer = DEFAULT_BUZZER, int frequency = DEFAULT_BUZZER_FREQUENCY, long timeout = DEFAULT_BUZZER_TIMEOUT);
 };
 extern ActivityControls activityControls;
 
@@ -108,11 +114,11 @@ struct __attribute__((packed)) BaseStatus {
 
 class PeriphericalClient {
  public:
-  static bool sendRequest(ModuleId module, BaseRequest* request, uint8_t length);
+  bool sendRequest(ModuleId module, BaseRequest* request, uint8_t length);
   static bool requestStatus(ModuleId module, BaseStatus* status, uint8_t length);
 
  protected:
-  PeriphericalClient(ClientId client);
+  PeriphericalClient(ClientId client, Scheduler& scheduler);
   ClientId client;
 };
 
@@ -234,7 +240,7 @@ struct __attribute__((packed)) DisplayStatus : public BaseStatus {
 
 class ActivityDisplayClient : public PeriphericalClient {
  public:
-  ActivityDisplayClient(ClientId clientId);
+  ActivityDisplayClient(ClientId clientId, Scheduler& scheduler);
   void clearDisplay();
   void putParam(const char* name, uint16_t value);
   void putParam(const char* name, const char* value);
@@ -254,6 +260,42 @@ class ActivityNumpadClient {
   void setup();
   char getChar();
   int16_t readString(char* buffer, uint8_t length, int16_t timeout = -1, char until = '#');
+};
+
+/* rotary encoder api */
+
+#define ROTARY_ENCODER_LEFT 0
+#define ROTARY_ENCODER_RIGHT 1
+
+struct __attribute__((packed)) RotaryEncoderStatus {
+  int32_t value;
+  bool pressed;
+};
+
+class __attribute__((packed)) RotaryStatus {
+ public:
+  void clear();
+  RotaryEncoderStatus& operator[](uint8_t idx);
+  RotaryEncoderStatus encoderStatus[2];
+};
+
+class RotaryStatusHandler {
+ public:
+  virtual bool rotaryStatusChanged(RotaryStatus status) = 0;
+};
+
+class ActivityRotaryClient {
+ public:
+  ActivityRotaryClient(Scheduler& scheduler);
+  void setup(RotaryStatusHandler* handler = nullptr);
+
+  void reset();
+  void reset(uint8_t idx);
+
+  RotaryStatus getStatus();
+  void setValue(uint8_t idx, uint32_t value);
+
+  void setStatusHandler(RotaryStatusHandler* handler);
 };
 
 /* gadget base */

@@ -16,6 +16,8 @@
 	"frameworks": "arduino",
 	"platforms": "*",
 	"dependencies": {
-		"arkhipenko/TaskScheduler": "^4.0.8"
+		"arkhipenko/TaskScheduler": "^4.0.8",
+		"robtillaart/I2CKeyPad@": "^0.5.2",
+		"robtillaart/rotaryDecoderSwitch": "^0.4.3"
 	}
 }

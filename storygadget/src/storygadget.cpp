@@ -6,8 +6,8 @@
 #include "const.h"
 
 StoryGadget::StoryGadget()
-    : sound(STORYGADGET_ID, this->scheduler),
-      display(STORYGADGET_ID),
+    : sound(STORYGADGET_ID, scheduler),
+      display(STORYGADGET_ID, scheduler),
       selectionController(storage, sound, numpad, display),
       storyController(storage, sound, numpad, display) {
 }
@@ -46,6 +46,7 @@ void StoryGadget::loop() {
       display.displayBitmap(BITMAP_STARTUP);
     }
     if (activityControls.buttonPressed(START_BUTTON)) {
+      LOG("selection started using start button.");
       selectionController.run();
       resetPending = true;
     }
@@ -53,8 +54,13 @@ void StoryGadget::loop() {
       int idx = numpad.getChar() - (int)'1';
       if (idx >= 0 && idx < selectionController.getStoriesCount()) {
         LOG("story %d directly selected at numpad.", idx + 1);
-		resetPending = true;
-		storyController.run(selectionController.getStory(idx));
+        resetPending = true;
+        storyController.run(selectionController.getStory(idx));
+      }
+      if (idx == -1) {
+        LOG("selection started at numpad.");
+        selectionController.run();
+        resetPending = true;
       }
     }
   }

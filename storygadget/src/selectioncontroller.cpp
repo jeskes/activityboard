@@ -50,7 +50,7 @@ StoryId SelectionController::loop() {
   }
 
   if (activityControls.buttonPressed(SELECT_BUTTON)) {
-    LOG("story %d selected at buttons.", currentIndex + 1);
+    LOG("story %d selected using select button.", currentIndex + 1);
     return onStorySelected(currentIndex);
   }
 

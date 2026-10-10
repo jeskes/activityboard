@@ -11,7 +11,7 @@ static PlayerState lastPlayerState = PlayerState::UNKNOWN;
 static Task statusPollingTask(POLLING_TIMEOUT, TASK_FOREVER, &pollSoundStatus);
 
 ActivitySoundClient::ActivitySoundClient(ClientId client, Scheduler& scheduler)
-    : PeriphericalClient(client) {
+    : PeriphericalClient(client, scheduler) {
   scheduler.addTask(statusPollingTask);
 }
 

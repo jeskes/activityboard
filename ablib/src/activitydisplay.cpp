@@ -3,8 +3,8 @@
 
 #include "ablib.h"
 
-ActivityDisplayClient::ActivityDisplayClient(ClientId client)
-    : PeriphericalClient(client) {
+ActivityDisplayClient::ActivityDisplayClient(ClientId client, Scheduler& scheduler)
+    : PeriphericalClient(client, scheduler) {
 }
 
 void ActivityDisplayClient::clearDisplay() {

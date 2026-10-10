@@ -20,7 +20,7 @@ class StoryGadget : public GadgetBase {
   ActivitySoundClient sound;
   ActivityNumpadClient numpad;
   ActivityDisplayClient display;
-
+  
   SelectionController selectionController;
   StoryController storyController;
 

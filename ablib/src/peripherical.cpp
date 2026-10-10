@@ -6,11 +6,15 @@
 /* PERIPHERICAL CLIENT                                                       */
 /* ========================================================================= */
 
-PeriphericalClient::PeriphericalClient(ClientId client)
+PeriphericalClient::PeriphericalClient(ClientId client, Scheduler& scheduler)
     : client(client) {
+  /* scheduler not used yet */
 }
+
 bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint8_t length) {
   LOG("send request: module=%d, type=0x%04x, length=%d", module, (uint16_t)request->type, length);
+
+  /* maybe put send in a task/queue using scheduler... */
 
   Wire.beginTransmission(module);
   Wire.write((uint8_t*)request, length);
@@ -88,7 +92,6 @@ static void onReceive(int length) {
     LOG("no receive");
     return;
   }
-
 
   if (length > REQUEST_BUFFER_SIZE) {
     length = REQUEST_BUFFER_SIZE;
