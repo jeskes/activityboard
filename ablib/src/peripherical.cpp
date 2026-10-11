@@ -105,7 +105,6 @@ static void onReceive(int length) {
   }
 
   currentRequest = (BaseRequest*)requestBuffer;
-  LOG("on receive: %d bitmap: %s", length, ((DisplayBitmapRequest*)currentRequest)->bitmapId);
 }
 
 static void onRequest() {

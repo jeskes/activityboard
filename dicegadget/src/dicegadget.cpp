@@ -48,7 +48,7 @@ void DiceGadget::setup() {
 
   activityControls.blink(indicators, countIndicators, 2, 200);
 
-  display.displayBitmap(BITMAP_STARTUP);
+  display.init(BITMAP_STARTUP);
 
   LOG("Dice Gadget started.");
 }
@@ -64,8 +64,6 @@ void DiceGadget::stateMachine() {
     case Status::IDLE:
       if (pendingGuessDisplay && (millis() > wireBlock)) {
         pendingGuessDisplay = 0;
-        display.putParam(PARAMETER_GUESS, currentGuess);
-        display.displayMessage(MESSAGE_GUESS);
       }
       if (checkNumpad() || checkStartButton()) {
         status = Status::START_REQUESTED;
@@ -138,6 +136,8 @@ void DiceGadget::setGuess(int guess) {
   LOG("set guess: %d", guess);
   if (currentGuess != guess) {
     currentGuess = guess;
+    display.putParam(PARAMETER_GUESS, currentGuess);
+    display.displayMessage(MESSAGE_GUESS);
     pendingGuessDisplay = true;
   }
 }
@@ -161,7 +161,6 @@ void DiceGadget::reset() {
   wireBlock = 0;
   pendingGuessDisplay = false;
   sound.setStatusHandler(nullptr);
-  rotary.reset(ROTARY_ENCODER_RIGHT);
 }
 
 void DiceGadget::showIndicators() {
@@ -189,16 +188,27 @@ bool DiceGadget::playerStateChanged(PlayerState playerState) {
 }
 
 bool DiceGadget::rotaryStatusChanged(RotaryStatus rotaryStatus) {
-  uint32_t jingle = rotaryStatus[ROTARY_ENCODER_LEFT].value / 4;
-  selectedJingle = INITIAL_JINGLE + (abs(jingle) % JINGLES_COUNT);
+  LOG("DiceGadget: status left: pressed=%d, value=%ld", rotaryStatus[0].pressed, rotaryStatus[0].value);
+  LOG("DiceGadget: status right: pressed=%d, value=%ld", rotaryStatus[1].pressed, rotaryStatus[1].value);
+
+  if (!rotaryStatus[ROTARY_ENCODER_RIGHT].pressed) {
+    uint32_t jingle = rotaryStatus[ROTARY_ENCODER_LEFT].value / 2;
+    selectedJingle = INITIAL_JINGLE + (abs(jingle) % JINGLES_COUNT);
+    LOG("selected jingle: %d", selectedJingle);
+  }
 
   if (status == Status::IDLE) {
-    int32_t num = (rotaryStatus[ROTARY_ENCODER_RIGHT].value / 4) % 6;
-    setGuess(num >= 0 ? num + 1 : 7 + num);
     if (rotaryStatus[ROTARY_ENCODER_RIGHT].pressed) {
       status = Status::START_REQUESTED;
     }
-    wireBlock = millis() + 200;
+    else {
+      int32_t num = (rotaryStatus[ROTARY_ENCODER_RIGHT].value / 2) % 6;
+      int guess = num >= 0 ? num + 1 : 7 + num;
+      if (guess != currentGuess) {
+        setGuess(guess);
+      }
+      wireBlock = millis() + 200;
+    }
   }
 
   return false;

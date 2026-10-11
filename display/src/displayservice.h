@@ -1,13 +1,13 @@
-#ifndef _AB_DISPLAY_SERVICE
-#define _AB_DISPLAY_SERVICE
+#pragma once
 
 #include <SPI.h>
 #include <ablib.h>
 
-#include "storage.h"
-#include "display.h"
 #include "clientcontext.h"
+#include "display.h"
+#include "storage.h"
 #include "taskrunner.h"
+#include "rotaryencoder.h"
 
 class DisplayService : public PeriphericalService {
  public:
@@ -16,6 +16,7 @@ class DisplayService : public PeriphericalService {
   Storage storage;
   Display display;
   ClientContexts contexts;
+  RotaryEncoderWrapper rotary;
 
   TaskRunner runner;
 
@@ -23,15 +24,14 @@ class DisplayService : public PeriphericalService {
   void loop() override;
 
   void processRequest(BaseRequest* request) override;
-  
-  private:
+
+ private:
   static void publishStatus();
-  
+
+  void handleRequest(InitDisplayRequest* request);
   void handleRequest(ClearDisplayRequest* request);
   void handleRequest(DisplayParameterRequest* request);
   void handleRequest(DisplayMessageRequest* request);
   void handleRequest(DisplayMenuRequest* request);
   void handleRequest(DisplayBitmapRequest* request);
 };
-
-#endif

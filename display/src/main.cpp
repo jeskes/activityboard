@@ -1,4 +1,5 @@
 #include "displayservice.h"
+#include <TaskScheduler.h>
 
 DisplayService displayService;
 

@@ -7,6 +7,12 @@ ActivityDisplayClient::ActivityDisplayClient(ClientId client, Scheduler& schedul
     : PeriphericalClient(client, scheduler) {
 }
 
+void ActivityDisplayClient::init(BitmapId startupBitmap) {
+  LOG("send display init request : startup.bitmap=%s.", startupBitmap);
+  InitDisplayRequest request(client, startupBitmap);
+  sendRequest(DISPLAY_MODULE_ID, &request, sizeof(InitDisplayRequest));
+}
+
 void ActivityDisplayClient::clearDisplay() {
   LOG("send clear display request.");
   ClearDisplayRequest request(client);

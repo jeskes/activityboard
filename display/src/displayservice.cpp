@@ -12,6 +12,7 @@ void DisplayService::setup(uint8_t module) {
   PeriphericalService::setup(module);
   storage.setup();
   display.setup();
+  rotary.setup();
   runner.setup();
 
   LOG("Display Module started.");
@@ -24,11 +25,14 @@ void DisplayService::loop() {
 void DisplayService::processRequest(BaseRequest* request) {
   LOG("request arrived: %d", request->type);
   switch (request->type) {
-    case RequestType::DISPLAY_PARAMETER:
-      handleRequest((DisplayParameterRequest*)request);
+    case RequestType::DISPLAY_INIT:
+      handleRequest((InitDisplayRequest*)request);
       break;
     case RequestType::DISPLAY_CLEAR:
       handleRequest((ClearDisplayRequest*)request);
+      break;
+    case RequestType::DISPLAY_PARAMETER:
+      handleRequest((DisplayParameterRequest*)request);
       break;
     case RequestType::DISPLAY_MESSAGE:
       handleRequest((DisplayMessageRequest*)request);
@@ -46,7 +50,16 @@ void DisplayService::processRequest(BaseRequest* request) {
 
 void DisplayService::publishStatus() {
   DisplayStatus status;
+  RotaryEncoderWrapper::getStatus(status.rotaryStatus);
   PeriphericalService::sendStatus(&status, sizeof(DisplayStatus));
+}
+
+void DisplayService::handleRequest(InitDisplayRequest* request) {
+  rotary.reset();
+  BitmapDef def = contexts.get(request->client).getBitmapDef(request->startupBitmap);
+  LOG("DisplayService: draw startup bitmap: id=%s, path=%s.", request->startupBitmap, def.path);
+  auto& dsp = display;
+  runner.schedule([&dsp, def]() { dsp.drawBitmap(def, 0, 0); });
 }
 
 void DisplayService::handleRequest(ClearDisplayRequest* request) {

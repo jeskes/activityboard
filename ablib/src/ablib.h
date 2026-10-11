@@ -5,14 +5,15 @@
 #include <TaskSchedulerDeclarations.h>
 #include <stdint.h>
 
-/* constants */
+/* ========================================================================= */
+/*                                                          global constants */
+/* ========================================================================= */
 
 #define SERIAL_BAUD 115200
 
 #define SOUND_MODULE_ID 0x10
 #define DISPLAY_MODULE_ID 0x11
 #define NUMPAD_MODULE_ID 0x20
-#define ROTARY_ENCODER_MODULE_ID 0x27
 
 #ifdef ARDUINO_ARCH_ESP32
 const int WIRE_SDA = 21;
@@ -33,7 +34,9 @@ const uint8_t LED_BUILTIN = 14;
 #define DEFAULT_BUZZER_FREQUENCY 150
 #define DEFAULT_BUZZER_TIMEOUT 250
 
-/* common operations */
+/* ========================================================================= */
+/*                                                     global activity board */
+/* ========================================================================= */
 
 using ModuleId = uint8_t;
 
@@ -43,6 +46,10 @@ class ActivityBoard {
   void setup(ModuleId moduleId);
 };
 extern ActivityBoard activityBoard;
+
+/* ========================================================================= */
+/*                                                                logger api */
+/* ========================================================================= */
 
 class ActivityLogger {
  public:
@@ -64,6 +71,10 @@ extern ActivityLogger activityLogger;
 #define LOG(fmt, ...) activityLogger.serialPrintln(F(fmt), ##__VA_ARGS__)
 #endif
 
+/* ========================================================================= */
+/*                                                          controls helpers */
+/* ========================================================================= */
+
 class ActivityControls {
  public:
   void blink(uint8_t pin, uint16_t cycleCount, uint16_t timeout);
@@ -73,7 +84,9 @@ class ActivityControls {
 };
 extern ActivityControls activityControls;
 
-/* peripherical api */
+/* ========================================================================= */
+/*                                                   peripherical api (base) */
+/* ========================================================================= */
 
 using ClientId = uint8_t;
 
@@ -83,6 +96,7 @@ enum class RequestType : uint16_t {
   UNKNOWN = 0,
   SOUND_PLAY = 0x1001,
   SOUND_STOP = 0x1002,
+  DISPLAY_INIT = 0x2000,
   DISPLAY_CLEAR = 0x2001,
   DISPLAY_PARAMETER = 0x2002,
   DISPLAY_MESSAGE = 0x2003,
@@ -134,7 +148,9 @@ class PeriphericalService {
   static bool sendStatus(BaseStatus* status, uint8_t length);
 };
 
-/* sound api */
+/* ========================================================================= */
+/*                                                                 sound api */
+/* ========================================================================= */
 
 using TrackId = uint16_t;
 
@@ -179,12 +195,58 @@ struct __attribute__((packed)) SoundStatus : public BaseStatus {
   PlayerState playerState;
 };
 
-/* display api */
+/* ========================================================================= */
+/*                                                        rotary encoder api */
+/* ========================================================================= */
+
+/* note that rotary encoders are hosted by the display module */
+
+#define ROTARY_ENCODER_LEFT 0
+#define ROTARY_ENCODER_RIGHT 1
+
+struct __attribute__((packed)) RotaryEncoderStatus {
+  int64_t value;
+  bool pressed;
+};
+
+class __attribute__((packed)) RotaryStatus {
+ public:
+  RotaryStatus();
+  void clear();
+  RotaryEncoderStatus& operator[](uint8_t idx);
+  RotaryEncoderStatus encoderStatus[2];
+};
+
+class RotaryStatusHandler {
+ public:
+  virtual bool rotaryStatusChanged(RotaryStatus status) = 0;
+};
+
+class ActivityRotaryClient {
+ public:
+  ActivityRotaryClient(Scheduler& scheduler);
+  void setup(RotaryStatusHandler* handler = nullptr);
+
+  RotaryStatus getStatus();
+  void setStatusHandler(RotaryStatusHandler* handler);
+};
+
+/* ========================================================================= */
+/*                                                               display api */
+/* ========================================================================= */
 
 using ParameterId = const char*;
 using MessageId = const char*;
 using BitmapId = const char*;
 using MenuId = const char*;
+
+struct __attribute__((packed)) InitDisplayRequest : public BaseRequest {
+  InitDisplayRequest(ClientId client, BitmapId id)
+      : BaseRequest(client, RequestType::DISPLAY_INIT) {
+    strlcpy(startupBitmap, id, ID_BUFFER_SIZE);
+  }
+  char startupBitmap[ID_BUFFER_SIZE];
+};
 
 struct __attribute__((packed)) ClearDisplayRequest : public BaseRequest {
   ClearDisplayRequest(ClientId client)
@@ -236,11 +298,13 @@ struct __attribute__((packed)) DisplayStatus : public BaseStatus {
   DisplayStatus()
       : BaseStatus(StatusType::DISPLAY_STATUS) {
   }
+  RotaryStatus rotaryStatus;
 };
 
 class ActivityDisplayClient : public PeriphericalClient {
  public:
   ActivityDisplayClient(ClientId clientId, Scheduler& scheduler);
+  void init(BitmapId startupBitmap);
   void clearDisplay();
   void putParam(const char* name, uint16_t value);
   void putParam(const char* name, const char* value);
@@ -249,7 +313,9 @@ class ActivityDisplayClient : public PeriphericalClient {
   void displayMenu(MenuId menuId);
 };
 
-/* numpad api */
+/* ========================================================================= */
+/*                                                  numpad api (via PCF8574) */
+/* ========================================================================= */
 
 class ActivityNumpadClient {
  private:
@@ -262,43 +328,9 @@ class ActivityNumpadClient {
   int16_t readString(char* buffer, uint8_t length, int16_t timeout = -1, char until = '#');
 };
 
-/* rotary encoder api */
-
-#define ROTARY_ENCODER_LEFT 0
-#define ROTARY_ENCODER_RIGHT 1
-
-struct __attribute__((packed)) RotaryEncoderStatus {
-  int32_t value;
-  bool pressed;
-};
-
-class __attribute__((packed)) RotaryStatus {
- public:
-  void clear();
-  RotaryEncoderStatus& operator[](uint8_t idx);
-  RotaryEncoderStatus encoderStatus[2];
-};
-
-class RotaryStatusHandler {
- public:
-  virtual bool rotaryStatusChanged(RotaryStatus status) = 0;
-};
-
-class ActivityRotaryClient {
- public:
-  ActivityRotaryClient(Scheduler& scheduler);
-  void setup(RotaryStatusHandler* handler = nullptr);
-
-  void reset();
-  void reset(uint8_t idx);
-
-  RotaryStatus getStatus();
-  void setValue(uint8_t idx, uint32_t value);
-
-  void setStatusHandler(RotaryStatusHandler* handler);
-};
-
-/* gadget base */
+/* ========================================================================= */
+/*                                                               gadget base */
+/* ========================================================================= */
 
 class GadgetBase {
  public:

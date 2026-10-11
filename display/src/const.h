@@ -1,5 +1,4 @@
-#ifndef _AB_CONST
-#define _AB_CONST
+#pragma once
 
 /* sd card module */
 
@@ -18,4 +17,12 @@
 #define TFT_RST   4
 #define TFT_BL   32
 
-#endif
+/* rotary encoders */
+
+#define ROTARY_ENCODER_LEFT_CLK 32
+#define ROTARY_ENCODER_LEFT_DT  33
+// #define ROTARY_ENCODER_LEFT_SW  xx
+
+#define ROTARY_ENCODER_RIGHT_CLK 25
+#define ROTARY_ENCODER_RIGHT_DT  26
+#define ROTARY_ENCODER_RIGHT_SW  27
