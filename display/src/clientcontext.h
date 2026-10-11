@@ -1,5 +1,4 @@
-#ifndef _AB_TEXT
-#define _AB_TEXT
+#pragma once
 
 #include <ArduinoJson.h>
 #include <ablib.h>
@@ -54,5 +53,3 @@ class ClientContexts {
   std::map<ClientId, ClientContext> contexts;
   void init(ClientId client, ClientContext& context);
 };
-
-#endif

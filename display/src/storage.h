@@ -1,5 +1,4 @@
-#ifndef _AB_SDCARD
-#define _AB_SDCARD
+#pragma once
 
 #include <ArduinoJson.h>
 #include <FS.h>
@@ -21,5 +20,3 @@ class Storage {
  private:
   void list(const char* folder = "/");
 };
-
-#endif

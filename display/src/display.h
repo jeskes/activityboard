@@ -1,5 +1,4 @@
-#ifndef _AB_TFT
-#define _AB_TFT
+#pragma once
 
 #include <Adafruit_ILI9341.h>
 #include <ablib.h>
@@ -24,5 +23,3 @@ class Display {
   Adafruit_ILI9341 tft;
   Storage& storage;
 };
-
-#endif
