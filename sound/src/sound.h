@@ -1,5 +1,4 @@
-#ifndef _AB_SOUND_SERVICE
-#define _AB_SOUND_SERVICE
+#pragma once
 
 #include <DFRobotDFPlayerMini.h>
 #include <Encoder.h>
@@ -38,5 +37,3 @@ class SoundService : public PeriphericalService {
   void updatePlayerVolume();
   void awaitPlayerBusy(bool busy);
 };
-
-#endif
