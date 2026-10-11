@@ -28,7 +28,7 @@ bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint
 }
 
 bool PeriphericalClient::requestStatus(uint8_t module, BaseStatus* status, uint8_t length) {
-  int received = Wire.requestFrom((uint8_t)module, (uint8_t)length);
+  int received = Wire.requestFrom(module, length);
   if (received == length) {
     uint8_t* buffer = (uint8_t*)status;
     for (int idx = 0; idx < length; idx++) {
