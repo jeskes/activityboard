@@ -1,7 +1,7 @@
 
 #include "ablib.h"
 
-#define POLLING_TIMEOUT 50
+#define POLLING_TIMEOUT 5
 
 static void pollEncoderStatus();
 static RotaryStatusHandler* statusHandler = nullptr;
