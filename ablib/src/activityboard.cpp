@@ -10,6 +10,16 @@ void ActivityBoard::setup() {
     delay(100);
   }
   delay(100);
+
+  LOG("ActivityBoard: clear I2C Bus.");
+  pinMode(SDA, OUTPUT);
+  pinMode(SCL, OUTPUT);
+  for (int i = 0; i < 9; i++) {
+    digitalWrite(SCL, HIGH);
+    delayMicroseconds(5);
+    digitalWrite(SCL, LOW);
+    delayMicroseconds(5);
+  }
   LOG("ActivityBoard: initialize wire as gadget (master).");
 #if defined(ARDUINO_ARCH_ESP32)
   if (!Wire.begin(WIRE_SDA, WIRE_SCL, 100000)) {
