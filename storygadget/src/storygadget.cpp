@@ -24,6 +24,8 @@ void StoryGadget::setup() {
   pinMode(SELECTING_LED, OUTPUT);
   pinMode(READING_LED, OUTPUT);
 
+  display.init(BITMAP_STARTUP );
+  
   LOG("Story Gadget started.");
 }
 
