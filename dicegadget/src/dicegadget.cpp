@@ -37,8 +37,10 @@ DiceGadget::DiceGadget()
 void DiceGadget::setup() {
   GadgetBase::setup();
 
+  delay(5000);
+
   numpad.setup();
-  rotary.setup(this);
+  rotary.setup();
 
   randomSeed(analogRead(NOISE_PIN));
   pinMode(START_BUTTON, INPUT_PULLUP);
@@ -49,6 +51,7 @@ void DiceGadget::setup() {
   activityControls.blink(indicators, countIndicators, 2, 200);
 
   display.init(BITMAP_STARTUP);
+  rotary.setStatusHandler(this);
 
   LOG("Dice Gadget started.");
 }
@@ -188,8 +191,8 @@ bool DiceGadget::playerStateChanged(PlayerState playerState) {
 }
 
 bool DiceGadget::rotaryStatusChanged(RotaryStatus rotaryStatus) {
-  LOG("DiceGadget: status left: pressed=%d, value=%ld", rotaryStatus[0].pressed, rotaryStatus[0].value);
-  LOG("DiceGadget: status right: pressed=%d, value=%ld", rotaryStatus[1].pressed, rotaryStatus[1].value);
+  LOG("DiceGadget: status left: pressed=%d, value=%d", rotaryStatus[0].pressed, (int) rotaryStatus[0].value);
+  LOG("DiceGadget: status right: pressed=%d, value=%d", rotaryStatus[1].pressed, (int) rotaryStatus[1].value);
 
   if (!rotaryStatus[ROTARY_ENCODER_RIGHT].pressed) {
     uint32_t jingle = rotaryStatus[ROTARY_ENCODER_LEFT].value / 2;
