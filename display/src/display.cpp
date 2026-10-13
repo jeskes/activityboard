@@ -11,6 +11,8 @@ Display::Display(Storage& storage)
 
 void Display::setup() {
   LOG("Display: setup TFT display...");
+  spi.end();
+  delay(10);
   spi.begin(TFT_SCK, TFT_MISO, TFT_MOSI, TFT_CS);
   tft.begin();
   tft.setRotation(1);

@@ -21,6 +21,12 @@ const int WIRE_SCL = 22;
 const uint8_t LED_BUILTIN = 14;
 #endif
 
+#ifdef ARDUINO_ARCH_ESP32
+const uint8_t DEFAULT_WAKEUP_PIN = 5;
+#else
+const uint8_t DEFAULT_WAKEUP_PIN = 2;
+#endif
+
 #define ID_BUFFER_SIZE 26
 #define PARAM_BUFFER_SIZE 10
 #define PRINT_BUFFER_SIZE 128
@@ -225,7 +231,7 @@ class RotaryStatusHandler {
 class ActivityRotaryClient {
  public:
   ActivityRotaryClient(Scheduler& scheduler);
-  void setup(RotaryStatusHandler* handler = nullptr);
+  void setup();
 
   RotaryStatus getStatus();
   void setStatusHandler(RotaryStatusHandler* handler);
@@ -335,6 +341,9 @@ class ActivityNumpadClient {
 class GadgetBase {
  public:
   Scheduler scheduler;
-  virtual void setup();
+  virtual void setup(bool sleep = false, uint8_t wakeupPin = DEFAULT_WAKEUP_PIN);
   virtual void loop();
+
+ private:
+  void enterSleep(uint8_t wakeupPin);
 };
