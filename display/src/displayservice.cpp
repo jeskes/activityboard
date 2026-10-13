@@ -51,6 +51,7 @@ void DisplayService::processRequest(BaseRequest* request) {
 void DisplayService::publishStatus() {
   DisplayStatus status;
   RotaryEncoderWrapper::getStatus(status.rotaryStatus);
+  // LOG("retrieved rotary status: (%d, %04d), (%d, %04d)", status.rotaryStatus[0].pressed, (int)status.rotaryStatus[0].value, status.rotaryStatus[1].pressed, (int)status.rotaryStatus[1].value);
   PeriphericalService::sendStatus(&status, sizeof(DisplayStatus));
 }
 
