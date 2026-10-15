@@ -19,6 +19,9 @@
 const int WIRE_SDA = 21;
 const int WIRE_SCL = 22;
 const uint8_t LED_BUILTIN = 14;
+#else
+const int WIRE_SDA = A4;
+const int WIRE_SCL = A5;
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -50,6 +53,7 @@ class ActivityBoard {
  public:
   void setup();
   void setup(ModuleId moduleId);
+  void clearI2CBus(uint8_t sda = WIRE_SDA, uint8_t scl = WIRE_SCL);
 };
 extern ActivityBoard activityBoard;
 
@@ -87,6 +91,7 @@ class ActivityControls {
   void blink(const uint8_t pins[], uint8_t pinCount, uint16_t cycleCount, uint16_t timeout);
   bool buttonPressed(uint8_t pin);
   void buzzer(uint8_t buzzer = DEFAULT_BUZZER, int frequency = DEFAULT_BUZZER_FREQUENCY, long timeout = DEFAULT_BUZZER_TIMEOUT);
+  void scanWire();
 };
 extern ActivityControls activityControls;
 

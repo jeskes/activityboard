@@ -5,22 +5,12 @@
 ActivityBoard activityBoard;
 
 void ActivityBoard::setup() {
+  LOG("ActivityBoard: initialize wire as gadget (master).");
   Serial.begin(SERIAL_BAUD);
   while (!Serial) {
-    delay(100);
+    delay(50);
   }
-  delay(100);
-
-  LOG("ActivityBoard: clear I2C Bus.");
-  pinMode(SDA, OUTPUT);
-  pinMode(SCL, OUTPUT);
-  for (int i = 0; i < 9; i++) {
-    digitalWrite(SCL, HIGH);
-    delayMicroseconds(5);
-    digitalWrite(SCL, LOW);
-    delayMicroseconds(5);
-  }
-  LOG("ActivityBoard: initialize wire as gadget (master).");
+  clearI2CBus();
 #if defined(ARDUINO_ARCH_ESP32)
   if (!Wire.begin(WIRE_SDA, WIRE_SCL, 100000)) {
     LOG("ActivityBoard: failed to initialize wire.");
@@ -30,21 +20,18 @@ void ActivityBoard::setup() {
   }
 #else
   Wire.begin();
+  Wire.setTimeout(50);
   LOG("ActivityBoard: Wire initialized for gadget (master).");
-  pinMode(LED_BUILTIN, OUTPUT);
-  activityControls.blink(LED_BUILTIN, 10, 100);
 #endif
 }
 
 void ActivityBoard::setup(uint8_t module) {
+  LOG("ActivityBoard: initialize wire as peripherical service (module=%d).", module);
   Serial.begin(SERIAL_BAUD);
   while (!Serial) {
     delay(50);
   }
-  LOG("ActivityBoard: initialize wire as peripherical service (module=%d).", module);
 #if defined(ARDUINO_ARCH_ESP32)
-  Wire.end();
-  delay(100);
   int trials = 40;
   bool success = false;
   while (trials && !(success = Wire.begin(module, WIRE_SDA, WIRE_SCL, 0))) {
@@ -61,7 +48,21 @@ void ActivityBoard::setup(uint8_t module) {
   Wire.begin(module);
   LOG("ActivityBoard: Wire initialized for peripherical slave %d.", module);
 #endif
+}
 
-  pinMode(LED_BUILTIN, OUTPUT);
-  activityControls.blink(LED_BUILTIN, 10, 100);
+void ActivityBoard::clearI2CBus(uint8_t sda, uint8_t scl) {
+  LOG("ActivityBoard: clear I2C bus at (%d,%d).", sda, scl);
+  pinMode(sda, INPUT_PULLUP);
+  pinMode(scl, OUTPUT);
+
+  for (int i = 0; i < 9; i++) {
+    digitalWrite(scl, LOW);
+    delayMicroseconds(5);
+    digitalWrite(scl, HIGH);
+    delayMicroseconds(5);
+    if (digitalRead(sda) == HIGH) {
+      break;
+    }
+  }
+  LOG("ActivityBoard: cleared I2C bus at (%d,%d) with SDA=%d.", sda, scl, digitalRead(sda));
 }

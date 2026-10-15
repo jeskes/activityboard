@@ -52,3 +52,22 @@ void ActivityControls::buzzer(uint8_t buzzer, int frequency, long timeout) {
   delay(timeout);
   noTone(buzzer);
 }
+
+void ActivityControls::scanWire() {
+  int nDevices = 0;
+  LOG("Scanning for I2C devices ...");
+  for (byte address = 0x01; address < 0x7f; address++) {
+    Wire.beginTransmission(address);
+    uint8_t error = Wire.endTransmission();
+    if (error == 0) {
+      LOG("I2C device found at address 0x%02X", address);
+      nDevices++;
+    }
+    else if (error != 2) {
+      LOG("Error %u at address 0x%02X", error, address);
+    }
+  }
+  if (nDevices == 0) {
+    LOG("No I2C devices found");
+  }
+}
