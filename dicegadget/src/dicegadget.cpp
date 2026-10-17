@@ -35,7 +35,6 @@ DiceGadget::DiceGadget()
 }
 
 void DiceGadget::setup() {
-  delay(2000);
   GadgetBase::setup();
 
   numpad.setup();

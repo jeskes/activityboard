@@ -5,9 +5,13 @@
 #else
 #include <avr/sleep.h>
 #endif
+
 void GadgetBase::setup(bool sleep, uint8_t wakeupPin) {
   if (sleep) {
     enterSleep(wakeupPin);
+  }
+  else {
+	  delay(2000);
   }
   activityBoard.setup();
   LOG("GadgetBase: activity board initialized.");
