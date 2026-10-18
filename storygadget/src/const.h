@@ -6,10 +6,10 @@
 
 /* sd card module */
 
-#define SD_CS   SS
-#define SD_MOSI MOSI
-#define SD_MISO MISO
-#define SD_CLK  SCK
+#define SD_SCK 18
+#define SD_MISO 19
+#define SD_MOSI 23
+#define SD_CS 5
 
 /* local pins */
 

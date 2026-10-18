@@ -24,17 +24,19 @@ RotaryStatus ActivityRotaryClient::getStatus() {
 }
 
 void ActivityRotaryClient::setStatusHandler(RotaryStatusHandler* handler) {
-  statusHandler = handler;
-  lastStatus.clear();
-  if (handler) {
-    encoderPollingTask.enable();
-  }
-  else {
-    encoderPollingTask.disable();
+  if (handler != statusHandler) {
+    statusHandler = handler;
+    if (statusHandler) {
+      encoderPollingTask.enable();
+    }
+    else {
+      encoderPollingTask.disable();
+    }
   }
 }
 
 static void pollEncoderStatus() {
+  // LOG("poll rotary status");
   DisplayStatus status;
   PeriphericalClient::requestStatus(DISPLAY_MODULE_ID, &status, sizeof(DisplayStatus));
   // LOG("received rotary status: (%d, %04d), (%d, %04d)", status.rotaryStatus[0].pressed, (int)status.rotaryStatus[0].value, status.rotaryStatus[1].pressed, (int)status.rotaryStatus[1].value);

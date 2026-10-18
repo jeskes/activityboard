@@ -1,6 +1,5 @@
 #include "storage.h"
 
-#include "SD.h"
 #include "const.h"
 
 Storage::Storage()
@@ -9,15 +8,17 @@ Storage::Storage()
 
 void Storage::setup() {
   LOG("Storage: setup SD card...");
-  if (!sd.begin(SD_CS)) {
+  SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
+  if (!sd.begin(SD_CS, SPI, 10000000)) {
     LOG("Storage: SD card not available.");
     return;
   }
-  LOG("Storage: SD card mounted.");
+  diagnostics();
+  LOG("Storage: SD card successfully initialized.");
 }
 
 File Storage::open(const char* path) {
-  File file = sd.open(path, FILE_READ);
+  File file = sd.open(path, FILE_READ, false);
   if (!file) {
     LOG("Storage: cannot load file: %s.", path);
   }
@@ -31,7 +32,6 @@ bool Storage::loadJson(const char* path, JsonDocument& json) {
     return false;
   }
 
-  json.clear();
   DeserializationError result = deserializeJson(json, file);
   file.close();
 

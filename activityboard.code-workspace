@@ -4,21 +4,20 @@
 			"path": "ablib"
 		},
 		{
-			"path": "dicegadget"
-		},
-		{
-			"path": "sound"
-		},
-		{
-			"name": "display",
-			"path": "display"
-		},
-		{
 			"path": "sdcard"
 		},
 		{
 			"name": "storygadget",
 			"path": "storygadget"
+		},
+		{
+			"path": "dicegadget"
+		},
+		{
+			"path": "display"
+		},
+		{
+			"path": "sound"
 		}
 	],
 	"settings": {}

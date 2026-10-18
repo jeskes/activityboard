@@ -17,7 +17,12 @@ void ActivityNumpadClient::setup() {
     LOG("ActivityNumpadClient: loading keymap: %d", keymap);
     keyPad.loadKeyMap(keymap);
     LOG("ActivityNumpadClient: numpad initialized at address %d", NUMPAD_MODULE_ID);
+	initialized = true;
   }
+}
+
+bool ActivityNumpadClient::available() {
+	return initialized;
 }
 
 char ActivityNumpadClient::getChar() {

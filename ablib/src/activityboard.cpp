@@ -5,11 +5,11 @@
 ActivityBoard activityBoard;
 
 void ActivityBoard::setup() {
-  LOG("ActivityBoard: initialize wire as gadget (master).");
   Serial.begin(SERIAL_BAUD);
   while (!Serial) {
     delay(50);
   }
+  LOG("ActivityBoard: initialize wire as gadget (master).");
   clearI2CBus();
 #if defined(ARDUINO_ARCH_ESP32)
   if (!Wire.begin(WIRE_SDA, WIRE_SCL, 100000)) {
@@ -20,7 +20,7 @@ void ActivityBoard::setup() {
   }
 #else
   Wire.begin();
-  Wire.setTimeout(50);
+  // Wire.setTimeout(50);
   LOG("ActivityBoard: Wire initialized for gadget (master).");
 #endif
 }
@@ -44,8 +44,10 @@ void ActivityBoard::setup(uint8_t module) {
   else {
     LOG("ActivityBoard: Wire initialization failed.");
   }
+  Wire.setTimeout(50);
 #else
   Wire.begin(module);
+  Wire.setTimeout(50);
   LOG("ActivityBoard: Wire initialized for peripherical slave %d.", module);
 #endif
 }
@@ -64,5 +66,15 @@ void ActivityBoard::clearI2CBus(uint8_t sda, uint8_t scl) {
       break;
     }
   }
+
+  pinMode(sda, OUTPUT);
+  digitalWrite(sda, LOW);  // SDA auf LOW
+  delayMicroseconds(5);
+  digitalWrite(scl, HIGH);  // SCL auf HIGH
+  delayMicroseconds(5);
+  digitalWrite(sda, HIGH);  // SDA von LOW auf HIGH ziehen (= I2C STOP)
+  delayMicroseconds(5);
+  pinMode(sda, INPUT_PULLUP);  // Wieder als Input freigeben
+
   LOG("ActivityBoard: cleared I2C bus at (%d,%d) with SDA=%d.", sda, scl, digitalRead(sda));
 }

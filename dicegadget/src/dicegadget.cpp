@@ -53,10 +53,17 @@ void DiceGadget::setup() {
   LOG("Dice Gadget started.");
 }
 
+static unsigned long heartbeat = 0;
+
 void DiceGadget::loop() {
   GadgetBase::loop();
   stateMachine();
   showIndicators();
+
+  if( millis() > heartbeat ) {
+	LOG("heartbeat");
+	heartbeat = millis() + 2000;
+  }
 }
 
 void DiceGadget::stateMachine() {

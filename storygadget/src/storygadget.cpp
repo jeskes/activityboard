@@ -24,13 +24,23 @@ void StoryGadget::setup() {
   pinMode(SELECTING_LED, OUTPUT);
   pinMode(READING_LED, OUTPUT);
 
-  display.init(BITMAP_STARTUP );
-  
+  const uint8_t blinks[] = {SELECTING_LED, READING_LED};
+  activityControls.blink(blinks, 2, 2, 200);
+
+  display.init(BITMAP_STARTUP);
+
   LOG("Story Gadget started.");
 }
 
+static unsigned long heartbeat = 0;
+
 void StoryGadget::loop() {
   GadgetBase::loop();
+
+  if (millis() > heartbeat) {
+    LOG("heartbeat: selection-busy=%d, story-busy=%d, storage=%d, numpad=%d", selectionController.isBusy(), storyController.isBusy(), storage.sd.cardType(), numpad.available());
+    heartbeat = millis() + 2000;
+  }
 
   if (selectionController.isBusy()) {
     StoryId selectedStory = selectionController.loop();

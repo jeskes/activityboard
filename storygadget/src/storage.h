@@ -9,10 +9,10 @@ class Storage {
  public:
   Storage();
 
+  fs::SDFS& sd;
+
   void setup();
   void diagnostics();
-
-  fs::SDFS& sd;
 
   File open(const char* path);
   bool loadJson(const char* path, JsonDocument& json);

@@ -13,5 +13,4 @@ void setup() {
 
 void loop() {
   soundService.loop();
-  // delay(300);
 }

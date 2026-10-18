@@ -31,7 +31,7 @@ ISR(PCINT2_vect) {
 
 void GadgetBase::enterSleep(uint8_t wakeupPin) {
   pinMode(wakeupPin, INPUT_PULLUP);
-  delay(1);
+  delay(10);
 
   byte backup_ADCSRA = ADCSRA;
   ADCSRA &= ~(1 << ADEN);
