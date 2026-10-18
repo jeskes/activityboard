@@ -1,9 +1,15 @@
 #pragma once
 
+#ifdef ARDUINO_ARCH_ESP32
+
 #include <ArduinoJson.h>
 #include <FS.h>
 #include <SD.h>
-#include <ablib.h>
+
+#define SD_SCK 18
+#define SD_MISO 19
+#define SD_MOSI 23
+#define SD_CS 5
 
 class Storage {
  public:
@@ -20,3 +26,5 @@ class Storage {
  private:
   void list(const char* folder = "/");
 };
+
+#endif

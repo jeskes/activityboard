@@ -3,7 +3,8 @@
 #include <DFRobotDFPlayerMini.h>
 #include <Encoder.h>
 #include <SoftwareSerial.h>
-#include <ablib.h>
+#include <modules/modules.h>
+#include <sound/sound.h>
 
 class SoundService : public PeriphericalService {
  public:

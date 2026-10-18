@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#include "ablib.h"
+#include "display.h"
 
 ActivityDisplayClient::ActivityDisplayClient(ClientId client, Scheduler& scheduler)
     : PeriphericalClient(client, scheduler) {

@@ -1,9 +1,8 @@
 #pragma once
 
 #include <Adafruit_ILI9341.h>
-#include <ablib.h>
-
-#include "storage.h"
+#include "display/display.h"
+#include "storage/storage.h"
 #include "clientcontext.h"
 
 class Display {

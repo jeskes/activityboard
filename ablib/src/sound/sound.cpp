@@ -1,7 +1,4 @@
-#include <Arduino.h>
-#include <Wire.h>
-
-#include "ablib.h"
+#include "sound.h"
 
 #define POLLING_TIMEOUT 500
 

@@ -1,7 +1,3 @@
-#include <Arduino.h>
-#include <Wire.h>
-#include <ablib.h>
-
 #include "sound.h"
 
 SoundService soundService;

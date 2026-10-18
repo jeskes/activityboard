@@ -1,8 +1,5 @@
 #include "dicegadget.h"
 
-#include <Wire.h>
-#include <ablib.h>
-
 const MessageId MESSAGE_WELCOME = "WELCOME";
 const MessageId MESSAGE_GUESS = "GUESS";
 const MessageId MESSAGE_STARTED = "STARTED";

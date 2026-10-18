@@ -1,6 +1,7 @@
 #include "storage.h"
+#include "base/base.h"
 
-#include "const.h"
+#ifdef ARDUINO_ARCH_ESP32
 
 Storage::Storage()
     : sd(SD) {
@@ -74,3 +75,5 @@ void Storage::list(const char* folder) {
     file = root.openNextFile();
   }
 }
+
+#endif

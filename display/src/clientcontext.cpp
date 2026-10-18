@@ -1,8 +1,5 @@
 #include "clientcontext.h"
 
-#include <ArduinoJson.h>
-#include <ablib.h>
-
 #define VALUE_BUFFER_SIZE 128
 #define INITIAL_CLIENT_ID 10
 

@@ -1,11 +1,10 @@
 #pragma once
 
-#include <ArduinoJson.h>
-#include <ablib.h>
-
 #include <map>
 
-#include "storage.h"
+#include "clientcontext.h"
+#include "display/display.h"
+#include "storage/storage.h"
 
 #define MAX_MENU_OPTIONS 4
 

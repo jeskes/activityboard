@@ -1,9 +1,11 @@
 #pragma once
 
-#include <ArduinoJson.h>
+#include <sound/sound.h>
+#include <numpad/numpad.h>
+#include <display/display.h>
+#include <storage/storage.h>
 
 #include "const.h"
-#include "storage.h"
 
 class StoryController : SoundStatusHandler {
  public:

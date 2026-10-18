@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ESP32Encoder.h>
-#include <ablib.h>
+#include <rotary/rotary.h>
 
 class RotaryEncoderWrapper {
  public:

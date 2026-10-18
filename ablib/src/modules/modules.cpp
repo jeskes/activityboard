@@ -1,6 +1,9 @@
-#include <Wire.h>
+#include "modules.h"
 
-#include "ablib.h"
+#ifdef ARDUINO_ARCH_ESP32
+#else
+#include <avr/sleep.h>
+#endif
 
 /* ========================================================================= */
 /* PERIPHERICAL CLIENT                                                       */
@@ -111,4 +114,18 @@ static void onRequest() {
   if (statusSender) {
     statusSender();
   }
+}
+
+/* ========================================================================= */
+/*                                                                GadgetBase */
+/* ========================================================================= */
+
+void GadgetBase::setup() {
+  delay(2000);
+  activityBoard.setup();
+  LOG("GadgetBase: activity board initialized.");
+}
+
+void GadgetBase::loop() {
+  scheduler.execute();
 }

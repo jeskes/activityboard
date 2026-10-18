@@ -1,7 +1,5 @@
 #include "rotaryencoder.h"
 
-#include <Wire.h>
-
 #include "const.h"
 
 static ESP32Encoder encoders[2];

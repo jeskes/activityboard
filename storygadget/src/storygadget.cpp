@@ -1,10 +1,5 @@
 #include "storygadget.h"
 
-#include <Wire.h>
-#include <ablib.h>
-
-#include "const.h"
-
 StoryGadget::StoryGadget()
     : sound(STORYGADGET_ID, scheduler),
       display(STORYGADGET_ID, scheduler),

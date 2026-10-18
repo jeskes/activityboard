@@ -1,7 +1,5 @@
 #include "sound.h"
-
-#include <Arduino.h>
-#include <ablib.h>
+#include <sound/sound.h>
 
 // pins
 

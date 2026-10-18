@@ -1,15 +1,8 @@
 #pragma once
 
-#include <ablib.h>
+#include <display/display.h>
 
 #define MAX_STORIES 3
-
-/* sd card module */
-
-#define SD_SCK 18
-#define SD_MISO 19
-#define SD_MOSI 23
-#define SD_CS 5
 
 /* local pins */
 

@@ -1,7 +1,11 @@
 #ifndef _AB_DICE_GADGET_H
 #define _AB_DICE_GADGET_H
 
-#include <ablib.h>
+#include <display/display.h>
+#include <modules/modules.h>
+#include <numpad/numpad.h>
+#include <rotary/rotary.h>
+#include <sound/sound.h>
 
 const ClientId DICEGADGET_ID = 11;
 
