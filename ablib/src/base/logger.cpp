@@ -21,7 +21,7 @@ void ActivityLogger::serialPrintln(const __FlashStringHelper* fmt, ...) {
 #endif
 
 void ActivityLogger::serialPrintln(const char* fmt, bool isFlash, va_list args) {
-  char buffer[PRINT_BUFFER_SIZE];
+  char buffer[PRINT_BUFFER_SIZE + 1];
 
 #if defined(ARDUINO_ARCH_ESP32)
   (void)isFlash;  // avoid unused
@@ -34,5 +34,26 @@ void ActivityLogger::serialPrintln(const char* fmt, bool isFlash, va_list args) 
     vsnprintf(buffer, sizeof(buffer), fmt, args);
   }
 #endif
+  Serial.println(buffer);
+}
+
+void ActivityLogger::serialDump(const unsigned char* bytes, uint8_t length) {
+  static const char hex_chars[] = "0123456789abcdef";
+
+  char buffer[PRINT_BUFFER_SIZE + 1];
+
+  if (length > PRINT_BUFFER_SIZE / 2) {
+    length = PRINT_BUFFER_SIZE / 2;
+  }
+
+  for (uint8_t i = 0; i < length; i++) {
+    buffer[i * 2] = hex_chars[(bytes[i] >> 4) & 0x0F];
+    buffer[i * 2 + 1] = hex_chars[bytes[i] & 0x0F];
+  }
+  buffer[length * 2] = '\0';
+  
+  Serial.print(F("dump["));
+  Serial.print(length);
+  Serial.print(F("]"));
   Serial.println(buffer);
 }

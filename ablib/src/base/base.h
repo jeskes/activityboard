@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
-#include <Wire.h>
 #include <TaskSchedulerDeclarations.h>
+#include <Wire.h>
 #include <stdint.h>
 
 /* ========================================================================= */
@@ -64,6 +64,7 @@ class ActivityLogger {
   void serialPrintln(const __FlashStringHelper* fmt, ...);
   void serialPrintln(const char* fmt, bool isFlash, va_list args);
 #endif
+  void serialDump(const unsigned char* buffer, uint8_t length);
 };
 extern ActivityLogger activityLogger;
 
@@ -74,6 +75,8 @@ extern ActivityLogger activityLogger;
 #else
 #define LOG(fmt, ...) activityLogger.serialPrintln(F(fmt), ##__VA_ARGS__)
 #endif
+
+#define DUMP(buffer, length) activityLogger.serialDump((const unsigned char*)buffer, length)
 
 /* ========================================================================= */
 /*                                                          controls helpers */
@@ -88,4 +91,3 @@ class ActivityControls {
   void scanWire();
 };
 extern ActivityControls activityControls;
-
