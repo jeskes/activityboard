@@ -6,14 +6,7 @@
 #include <rotary/rotary.h>
 #include <sound/sound.h>
 
-const ClientId DICEGADGET_ID = 11;
-
-/* languages: 00x english, 01x bavarian, 02x russian, 03x german */
-#define LANGUAGES_COUNT 4
-
-/* jingle sounds: 101 ... 110 */
-#define JINGLES_COUNT 10
-#define INITIAL_JINGLE 101
+#include "const.h"
 
 class DiceGadget : GadgetBase, SoundStatusHandler, RotaryStatusHandler {
  public:
@@ -35,7 +28,7 @@ class DiceGadget : GadgetBase, SoundStatusHandler, RotaryStatusHandler {
   void throwDice();
   void reset();
 
-  void setGuess(int guess);
+  void setGuess(int guess, bool updateDisplay);
   void setJingle(int jingle);
   bool checkNumpad();
   bool checkStartButton();
@@ -59,4 +52,5 @@ class DiceGadget : GadgetBase, SoundStatusHandler, RotaryStatusHandler {
 
   unsigned long startTime = 0;
   unsigned long startTimeIndicator = 0;
+  unsigned long resetDisplayTime = 0;
 };

@@ -1,28 +1,6 @@
 #include "dicegadget.h"
 
-const MessageId MESSAGE_WELCOME = "WELCOME";
-const MessageId MESSAGE_GUESS = "GUESS";
-const MessageId MESSAGE_STARTED = "STARTED";
-const MessageId MESSAGE_NUMBER = "NUMBER";
-const MessageId MESSAGE_MATCH = "MATCH";
-const MessageId MESSAGE_SORRY = "SORRY";
-
-const BitmapId BITMAP_STARTUP = "STARTUP";
-
-const ParameterId PARAMETER_NUMBER = "number";
-const ParameterId PARAMETER_GUESS = "guess";
-
-#define BLINK_RATE 50
-
-#define NOISE_PIN A0
-#define START_BUTTON 10
-
-#define INDICATING_TIMEOUT 1000
-#define JINGLE_PLAYING_TIMEOUT 12000
-#define NUMBER_PLAYING_TIMEOUT 15000
-#define AUTORESET_TIMEOUT 20000
-
-const uint8_t indicators[] = {2, 3, 4, 5, 6, 7};
+const uint8_t indicators[] = {INDICATOR_LED_1, INDICATOR_LED_2, INDICATOR_LED_3, INDICATOR_LED_4, INDICATOR_LED_5, INDICATOR_LED_6};
 const uint8_t countIndicators = sizeof(indicators) / sizeof(uint8_t);
 
 DiceGadget::DiceGadget()
@@ -51,22 +29,19 @@ void DiceGadget::setup() {
   LOG("Dice Gadget started.");
 }
 
-static unsigned long heartbeat = 0;
-
 void DiceGadget::loop() {
   GadgetBase::loop();
   stateMachine();
   showIndicators();
-
-  if (millis() > heartbeat) {
-    LOG("heartbeat: numpad=%d", numpad.available());
-    heartbeat = millis() + 2000;
-  }
 }
 
 void DiceGadget::stateMachine() {
   switch (status) {
     case Status::IDLE:
+      if (resetDisplayTime && millis() > resetDisplayTime) {
+        resetDisplayTime = 0;
+        display.displayBitmap(BITMAP_STARTUP);
+      }
       if (checkNumpad() || checkStartButton()) {
         status = Status::START_REQUESTED;
       }
@@ -123,7 +98,7 @@ bool DiceGadget::checkNumpad() {
     LOG("numpad key: %c", ch);
     int guess = ch - (int)'0';
     if (guess >= 1 && guess <= 6) {
-      setGuess(guess);
+      setGuess(guess, false);
       return true;
     }
   }
@@ -133,24 +108,26 @@ bool DiceGadget::checkNumpad() {
 bool DiceGadget::checkStartButton() {
   bool pressed = activityControls.buttonPressed(START_BUTTON);
   if (pressed) {
-    LOG("pressed");
+    LOG("start button pressed.");
   }
   return pressed;
 }
 
-void DiceGadget::setGuess(int guess) {
+void DiceGadget::setGuess(int guess, bool updateDisplay) {
   if (currentGuess != guess) {
-    LOG("set guess: %d", guess);
+    LOG("set guess: %d.", guess);
     currentGuess = guess;
     display.putParam(PARAMETER_GUESS, currentGuess);
-    display.displayMessage(MESSAGE_GUESS);
+    if (updateDisplay) {
+      display.displayMessage(MESSAGE_GUESS);
+    }
   }
 }
 
 void DiceGadget::setJingle(int jingle) {
   if (selectedJingle != jingle) {
     selectedJingle = jingle;
-    LOG("selected jingle: %d", selectedJingle);
+    LOG("set jingle sound: %d.", selectedJingle);
   }
 }
 
@@ -165,12 +142,12 @@ void DiceGadget::throwDice() {
 
 void DiceGadget::reset() {
   status = Status::IDLE;
-  currentGuess = 0;
   currentNumber = 0;
   currentLanguage = 0;
   startTime = 0;
   startTimeIndicator = 0;
   sound.setStatusHandler(nullptr);
+  resetDisplayTime = millis() + RESET_DISPLAY_TIMEOUT;
 }
 
 void DiceGadget::showIndicators() {
@@ -214,7 +191,7 @@ bool DiceGadget::rotaryStatusChanged(RotaryStatus rotaryStatus) {
       if (currentGuess || rotaryStatus[ROTARY_ENCODER_RIGHT].value) {
         int num = (int)((rotaryStatus[ROTARY_ENCODER_RIGHT].value / 2) % 6);
         int guess = num >= 0 ? num + 1 : 7 + num;
-        setGuess(guess);
+        setGuess(guess, true);
       }
     }
   }
