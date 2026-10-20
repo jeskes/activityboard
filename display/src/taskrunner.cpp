@@ -6,7 +6,7 @@ TaskRunner::TaskRunner()
       xWorkerHandle(nullptr) {
   xTaskQueue = xQueueCreate(QUEUE_SIZE, sizeof(std::function<void()>*));
   if (xTaskQueue == nullptr) {
-    LOG("TaskRunner: cannot create task-queue.");
+    LOG("cannot create task-queue.");
   }
 }
 
@@ -35,7 +35,7 @@ void TaskRunner::schedule(std::function<void()> task) {
   auto* taskPtr = new std::function<void()>(std::move(task));
 
   if (xQueueSend(xTaskQueue, &taskPtr, pdMS_TO_TICKS(10)) != pdTRUE) {
-    LOG("TaskRunner: queue overflow - discard task.");
+    LOG("queue overflow - discard task.");
     delete taskPtr;
   }
 }

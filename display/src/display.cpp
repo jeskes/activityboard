@@ -10,11 +10,11 @@ Display::Display(Storage& storage)
 }
 
 void Display::setup() {
-  LOG("Display: setup TFT display...");
+  LOG("setup TFT display...");
   spi.begin(TFT_SCK, TFT_MISO, TFT_MOSI, TFT_CS);
   tft.begin();
   tft.setRotation(1);
-  LOG("Display: display initialized.");
+  LOG("display initialized.");
 }
 
 void Display::clear() {
@@ -74,13 +74,13 @@ void Display::drawBitmap(BitmapDef def, int16_t x, int16_t y) {
 
 void Display::drawBitmap(const char* path, int16_t x, int16_t y, uint16_t width, uint16_t height) {
   if (!path || !*path) {
-    LOG("Display: bitmap file path is undefined.");
+    LOG("bitmap file path is undefined.");
     return;
   }
 
   File file = storage.open(path);
   if (!file) {
-    LOG("Display: bitmap file not found: file=%s", path);
+    LOG("bitmap file not found: file=%s", path);
     return;
   }
 
@@ -95,12 +95,12 @@ void Display::drawBitmap(const char* path, int16_t x, int16_t y, uint16_t width,
 void Display::drawBitmap(const char* path, int16_t x, int16_t y) {
   File file = storage.open(path);
   if (!file) {
-    LOG("Display: bitmap file not found: file=%s", path);
+    LOG("bitmap file not found: file=%s", path);
     return;
   }
 
   if (file.read() != 'B' || file.read() != 'M') {
-    LOG("Display: file is not a bitmap: file=%s", path);
+    LOG("file is not a bitmap: file=%s", path);
     file.close();
     return;
   }

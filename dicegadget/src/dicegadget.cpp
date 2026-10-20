@@ -198,7 +198,7 @@ bool DiceGadget::playerStateChanged(PlayerState playerState) {
 }
 
 bool DiceGadget::rotaryStatusChanged(RotaryStatus rotaryStatus) {
-  LOG("DiceGadget rotary event: status=%d, left=(%d,%ld), right=(%d,%ld)", status, (int)rotaryStatus[0].pressed, rotaryStatus[0].value, (int)rotaryStatus[1].pressed, rotaryStatus[1].value);
+  LOG("rotary event: status=%d, left=(%d,%ld), right=(%d,%ld)", status, (int)rotaryStatus[0].pressed, rotaryStatus[0].value, (int)rotaryStatus[1].pressed, rotaryStatus[1].value);
   rotary.pause();
 
   if (!rotaryStatus[ROTARY_ENCODER_RIGHT].pressed) {

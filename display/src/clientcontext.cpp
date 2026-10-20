@@ -29,7 +29,7 @@ void ClientContexts::init(ClientId client, ClientContext& context) {
 
   JsonDocument doc;
   if (!storage.loadJson(path, doc)) {
-    LOG("ClientContext: no parameters file found: path=%s.", path);
+    LOG("no parameters file found: path=%s.", path);
   }
   else {
     JsonArray names = doc.as<JsonArray>();
@@ -38,31 +38,31 @@ void ClientContexts::init(ClientId client, ClientContext& context) {
       context.params[name] = "";
       context.params[name].reserve(VALUE_BUFFER_SIZE);
     }
-    LOG("ClientContext: initialized parameters: client=%d, count=%d.", client, names.size());
+    LOG("initialized parameters: client=%d, count=%d.", client, names.size());
   }
 
   sprintf(path, "/%02d/messages.json", client);
   if (!storage.loadJson(path, context.messages)) {
-    LOG("ClientContext: no messages file found: %s.", path);
+    LOG("no messages file found: %s.", path);
   }
   else {
-    LOG("ClientContext: initialized messages: client=%d, count=%d.", client, context.messages.size());
+    LOG("initialized messages: client=%d, count=%d.", client, context.messages.size());
   }
 
   sprintf(path, "/%02d/menus.json", client);
   if (!storage.loadJson(path, context.menus)) {
-    LOG("ClientContext: no menus file found: %s.", path);
+    LOG("no menus file found: %s.", path);
   }
   else {
-    LOG("ClientContext: initialized menus: client=%d, count=%d.", client, context.menus.size());
+    LOG("initialized menus: client=%d, count=%d.", client, context.menus.size());
   }
 
   sprintf(path, "/%02d/bitmaps.json", client);
   if (!storage.loadJson(path, context.bitmaps)) {
-    LOG("ClientContext: no bitmaps file found: %s.", path);
+    LOG("no bitmaps file found: %s.", path);
   }
   else {
-    LOG("ClientContext: initialized bitmaps: client=%d, count=%d.", client, context.bitmaps.size());
+    LOG("initialized bitmaps: client=%d, count=%d.", client, context.bitmaps.size());
   }
 }
 
@@ -75,13 +75,13 @@ void ClientContext::putParam(const char* name, const char* value, byte append) {
   else {
     params[name] = value;
   }
-  LOG("ClientContest: put parameter: %s => %s", name, params[name].c_str());
+  LOG("put parameter: %s => %s", name, params[name].c_str());
 }
 
 const char* ClientContext::getMessage(const char* id) {
   const char* message = messages[id];
   if (!message) {
-    LOG("ClientContext: message id %s not found.", id);
+    LOG("message id %s not found.", id);
     return id;
   }
   return message;
@@ -148,7 +148,7 @@ BitmapDef ClientContext::getBitmapDef(BitmapId id) {
     }
   }
   else {
-    LOG("ClientContext: bitmap id %d not found.", id);
+    LOG("bitmap id %d not found.", id);
     strcpy(def.path, "/10/fallback.raw");
   }
   return def;

@@ -1,4 +1,5 @@
 #include "storage.h"
+
 #include "base/base.h"
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -8,20 +9,20 @@ Storage::Storage()
 }
 
 void Storage::setup() {
-  LOG("Storage: setup SD card...");
+  LOG("setup SD card...");
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
   if (!sd.begin(SD_CS, SPI, 10000000)) {
-    LOG("Storage: SD card not available.");
+    LOG("SD card not available.");
     return;
   }
   diagnostics();
-  LOG("Storage: SD card successfully initialized.");
+  LOG("SD card successfully initialized.");
 }
 
 File Storage::open(const char* path) {
   File file = sd.open(path, FILE_READ, false);
   if (!file) {
-    LOG("Storage: cannot load file: %s.", path);
+    LOG("cannot load file: %s.", path);
   }
   return file;
 }
@@ -29,7 +30,7 @@ File Storage::open(const char* path) {
 bool Storage::loadJson(const char* path, JsonDocument& json) {
   File file = open(path);
   if (!file) {
-    LOG("Storage: failed to open json file: path=%s.", path);
+    LOG("failed to open json file: path=%s.", path);
     return false;
   }
 
@@ -40,7 +41,7 @@ bool Storage::loadJson(const char* path, JsonDocument& json) {
     return true;
   }
 
-  LOG("Storage: failed to parse json: path=%s, error=%s.", path, result.c_str());
+  LOG("failed to parse json: path=%s, error=%s.", path, result.c_str());
 
   return false;
 }
@@ -50,16 +51,16 @@ void Storage::diagnostics() {
 }
 
 void Storage::list(const char* folder) {
-  LOG("Storage: listing directory: %s.", folder);
+  LOG("listing directory: %s.", folder);
 
   File root = sd.open(folder);
   if (!root) {
-    LOG("Storage: failed to open directory.");
+    LOG("failed to open directory.");
     return;
   }
 
   if (!root.isDirectory()) {
-    LOG("Storage: not a directory.");
+    LOG("not a directory.");
     return;
   }
 

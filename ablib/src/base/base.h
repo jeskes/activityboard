@@ -27,6 +27,8 @@ const int WIRE_SCL = A5;
 #define ID_BUFFER_SIZE 26
 #define PARAM_BUFFER_SIZE 10
 #define PRINT_BUFFER_SIZE 128
+#define PRINT_LINE_SIZE 3
+#define PRINT_FILE_SIZE 20
 #define REQUEST_BUFFER_SIZE 32
 #define PATH_BUFFER_SIZE 64
 
@@ -49,6 +51,7 @@ class ActivityBoard {
   void setup(ModuleId moduleId);
   void clearI2CBus(uint8_t sda = WIRE_SDA, uint8_t scl = WIRE_SCL);
 };
+
 extern ActivityBoard activityBoard;
 
 /* ========================================================================= */
@@ -57,26 +60,46 @@ extern ActivityBoard activityBoard;
 
 class ActivityLogger {
  public:
-  void serialPrintln(const char* fmt, ...);
+  void print(const char* fmt, ...);
+  void println(const char* fmt, ...);
 #if defined(ARDUINO_ARCH_ESP32)
-  void serialPrintln(const char* fmt, bool isFlash, va_list args);
+  void print(const char* fmt, bool isFlash, va_list args);
+  void println(const char* fmt, bool isFlash, va_list args);
 #else
-  void serialPrintln(const __FlashStringHelper* fmt, ...);
-  void serialPrintln(const char* fmt, bool isFlash, va_list args);
+  void print(const __FlashStringHelper* fmt, ...);
+  void print(const char* fmt, bool isFlash, va_list args);
+  void println(const __FlashStringHelper* fmt, ...);
+  void println(const char* fmt, bool isFlash, va_list args);
 #endif
-  void serialDump(const unsigned char* buffer, uint8_t length);
+  void printLocation(const char* file, unsigned int line);
+  void dump(const unsigned char* buffer, uint8_t length);
 };
+
 extern ActivityLogger activityLogger;
 
-/* Logger-Makro-Weiche für ESP32 und Nano */
-
+#ifdef DEBUG
 #if defined(ARDUINO_ARCH_ESP32)
-#define LOG(fmt, ...) activityLogger.serialPrintln(fmt, ##__VA_ARGS__)
+#define LOG(fmt, ...)                                         \
+  {                                                           \
+    activityLogger.printLocation(__FILE__, __LINE__); \
+    activityLogger.println(fmt, ##__VA_ARGS__);               \
+  }
 #else
-#define LOG(fmt, ...) activityLogger.serialPrintln(F(fmt), ##__VA_ARGS__)
+#define LOG(fmt, ...)                                     \
+  {                                                       \
+    activityLogger.printLocation(__FILE__, __LINE__); \
+    activityLogger.println(F(fmt), ##__VA_ARGS__);        \
+  }
 #endif
-
-#define DUMP(buffer, length) activityLogger.serialDump((const unsigned char*)buffer, length)
+#define DUMP(buffer, length)                                   \
+  {                                                            \
+    activityLogger.printLocation(__FILE__, __LINE__); \
+    activityLogger.dump((const unsigned char*)buffer, length); \
+  }
+#else
+#define LOG(fmt, ...)
+#define DUMP(buffer, length)
+#endif
 
 /* ========================================================================= */
 /*                                                          controls helpers */

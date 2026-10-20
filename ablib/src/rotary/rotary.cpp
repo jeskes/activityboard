@@ -13,7 +13,7 @@ ActivityRotaryClient::ActivityRotaryClient(Scheduler& scheduler) {
 
 void ActivityRotaryClient::setup() {
   pollEncoderStatus();
-  LOG("ActivityRotaryClient: successfully setup: left=(%d,%ld), right=(%d,%ld)", (int)lastStatus[0].pressed, lastStatus[0].value, (int)lastStatus[1].pressed, lastStatus[1].value);
+  LOG("successfully setup: left=(%d,%ld), right=(%d,%ld)", (int)lastStatus[0].pressed, lastStatus[0].value, (int)lastStatus[1].pressed, lastStatus[1].value);
 }
 
 RotaryStatus ActivityRotaryClient::getStatus() {

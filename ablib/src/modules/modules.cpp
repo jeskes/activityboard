@@ -130,7 +130,7 @@ static void onRequest() {
 void GadgetBase::setup() {
   delay(2000);
   activityBoard.setup();
-  LOG("GadgetBase: activity board initialized.");
+  LOG("gadget setup done.");
 }
 
 void GadgetBase::loop() {

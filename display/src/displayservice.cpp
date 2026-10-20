@@ -15,7 +15,7 @@ void DisplayService::setup(uint8_t module) {
   rotary.setup();
   runner.setup();
 
-  LOG("Display Module started.");
+  LOG("Display Service started.");
 }
 
 void DisplayService::loop() {
@@ -57,7 +57,7 @@ void DisplayService::publishStatus() {
 void DisplayService::handleRequest(InitDisplayRequest* request) {
   rotary.reset();
   BitmapDef def = contexts.get(request->client).getBitmapDef(request->startupBitmap);
-  LOG("DisplayService: draw startup bitmap: id=%s, path=%s.", request->startupBitmap, def.path);
+  LOG("draw startup bitmap: id=%s, path=%s.", request->startupBitmap, def.path);
   auto& dsp = display;
   runner.schedule([&dsp, def]() { dsp.drawBitmap(def, 0, 0); });
 }
@@ -67,26 +67,26 @@ void DisplayService::handleRequest(ClearDisplayRequest* request) {
 }
 
 void DisplayService::handleRequest(DisplayParameterRequest* request) {
-  LOG("DisplayService: put param: client=%d, id=%s, value=%s.", request->client, request->id, request->value);
+  LOG("put param: client=%d, id=%s, value=%s.", request->client, request->id, request->value);
   contexts.get(request->client).putParam(request->id, request->value, request->append);
 }
 
 void DisplayService::handleRequest(DisplayMessageRequest* request) {
   String message = contexts.get(request->client).formatMessage(request->messageId);
-  LOG("DisplayService: draw message: id=%s, message=%s.", request->messageId, message.c_str());
+  LOG("draw message: id=%s, message=%s.", request->messageId, message.c_str());
   display.drawText(message.c_str());
 }
 
 void DisplayService::handleRequest(DisplayMenuRequest* request) {
   MenuDef def = contexts.get(request->client).getMenuDef(request->menuId);
-  LOG("DisplayService: open menu: id=%s.", request->menuId);
+  LOG("open menu: id=%s.", request->menuId);
   auto& dsp = display;
   runner.schedule([&dsp, def]() { dsp.drawMenu(def); });
 }
 
 void DisplayService::handleRequest(DisplayBitmapRequest* request) {
   BitmapDef def = contexts.get(request->client).getBitmapDef(request->bitmapId);
-  LOG("DisplayService: draw bitmap: id=%s, path=%s.", request->bitmapId, def.path);
+  LOG("draw bitmap: id=%s, path=%s.", request->bitmapId, def.path);
   auto& dsp = display;
   runner.schedule([&dsp, def]() { dsp.drawBitmap(def, 0, 0); });
 }

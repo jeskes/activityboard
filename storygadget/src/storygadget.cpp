@@ -33,7 +33,7 @@ void StoryGadget::loop() {
   GadgetBase::loop();
 
   if (millis() > heartbeat) {
-    LOG("heartbeat: selection-busy=%d, story-busy=%d, storage=%d, numpad=%d", selectionController.isBusy(), storyController.isBusy(), storage.sd.cardType(), numpad.available());
+    LOG("selection-busy=%d, story-busy=%d, storage=%d, numpad=%d", selectionController.isBusy(), storyController.isBusy(), storage.sd.cardType(), numpad.available());
     heartbeat = millis() + 2000;
   }
 

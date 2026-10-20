@@ -8,14 +8,14 @@ ActivityNumpadClient::ActivityNumpadClient()
 }
 
 void ActivityNumpadClient::setup() {
-  LOG("ActivityNumpadClient: init numpad module.");
+  LOG("init numpad module.");
   if (keyPad.begin() == false) {
-    LOG("ActivityNumpadClient: numpad not found at address %d", NUMPAD_MODULE_ID);
+    LOG("numpad not found at address %d", NUMPAD_MODULE_ID);
   }
   else {
-    LOG("ActivityNumpadClient: loading keymap: %d", keymap);
+    LOG("loading keymap: %d", keymap);
     keyPad.loadKeyMap(keymap);
-    LOG("ActivityNumpadClient: numpad initialized at address %d", NUMPAD_MODULE_ID);
+    LOG("numpad initialized at address %d", NUMPAD_MODULE_ID);
 	initialized = true;
   }
 }
@@ -51,7 +51,7 @@ int16_t ActivityNumpadClient::readString(char* buffer, uint8_t length, int16_t t
 
   while (idx < (length - 1)) {
     if (timeout > 0 && (millis() - startTime >= (uint32_t)timeout)) {
-      LOG("Numpad readString timeout reached.");
+      LOG("numpad readString timeout reached.");
       break;
     }
 
