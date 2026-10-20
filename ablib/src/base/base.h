@@ -91,3 +91,31 @@ class ActivityControls {
   void scanWire();
 };
 extern ActivityControls activityControls;
+
+class ActivityButton {
+ public:
+  ActivityButton(uint8_t pin) {
+    this->pin = pin;
+    pinMode(pin, INPUT_PULLUP);
+  }
+
+  bool pressed() {
+    unsigned long now = millis();
+    if (digitalRead(pin) == LOW) {
+      if (!pressedPending) {
+        pressedPending = now;
+      }
+      if (now - pressedPending > 50) {
+        return true;
+      }
+    }
+    else {
+      pressedPending = 0;
+    }
+    return false;
+  }
+
+ private:
+  uint8_t pin;
+  unsigned long pressedPending = 0;
+};

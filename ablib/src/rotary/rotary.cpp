@@ -1,22 +1,19 @@
-
 #include "rotary.h"
-#include "../display/display.h"
 
-#define POLLING_TIMEOUT 10
+#include "../display/display.h"
 
 static void pollEncoderStatus();
 static RotaryStatusHandler* statusHandler = nullptr;
 static RotaryStatus lastStatus;
-static Task encoderPollingTask(POLLING_TIMEOUT, TASK_FOREVER, pollEncoderStatus);
+static Task encoderPollingTask(ROTARY_POLLING_TIMEOUT, TASK_FOREVER, pollEncoderStatus);
 
 ActivityRotaryClient::ActivityRotaryClient(Scheduler& scheduler) {
   scheduler.addTask(encoderPollingTask);
 }
 
 void ActivityRotaryClient::setup() {
-  LOG("ActivityRotaryClient: setup.");
   pollEncoderStatus();
-  LOG("ActivityRotaryClient: successfully initialized.");
+  LOG("ActivityRotaryClient: successfully setup: left=(%d,%ld), right=(%d,%ld)", (int)lastStatus[0].pressed, lastStatus[0].value, (int)lastStatus[1].pressed, lastStatus[1].value);
 }
 
 RotaryStatus ActivityRotaryClient::getStatus() {
@@ -24,11 +21,12 @@ RotaryStatus ActivityRotaryClient::getStatus() {
   return lastStatus;
 }
 
-void ActivityRotaryClient::setStatusHandler(RotaryStatusHandler* handler) {
+void ActivityRotaryClient::setStatusHandler(RotaryStatusHandler* handler, unsigned long pollingDelay, unsigned long pollingTimeout) {
   if (handler != statusHandler) {
     statusHandler = handler;
     if (statusHandler) {
-      encoderPollingTask.enable();
+      encoderPollingTask.enableDelayed(pollingDelay);
+      encoderPollingTask.setInterval(pollingTimeout);
     }
     else {
       encoderPollingTask.disable();
@@ -36,11 +34,23 @@ void ActivityRotaryClient::setStatusHandler(RotaryStatusHandler* handler) {
   }
 }
 
+void ActivityRotaryClient::pause() {
+  encoderPollingTask.disable();
+}
+
+void ActivityRotaryClient::resume(unsigned long pollingDelay) {
+  if (!encoderPollingTask.isEnabled() && statusHandler) {
+    encoderPollingTask.enableDelayed(pollingDelay);
+  }
+}
+
+bool ActivityRotaryClient::isPaused() {
+  return !encoderPollingTask.isEnabled();
+}
+
 static void pollEncoderStatus() {
-  // LOG("poll rotary status");
   DisplayStatus status;
   PeriphericalClient::requestStatus(DISPLAY_MODULE_ID, &status, sizeof(DisplayStatus));
-  // LOG("received rotary status: (%d, %04d), (%d, %04d)", status.rotaryStatus[0].pressed, (int)status.rotaryStatus[0].value, status.rotaryStatus[1].pressed, (int)status.rotaryStatus[1].value);
   if (statusHandler && memcmp(&lastStatus, &status.rotaryStatus, sizeof(RotaryStatus))) {
     bool cancelHandler = statusHandler->rotaryStatusChanged(status.rotaryStatus);
     if (cancelHandler) {

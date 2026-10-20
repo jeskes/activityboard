@@ -46,6 +46,7 @@ void DiceGadget::setup() {
   activityControls.blink(indicators, countIndicators, 2, 200);
 
   display.init(BITMAP_STARTUP);
+  rotary.setStatusHandler(this);
 
   LOG("Dice Gadget started.");
 }
@@ -57,9 +58,9 @@ void DiceGadget::loop() {
   stateMachine();
   showIndicators();
 
-  if( millis() > heartbeat ) {
-	LOG("heartbeat");
-	heartbeat = millis() + 2000;
+  if (millis() > heartbeat) {
+    LOG("heartbeat: numpad=%d", numpad.available());
+    heartbeat = millis() + 2000;
   }
 }
 
@@ -98,7 +99,9 @@ void DiceGadget::stateMachine() {
       break;
   }
 
-  rotary.setStatusHandler(status == Status::IDLE ? this : nullptr);
+  if (rotary.isPaused() && status == Status::IDLE) {
+    rotary.resume();
+  }
 
   if ((status == Status::JINGLE_SOUND_PLAYING) && (millis() > startTime + JINGLE_PLAYING_TIMEOUT)) {
     LOG("jingle-playing-reset");
@@ -136,12 +139,18 @@ bool DiceGadget::checkStartButton() {
 }
 
 void DiceGadget::setGuess(int guess) {
-  LOG("set guess: %d", guess);
   if (currentGuess != guess) {
+    LOG("set guess: %d", guess);
     currentGuess = guess;
     display.putParam(PARAMETER_GUESS, currentGuess);
     display.displayMessage(MESSAGE_GUESS);
-    pendingGuessDisplay = true;
+  }
+}
+
+void DiceGadget::setJingle(int jingle) {
+  if (selectedJingle != jingle) {
+    selectedJingle = jingle;
+    LOG("selected jingle: %d", selectedJingle);
   }
 }
 
@@ -161,8 +170,6 @@ void DiceGadget::reset() {
   currentLanguage = 0;
   startTime = 0;
   startTimeIndicator = 0;
-  wireBlock = 0;
-  pendingGuessDisplay = false;
   sound.setStatusHandler(nullptr);
 }
 
@@ -191,13 +198,12 @@ bool DiceGadget::playerStateChanged(PlayerState playerState) {
 }
 
 bool DiceGadget::rotaryStatusChanged(RotaryStatus rotaryStatus) {
-  LOG("DiceGadget: status left: pressed=%d, value=%d", rotaryStatus[0].pressed, (int)rotaryStatus[0].value);
-  LOG("DiceGadget: status right: pressed=%d, value=%d", rotaryStatus[1].pressed, (int)rotaryStatus[1].value);
+  LOG("DiceGadget rotary event: status=%d, left=(%d,%ld), right=(%d,%ld)", status, (int)rotaryStatus[0].pressed, rotaryStatus[0].value, (int)rotaryStatus[1].pressed, rotaryStatus[1].value);
+  rotary.pause();
 
   if (!rotaryStatus[ROTARY_ENCODER_RIGHT].pressed) {
     uint32_t jingle = rotaryStatus[ROTARY_ENCODER_LEFT].value / 2;
-    selectedJingle = INITIAL_JINGLE + (abs(jingle) % JINGLES_COUNT);
-    LOG("selected jingle: %d", selectedJingle);
+    setJingle(INITIAL_JINGLE + (abs(jingle) % JINGLES_COUNT));
   }
 
   if (status == Status::IDLE) {
@@ -205,12 +211,11 @@ bool DiceGadget::rotaryStatusChanged(RotaryStatus rotaryStatus) {
       status = Status::START_REQUESTED;
     }
     else {
-      int32_t num = (rotaryStatus[ROTARY_ENCODER_RIGHT].value / 2) % 6;
-      int guess = num >= 0 ? num + 1 : 7 + num;
-      if (guess != currentGuess) {
+      if (currentGuess || rotaryStatus[ROTARY_ENCODER_RIGHT].value) {
+        int num = (int)((rotaryStatus[ROTARY_ENCODER_RIGHT].value / 2) % 6);
+        int guess = num >= 0 ? num + 1 : 7 + num;
         setGuess(guess);
       }
-      wireBlock = millis() + 200;
     }
   }
 

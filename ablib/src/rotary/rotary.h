@@ -2,17 +2,16 @@
 
 #include "../base/base.h"
 
-/* ========================================================================= */
-/*                                                        rotary encoder api */
-/* ========================================================================= */
-
 /* note that rotary encoders are hosted by the display module */
 
 #define ROTARY_ENCODER_LEFT 0
 #define ROTARY_ENCODER_RIGHT 1
 
+#define ROTARY_POLLING_DELAY 200
+#define ROTARY_POLLING_TIMEOUT 50
+
 struct __attribute__((packed)) RotaryEncoderStatus {
-  int64_t value;
+  int32_t value;
   bool pressed;
 };
 
@@ -35,6 +34,9 @@ class ActivityRotaryClient {
   void setup();
 
   RotaryStatus getStatus();
-  void setStatusHandler(RotaryStatusHandler* handler);
-};
+  void setStatusHandler(RotaryStatusHandler* handler, unsigned long pollingDelay = ROTARY_POLLING_DELAY, unsigned long pollingTimeout = ROTARY_POLLING_TIMEOUT);
 
+  void pause();
+  bool isPaused();
+  void resume(unsigned long pollingDelay = ROTARY_POLLING_DELAY);
+};

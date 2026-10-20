@@ -1,5 +1,4 @@
-#ifndef _AB_DICE_GADGET_H
-#define _AB_DICE_GADGET_H
+#pragma once
 
 #include <display/display.h>
 #include <modules/modules.h>
@@ -37,6 +36,7 @@ class DiceGadget : GadgetBase, SoundStatusHandler, RotaryStatusHandler {
   void reset();
 
   void setGuess(int guess);
+  void setJingle(int jingle);
   bool checkNumpad();
   bool checkStartButton();
 
@@ -51,18 +51,12 @@ class DiceGadget : GadgetBase, SoundStatusHandler, RotaryStatusHandler {
   };
 
   Status status = Status::IDLE;
-
-  int selectedJingle = INITIAL_JINGLE;
-
-  unsigned long wireBlock = 0;
-  bool pendingGuessDisplay = false;
-
+  
   int currentGuess = 0;
   int currentNumber = 0;
   int currentLanguage = 0;
+  int selectedJingle = INITIAL_JINGLE;
 
   unsigned long startTime = 0;
   unsigned long startTimeIndicator = 0;
 };
-
-#endif

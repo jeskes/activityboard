@@ -12,6 +12,9 @@ struct RotaryEncoderPins {
 
 static void initPins(RotaryEncoderPins pins);
 
+static ActivityButton leftButton(ROTARY_ENCODER_LEFT_SW);
+static ActivityButton rightButton(ROTARY_ENCODER_RIGHT_SW);
+
 void RotaryEncoderWrapper::setup() {
   initPins({ROTARY_ENCODER_LEFT_CLK, ROTARY_ENCODER_LEFT_DT, ROTARY_ENCODER_LEFT_SW});
   initPins({ROTARY_ENCODER_RIGHT_CLK, ROTARY_ENCODER_RIGHT_DT, ROTARY_ENCODER_RIGHT_SW});
@@ -27,11 +30,13 @@ void RotaryEncoderWrapper::reset() {
 }
 
 void RotaryEncoderWrapper::getStatus(RotaryStatus& status) {
-  status[ROTARY_ENCODER_LEFT].value = encoders[ROTARY_ENCODER_LEFT].getCount();
-  status[ROTARY_ENCODER_LEFT].pressed = digitalRead(ROTARY_ENCODER_LEFT_SW) == LOW;
+  status.encoderStatus[0].value = (int32_t)encoders[ROTARY_ENCODER_LEFT].getCount();
+  status.encoderStatus[1].value = (int32_t)encoders[ROTARY_ENCODER_RIGHT].getCount();
 
-  status[ROTARY_ENCODER_RIGHT].value = encoders[ROTARY_ENCODER_RIGHT].getCount();
-  status[ROTARY_ENCODER_RIGHT].pressed = digitalRead(ROTARY_ENCODER_RIGHT_SW) == LOW;
+  status.encoderStatus[0].pressed = leftButton.pressed();
+  status.encoderStatus[1].pressed = rightButton.pressed();
+
+  LOG("retrieved rotary status: (%d, %ld), (%d, %ld)", (int)status.encoderStatus[0].pressed, status.encoderStatus[0].value, (int)status.encoderStatus[1].pressed, status.encoderStatus[1].value);
 }
 
 static void initPins(RotaryEncoderPins pins) {
