@@ -1,23 +1,9 @@
 #include "sound.h"
 #include <sound/sound.h>
 
-// pins
-
-#define VOLUME_SW 2
-#define VOLUME_DT 3
-#define VOLUME_CLK 4
-#define PLAYER_LED 9
-#define PLAYER_TX 10
-#define PLAYER_RX 11
-#define PLAYER_BUSY 12
-
-#define INITIAL_VOLUME 5
-#define MAXIMUM_VOLUME 25
 
 #define WAIT_FOR_BUSY_COUNT 5
 #define WAIT_FOR_BUSY_TIMEOUT 300
-
-#define STARTUP_TRACK_ID 100
 
 static long volumeEncoderPosition = -999;
 
@@ -67,7 +53,7 @@ void SoundService::processRequest(BaseRequest* request) {
 
 void SoundService::publishStatus() {
   SoundStatus status(playerState);
-  LOG("SoundService: publish status: player-state=%d", playerState);
+  // LOG("SoundService: publish status: player-state=%d", playerState);
   sendStatus(&status, sizeof(SoundStatus));
 }
 
@@ -86,8 +72,6 @@ void SoundService::setupPlayer() {
   // player.setTimeOut(100);
   // player.EQ(DFPLAYER_EQ_NORMAL);
   // player.outputDevice(DFPLAYER_DEVICE_SD);
-
-  play(SYSTEM_CLIENT_ID, STARTUP_TRACK_ID);
 }
 
 bool SoundService::checkPlayer() {
@@ -140,7 +124,7 @@ void SoundService::updatePlayerVolume() {
     if (pendingMute != currentMute || pendingVolume != currentVolume) {
       currentMute = pendingMute;
       currentVolume = pendingVolume;
-      LOG(" set volume mute=%d, volume=%d", currentMute, currentVolume);
+      LOG("set volume mute=%d, volume=%d", currentMute, currentVolume);
       player.volume(currentMute ? 0 : currentVolume);
     }
   }

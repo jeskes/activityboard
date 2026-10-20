@@ -6,6 +6,8 @@
 #include <modules/modules.h>
 #include <sound/sound.h>
 
+#include "const.h"
+
 class SoundService : public PeriphericalService {
  public:
   SoundService();
