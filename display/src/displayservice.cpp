@@ -10,6 +10,7 @@ DisplayService::DisplayService()
 
 void DisplayService::setup(uint8_t module) {
   PeriphericalService::setup(module);
+  delay(1500); /* wait a while to get power for storage */
   storage.setup();
   display.setup();
   rotary.setup();
