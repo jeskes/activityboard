@@ -1,6 +1,6 @@
 #include "sound.h"
-#include <sound/sound.h>
 
+#include <sound/sound.h>
 
 #define WAIT_FOR_BUSY_COUNT 5
 #define WAIT_FOR_BUSY_TIMEOUT 300
@@ -22,11 +22,13 @@ SoundService::SoundService()
 
 void SoundService::setup(uint8_t module) {
   PeriphericalService::setup(module);
+
   pinMode(PLAYER_BUSY, INPUT);
   pinMode(VOLUME_CLK, INPUT_PULLUP);
   pinMode(VOLUME_DT, INPUT_PULLUP);
   pinMode(VOLUME_SW, INPUT_PULLUP);
   pinMode(PLAYER_LED, OUTPUT);
+
   setupPlayer();
 }
 
