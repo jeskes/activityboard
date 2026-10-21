@@ -120,6 +120,7 @@ void DiceGadget::setGuess(int guess, bool updateDisplay) {
     display.putParam(PARAMETER_GUESS, currentGuess);
     if (updateDisplay) {
       display.displayMessage(MESSAGE_GUESS);
+	  resetDisplayTime = 0;
     }
   }
 }
