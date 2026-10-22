@@ -10,8 +10,9 @@ Storage::Storage()
 
 void Storage::setup() {
   LOG("setup SD card...");
+  pinMode(SD_MISO, INPUT_PULLUP);
   SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
-  if (!sd.begin(SD_CS, SPI, 10000000)) {
+  if (!sd.begin(SD_CS, SPI, 4000000)) {
     LOG("SD card not available.");
     return;
   }
