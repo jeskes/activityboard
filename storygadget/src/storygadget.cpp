@@ -8,19 +8,19 @@ StoryGadget::StoryGadget()
 }
 
 void StoryGadget::setup() {
-  GadgetBase::setup();
-
-  numpad.setup();
-  storage.setup();
-  selectionController.setup();
-
   pinMode(START_BUTTON, INPUT_PULLUP);
   pinMode(SELECT_BUTTON, INPUT_PULLUP);
   pinMode(SELECTING_LED, OUTPUT);
   pinMode(READING_LED, OUTPUT);
 
   const uint8_t blinks[] = {SELECTING_LED, READING_LED};
-  activityControls.blink(blinks, 2, 2, 200);
+  activityControls.blink(blinks, 2, 5, 200);
+
+  GadgetBase::setup();
+
+  numpad.setup();
+  storage.setup();
+  selectionController.setup();
 
   display.init(BITMAP_STARTUP);
 
