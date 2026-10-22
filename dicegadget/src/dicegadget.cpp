@@ -10,18 +10,17 @@ DiceGadget::DiceGadget()
 }
 
 void DiceGadget::setup() {
-  GadgetBase::setup();
-
-  numpad.setup();
-  rotary.setup();
-
-  randomSeed(analogRead(NOISE_PIN));
   pinMode(START_BUTTON, INPUT_PULLUP);
   for (int idx = 0; idx < countIndicators; idx++) {
     pinMode(indicators[idx], OUTPUT);
   }
-
   activityControls.blink(indicators, countIndicators, 2, 200);
+  randomSeed(analogRead(NOISE_PIN));
+
+  GadgetBase::setup();
+
+  numpad.setup();
+  rotary.setup();
 
   display.init(BITMAP_STARTUP);
   rotary.setStatusHandler(this);
@@ -120,7 +119,7 @@ void DiceGadget::setGuess(int guess, bool updateDisplay) {
     display.putParam(PARAMETER_GUESS, currentGuess);
     if (updateDisplay) {
       display.displayMessage(MESSAGE_GUESS);
-	  resetDisplayTime = 0;
+      resetDisplayTime = 0;
     }
   }
 }
