@@ -1,27 +1,22 @@
 #pragma once
 
-#include <display/display.h>
+#include <core/core.h>
 #include <modules/modules.h>
 #include <numpad/numpad.h>
-#include <rotary/rotary.h>
-#include <sound/sound.h>
 
 #include "const.h"
 
-class DiceGadget : GadgetBase, SoundStatusHandler, RotaryStatusHandler {
+class DiceGadget : GadgetBase, CoreStatusHandler {
  public:
   DiceGadget();
 
   void setup();
   void loop();
   bool playerStateChanged(PlayerState state);
-  bool rotaryStatusChanged(RotaryStatus status);
 
  private:
-  ActivitySoundClient sound;
+  ActivityCoreClient core;
   ActivityNumpadClient numpad;
-  ActivityRotaryClient rotary;
-  ActivityDisplayClient display;
 
   void stateMachine();
   void showIndicators();

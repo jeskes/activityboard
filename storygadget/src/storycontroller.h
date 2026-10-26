@@ -1,15 +1,14 @@
 #pragma once
 
-#include <sound/sound.h>
+#include <core/core.h>
 #include <numpad/numpad.h>
-#include <display/display.h>
 #include <storage/storage.h>
 
 #include "const.h"
 
-class StoryController : SoundStatusHandler {
+class StoryController : CoreStatusHandler {
  public:
-  StoryController(Storage& storage, ActivitySoundClient& sound, ActivityNumpadClient& numpad, ActivityDisplayClient& display);
+  StoryController(Storage& storage, ActivityCoreClient& core, ActivityNumpadClient& numpad);
 
   bool run(StoryId story);
   void loop();
@@ -20,9 +19,8 @@ class StoryController : SoundStatusHandler {
   JsonDocument definition;
   bool loadDefinition();
 
-  ActivitySoundClient& sound;
+  ActivityCoreClient& core;
   ActivityNumpadClient& numpad;
-  ActivityDisplayClient& display;
 
   StoryId activeStory;
   bool chapterTrackStopped;
@@ -35,5 +33,6 @@ class StoryController : SoundStatusHandler {
   void startChapter(ChapterId chapter);
   void onChapterEnded();
   void onMenuSelected(uint8_t selectedIndex);
+  
   bool playerStateChanged(PlayerState state);
 };

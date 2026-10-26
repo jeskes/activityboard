@@ -6,10 +6,12 @@
 #include <FS.h>
 #include <SD.h>
 
-#define SD_SCK 18
-#define SD_MISO 19
-#define SD_MOSI 23
-#define SD_CS 5
+#define DEFAULT_SD_CLK 18
+#define DEFAULT_SD_MISO 19
+#define DEFAULT_SD_MOSI 23
+#define DEFAULT_SD_CS 5
+
+#define USE_DEFAULT_PIN 255
 
 class Storage {
  public:
@@ -17,7 +19,7 @@ class Storage {
 
   fs::SDFS& sd;
 
-  void setup();
+  void setup(uint8_t clk = USE_DEFAULT_PIN, uint8_t miso = USE_DEFAULT_PIN, uint8_t mosi = USE_DEFAULT_PIN, uint8_t cs = USE_DEFAULT_PIN);
   void diagnostics();
 
   File open(const char* path);

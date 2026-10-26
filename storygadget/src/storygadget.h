@@ -17,9 +17,8 @@ class StoryGadget : public GadgetBase {
   void loop();
 
   Storage storage;
-  ActivitySoundClient sound;
+  ActivityCoreClient core;
   ActivityNumpadClient numpad;
-  ActivityDisplayClient display;
   
   SelectionController selectionController;
   StoryController storyController;

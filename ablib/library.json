@@ -18,5 +18,10 @@
 	"dependencies": {
 		"arkhipenko/TaskScheduler": "^4.0.8",
 		"robtillaart/I2CKeyPad@": "^0.5.2"
+	},
+	"build": {
+		"flags": [
+			"-std=gnu++17"
+		]
 	}
 }

@@ -11,8 +11,7 @@
 
 #define SERIAL_BAUD 115200
 
-#define SOUND_MODULE_ID 0x10
-#define DISPLAY_MODULE_ID 0x11
+#define CORE_MODULE_ID 0x10
 #define NUMPAD_MODULE_ID 0x20
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -79,21 +78,21 @@ extern ActivityLogger activityLogger;
 
 #ifdef DEBUG
 #if defined(ARDUINO_ARCH_ESP32)
-#define LOG(fmt, ...)                                         \
-  {                                                           \
+#define LOG(fmt, ...)                                 \
+  {                                                   \
     activityLogger.printLocation(__FILE__, __LINE__); \
-    activityLogger.println(fmt, ##__VA_ARGS__);               \
+    activityLogger.println(fmt, ##__VA_ARGS__);       \
   }
 #else
-#define LOG(fmt, ...)                                     \
-  {                                                       \
+#define LOG(fmt, ...)                                 \
+  {                                                   \
     activityLogger.printLocation(__FILE__, __LINE__); \
-    activityLogger.println(F(fmt), ##__VA_ARGS__);        \
+    activityLogger.println(F(fmt), ##__VA_ARGS__);    \
   }
 #endif
 #define DUMP(buffer, length)                                   \
   {                                                            \
-    activityLogger.printLocation(__FILE__, __LINE__); \
+    activityLogger.printLocation(__FILE__, __LINE__);          \
     activityLogger.dump((const unsigned char*)buffer, length); \
   }
 #else
@@ -114,31 +113,3 @@ class ActivityControls {
   void scanWire();
 };
 extern ActivityControls activityControls;
-
-class ActivityButton {
- public:
-  ActivityButton(uint8_t pin) {
-    this->pin = pin;
-    pinMode(pin, INPUT_PULLUP);
-  }
-
-  bool pressed() {
-    unsigned long now = millis();
-    if (digitalRead(pin) == LOW) {
-      if (!pressedPending) {
-        pressedPending = now;
-      }
-      if (now - pressedPending > 50) {
-        return true;
-      }
-    }
-    else {
-      pressedPending = 0;
-    }
-    return false;
-  }
-
- private:
-  uint8_t pin;
-  unsigned long pressedPending = 0;
-};

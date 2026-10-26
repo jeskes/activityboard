@@ -5,18 +5,20 @@
 
 #include "clientcontext.h"
 #include "display.h"
+#include "player.h"
 #include "storage/storage.h"
 #include "taskrunner.h"
-#include "rotaryencoder.h"
+#include "ledring.h"
 
-class DisplayService : public PeriphericalService {
+class CoreService : public PeriphericalService {
  public:
-  DisplayService();
+  CoreService();
 
+  LedRing ledRing;
+  Player player;
   Storage storage;
   Display display;
   ClientContexts contexts;
-  RotaryEncoderWrapper rotary;
 
   TaskRunner runner;
 
@@ -25,13 +27,15 @@ class DisplayService : public PeriphericalService {
 
   void processRequest(BaseRequest* request) override;
 
- private:
-  static void publishStatus();
-
-  void handleRequest(InitDisplayRequest* request);
+  void handleRequest(InitCoreRequest* request);
+  void handleRequest(ParameterRequest* request);
+  void handleRequest(PlaySoundRequest* request);
+  void handleRequest(StopSoundRequest* request);
   void handleRequest(ClearDisplayRequest* request);
-  void handleRequest(DisplayParameterRequest* request);
   void handleRequest(DisplayMessageRequest* request);
   void handleRequest(DisplayMenuRequest* request);
   void handleRequest(DisplayBitmapRequest* request);
+
+ private:
+  static void publishStatus();
 };

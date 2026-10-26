@@ -1,6 +1,6 @@
 #pragma once
 
-#include <display/display.h>
+#include <core/core.h>
 
 #define MAX_STORIES 3
 

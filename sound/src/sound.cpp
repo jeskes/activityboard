@@ -27,15 +27,16 @@ void SoundService::setup(uint8_t module) {
   pinMode(VOLUME_CLK, INPUT_PULLUP);
   pinMode(VOLUME_DT, INPUT_PULLUP);
   pinMode(VOLUME_SW, INPUT_PULLUP);
-  pinMode(PLAYER_LED, OUTPUT);
+  pinMode(SPEAKER_CONTROL, OUTPUT);
 
+  delay(1000);
   setupPlayer();
 }
 
 void SoundService::loop() {
   PeriphericalService::loop();
   playerState = checkPlayer() ? PlayerState::PLAYING : PlayerState::IDLE;
-  digitalWrite(PLAYER_LED, playerState == PlayerState::PLAYING ? HIGH : LOW);
+  // digitalWrite(PLAYER_LED, playerState == PlayerState::PLAYING ? HIGH : LOW);
   readPlayerVolume();
   updatePlayerVolume();
 }
@@ -64,10 +65,10 @@ void SoundService::setupPlayer() {
   playerSerial.begin(9600);
   if (!player.begin(playerSerial, true, false)) {
     LOG("Error: initializing player failed.");
-    activityControls.blink(PLAYER_LED, 50, 50);
+    // activityControls.blink(PLAYER_LED, 50, 50);
   }
   else {
-    activityControls.blink(PLAYER_LED, 4, 250);
+    // activityControls.blink(PLAYER_LED, 4, 250);
   }
   player.disableLoop();
   player.volume(pendingVolume);
@@ -79,12 +80,17 @@ void SoundService::setupPlayer() {
 bool SoundService::checkPlayer() {
   bool playing = digitalRead(PLAYER_BUSY) == LOW;
   // LOG("playing: %d", playing);
+  if (!playing) {
+    player.sleep();
+  }
   return playing;
 }
 
 void SoundService::play(ClientId client, TrackId track) {
   LOG("play sound: client=%d, track=%d", client, track);
   playerState = PlayerState::PLAYING;
+  player.volume(currentVolume); // wake up
+  delay(100);
   player.playFolder(client, track);
   awaitPlayerBusy(true);
 }

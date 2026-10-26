@@ -1,10 +1,9 @@
 #include "selectioncontroller.h"
 
-SelectionController::SelectionController(Storage& storage, ActivitySoundClient& sound, ActivityNumpadClient& numpad, ActivityDisplayClient& display)
+SelectionController::SelectionController(Storage& storage, ActivityCoreClient& core, ActivityNumpadClient& numpad)
     : storage(storage),
-      sound(sound),
-      numpad(numpad),
-      display(display) {
+      core(core),
+      numpad(numpad) {
 }
 
 void SelectionController::setup() {
@@ -39,8 +38,8 @@ StoryId SelectionController::loop() {
 
     currentTimeout = millis() + SELECTION_TIMEOUT;
     JsonObject storyDef = storiesDocument[stories[currentIndex]].as<JsonObject>();
-    sound.play(storyDef["track"].as<TrackId>());
-    display.displayBitmap(storyDef["bitmap"].as<BitmapId>());
+    core.playSound(storyDef["track"].as<TrackId>());
+    core.displayBitmap(storyDef["bitmap"].as<BitmapId>());
   }
 
   int idx = numpad.getChar() - (int)'1';
@@ -77,7 +76,7 @@ void SelectionController::loadStories() {
 }
 
 StoryId SelectionController::onStorySelected(int index) {
-  sound.stop();
+  core.stopSound();
   currentIndex = -1;
   return stories[index];
 }

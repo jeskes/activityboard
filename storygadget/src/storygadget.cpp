@@ -1,10 +1,9 @@
 #include "storygadget.h"
 
 StoryGadget::StoryGadget()
-    : sound(STORYGADGET_ID, scheduler),
-      display(STORYGADGET_ID, scheduler),
-      selectionController(storage, sound, numpad, display),
-      storyController(storage, sound, numpad, display) {
+    : core(STORYGADGET_ID, scheduler),
+      selectionController(storage, core, numpad),
+      storyController(storage, core, numpad) {
 }
 
 void StoryGadget::setup() {
@@ -18,11 +17,12 @@ void StoryGadget::setup() {
 
   GadgetBase::setup();
 
+  core.setup();
   numpad.setup();
   storage.setup();
   selectionController.setup();
 
-  display.init(BITMAP_STARTUP);
+  core.init(BITMAP_STARTUP);
 
   LOG("Story Gadget started.");
 }
@@ -50,7 +50,7 @@ void StoryGadget::loop() {
   else {
     if (resetPending) {
       resetPending = false;
-      display.displayBitmap(BITMAP_STARTUP);
+      core.displayBitmap(BITMAP_STARTUP);
     }
     if (activityControls.buttonPressed(START_BUTTON)) {
       LOG("selection started using start button.");

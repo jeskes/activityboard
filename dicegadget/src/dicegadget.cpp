@@ -4,9 +4,7 @@ const uint8_t indicators[] = {INDICATOR_LED_1, INDICATOR_LED_2, INDICATOR_LED_3,
 const uint8_t countIndicators = sizeof(indicators) / sizeof(uint8_t);
 
 DiceGadget::DiceGadget()
-    : sound(DICEGADGET_ID, scheduler),
-      rotary(scheduler),
-      display(DICEGADGET_ID, scheduler) {
+    : core(DICEGADGET_ID, scheduler) {
 }
 
 void DiceGadget::setup() {
@@ -19,11 +17,11 @@ void DiceGadget::setup() {
 
   GadgetBase::setup();
 
+  core.setup();
   numpad.setup();
-  rotary.setup();
-
-  display.init(BITMAP_STARTUP);
-  rotary.setStatusHandler(this);
+  
+  core.init(BITMAP_STARTUP);
+  core.setStatusHandler(this);
 
   LOG("Dice Gadget started.");
 }
@@ -39,7 +37,7 @@ void DiceGadget::stateMachine() {
     case Status::IDLE:
       if (resetDisplayTime && millis() > resetDisplayTime) {
         resetDisplayTime = 0;
-        display.displayBitmap(BITMAP_STARTUP);
+        core.displayBitmap(BITMAP_STARTUP);
       }
       if (checkNumpad() || checkStartButton()) {
         status = Status::START_REQUESTED;
@@ -54,15 +52,15 @@ void DiceGadget::stateMachine() {
       break;
     case Status::JINGLE_SOUND_ENDED:
       status = Status::NUMBER_SOUND_PLAYING;
-      sound.play(10 * currentLanguage + currentNumber, this);
-      display.displayMessage(MESSAGE_NUMBER);
+      core.playSound(10 * currentLanguage + currentNumber);
+      core.displayMessage(MESSAGE_NUMBER);
       break;
     case Status::NUMBER_SOUND_ENDED:
       status = Status::NUMBER_INDICATING;
       startTimeIndicator = millis();
       if (currentGuess) {
-        sound.play(200 + (currentGuess == currentNumber ? 1 : 2), nullptr);
-        display.displayMessage(currentGuess == currentNumber ? MESSAGE_MATCH : MESSAGE_SORRY);
+        core.playSound(200 + (currentGuess == currentNumber ? 1 : 2));
+        core.displayMessage(currentGuess == currentNumber ? MESSAGE_MATCH : MESSAGE_SORRY);
       }
       break;
     case Status::NUMBER_INDICATING:
@@ -71,10 +69,6 @@ void DiceGadget::stateMachine() {
       }
     default:
       break;
-  }
-
-  if (rotary.isPaused() && status == Status::IDLE) {
-    rotary.resume();
   }
 
   if ((status == Status::JINGLE_SOUND_PLAYING) && (millis() > startTime + JINGLE_PLAYING_TIMEOUT)) {
@@ -116,9 +110,9 @@ void DiceGadget::setGuess(int guess, bool updateDisplay) {
   if (currentGuess != guess) {
     LOG("set guess: %d.", guess);
     currentGuess = guess;
-    display.putParam(PARAMETER_GUESS, currentGuess);
+    core.putParam(PARAMETER_GUESS, currentGuess);
     if (updateDisplay) {
-      display.displayMessage(MESSAGE_GUESS);
+      core.displayMessage(MESSAGE_GUESS);
       resetDisplayTime = 0;
     }
   }
@@ -135,9 +129,9 @@ void DiceGadget::throwDice() {
   startTime = millis();
   currentNumber = random(1, countIndicators + 1);
   currentLanguage = random(0, LANGUAGES_COUNT);
-  sound.play(selectedJingle, this);
-  display.putParam(PARAMETER_NUMBER, currentNumber);
-  display.displayMessage(MESSAGE_STARTED);
+  core.playSound(selectedJingle);
+  core.putParam(PARAMETER_NUMBER, currentNumber);
+  core.displayMessage(MESSAGE_STARTED);
 }
 
 void DiceGadget::reset() {
@@ -146,7 +140,6 @@ void DiceGadget::reset() {
   currentLanguage = 0;
   startTime = 0;
   startTimeIndicator = 0;
-  sound.setStatusHandler(nullptr);
   resetDisplayTime = millis() + RESET_DISPLAY_TIMEOUT;
 }
 
@@ -171,30 +164,5 @@ bool DiceGadget::playerStateChanged(PlayerState playerState) {
         break;
     }
   }
-  return false;
-}
-
-bool DiceGadget::rotaryStatusChanged(RotaryStatus rotaryStatus) {
-  LOG("rotary event: status=%d, left=(%d,%ld), right=(%d,%ld)", status, (int)rotaryStatus[0].pressed, rotaryStatus[0].value, (int)rotaryStatus[1].pressed, rotaryStatus[1].value);
-  rotary.pause();
-
-  if (!rotaryStatus[ROTARY_ENCODER_RIGHT].pressed) {
-    uint32_t jingle = rotaryStatus[ROTARY_ENCODER_LEFT].value / 2;
-    setJingle(INITIAL_JINGLE + (abs(jingle) % JINGLES_COUNT));
-  }
-
-  if (status == Status::IDLE) {
-    if (rotaryStatus[ROTARY_ENCODER_RIGHT].pressed) {
-      status = Status::START_REQUESTED;
-    }
-    else {
-      if (currentGuess || rotaryStatus[ROTARY_ENCODER_RIGHT].value) {
-        int num = (int)((rotaryStatus[ROTARY_ENCODER_RIGHT].value / 2) % 6);
-        int guess = num >= 0 ? num + 1 : 7 + num;
-        setGuess(guess, true);
-      }
-    }
-  }
-
   return false;
 }

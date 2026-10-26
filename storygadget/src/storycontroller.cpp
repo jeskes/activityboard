@@ -1,10 +1,9 @@
 #include "storycontroller.h"
 
-StoryController::StoryController(Storage& storage, ActivitySoundClient& sound, ActivityNumpadClient& numpad, ActivityDisplayClient& display)
+StoryController::StoryController(Storage& storage, ActivityCoreClient& core, ActivityNumpadClient& numpad)
     : storage(storage),
-      sound(sound),
-      numpad(numpad),
-      display(display) {
+      core(core),
+      numpad(numpad) {
 }
 
 void StoryController::loop() {
@@ -20,7 +19,7 @@ void StoryController::loop() {
   }
   else if (ch == '*') {
     LOG("NEXT selected at numpad.");
-    sound.stop();
+    core.stopSound();
   }
   else if (ch == '0') {
     LOG("REPLAY (0) selected at numpad.");
@@ -40,6 +39,7 @@ bool StoryController::run(StoryId story) {
   currentChapter = nullptr;
   chapterTrackStopped = false;
   menuSelectionPending = false;
+  core.setStatusHandler(this);
 
   if (!loadDefinition()) {
     activeStory = nullptr;
@@ -63,11 +63,11 @@ void StoryController::startChapter(ChapterId chapter) {
   JsonObject chapterDef = definition["chapters"][currentChapter].as<JsonObject>();
 
   BitmapId bitmap = chapterDef["bitmap"].as<BitmapId>();
-  display.displayBitmap(bitmap);
+  core.displayBitmap(bitmap);
 
   TrackId track = chapterDef["track"].as<TrackId>();
   chapterTrackStopped = false;
-  sound.play(track, this);
+  core.playSound(track);
 }
 
 void StoryController::onChapterEnded() {
@@ -80,11 +80,11 @@ void StoryController::onChapterEnded() {
     JsonObject menuDef = chapterDef["menu"].as<JsonObject>();
 
     MenuId menu = menuDef["id"].as<MenuId>();
-    display.displayMenu(menu);
+    core.displayMenu(menu);
     menuSelectionPending = menuDef["options"].as<JsonArray>().size();
 
     TrackId track = menuDef["id"].as<TrackId>();
-    sound.play(track);
+    core.playSound(track);
   }
   else if (chapterDef["next"].is<ChapterId>()) {
     ChapterId nextChapter = chapterDef["next"].as<ChapterId>();
@@ -122,8 +122,8 @@ bool StoryController::stop() {
     return false;
   }
   activeStory = nullptr;
-  sound.stop();
-  display.displayBitmap(BITMAP_STARTUP);
+  core.stopSound();
+  core.displayBitmap(BITMAP_STARTUP);
   return true;
 }
 

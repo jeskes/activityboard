@@ -4,15 +4,35 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
+static void resetSDCardSPI(uint8_t csPin, uint8_t mosiPin, uint8_t sckPin);
+
 Storage::Storage()
     : sd(SD) {
 }
 
-void Storage::setup() {
-  LOG("setup SD card...");
-  pinMode(SD_MISO, INPUT_PULLUP);
-  SPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
-  if (!sd.begin(SD_CS, SPI, 4000000)) {
+void Storage::setup(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t cs) {
+  if (clk == USE_DEFAULT_PIN) {
+    clk = DEFAULT_SD_CLK;
+  }
+  if (miso == USE_DEFAULT_PIN) {
+    miso = DEFAULT_SD_MISO;
+  }
+  if (mosi == USE_DEFAULT_PIN) {
+    mosi = DEFAULT_SD_MOSI;
+  }
+  if (cs == USE_DEFAULT_PIN) {
+    cs = DEFAULT_SD_CS;
+  }
+
+  LOG("setup SD card : clk=%d, miso=%d, mosi=%d, cs=%d...", clk, miso, mosi, cs);
+
+  // delay(1000);
+  // pinMode(SD_MISO, INPUT_PULLUP);
+
+  resetSDCardSPI(cs, mosi, clk);
+
+  SPI.begin(clk, miso, mosi, cs);
+  if (!sd.begin(cs, SPI, 4000000)) {
     LOG("SD card not available.");
     return;
   }
@@ -78,4 +98,21 @@ void Storage::list(const char* folder) {
   }
 }
 
+static void resetSDCardSPI(uint8_t cs, uint8_t mosi, uint8_t clk) {
+  pinMode(cs, OUTPUT);
+  pinMode(mosi, OUTPUT);
+  pinMode(clk, OUTPUT);
+
+  digitalWrite(cs, HIGH);
+  digitalWrite(mosi, HIGH);
+
+  for (int i = 0; i < 80; i++) {
+    digitalWrite(clk, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(clk, LOW);
+    delayMicroseconds(10);
+  }
+
+  digitalWrite(cs, LOW);
+}
 #endif

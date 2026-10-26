@@ -1,16 +1,15 @@
 #pragma once
 
 #include <ArduinoJson.h>
-#include <sound/sound.h>
+#include <core/core.h>
 #include <numpad/numpad.h>
-#include <display/display.h>
 #include <storage/storage.h>
 
 #include "const.h"
 
 class SelectionController {
  public:
-  SelectionController(Storage& storage, ActivitySoundClient& sound, ActivityNumpadClient& numpad, ActivityDisplayClient& display);
+  SelectionController(Storage& storage, ActivityCoreClient& core, ActivityNumpadClient& numpad);
 
   void setup();
 
@@ -30,9 +29,8 @@ class SelectionController {
   void loadStories();
   JsonDocument storiesDocument;
 
-  ActivitySoundClient& sound;
+  ActivityCoreClient& core;
   ActivityNumpadClient& numpad;
-  ActivityDisplayClient& display;
 
   int currentIndex = -1;
   long currentTimeout = 0;

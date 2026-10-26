@@ -10,24 +10,22 @@
 
 using ClientId = uint8_t;
 
-const ClientId SYSTEM_CLIENT_ID = 10;
-
 enum class RequestType : uint16_t {
   UNKNOWN = 0,
-  SOUND_PLAY = 0x1001,
-  SOUND_STOP = 0x1002,
-  DISPLAY_INIT = 0x2000,
-  DISPLAY_CLEAR = 0x2001,
-  DISPLAY_PARAMETER = 0x2002,
-  DISPLAY_MESSAGE = 0x2003,
-  DISPLAY_BITMAP = 0x2004,
-  DISPLAY_MENU = 0x2005,
+
+  INIT = 0x0001,
+  PARAMETER = 0x0002,
+  PLAY_SOUND = 0x0010,
+  STOP_SOUND = 0x0011,
+  CLEAR_DISPLAY = 0x0020,
+  DISPLAY_MESSAGE = 0x0021,
+  DISPLAY_BITMAP = 0x0022,
+  DISPLAY_MENU = 0x0023,
 };
 
 enum class StatusType : uint16_t {
   UNKNOWN = 0,
-  SOUND_STATUS = 0x1001,
-  DISPLAY_STATUS = 0x2001,
+  CORE_STATUS = 0x1001,
 };
 
 struct __attribute__((packed)) BaseRequest {

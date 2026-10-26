@@ -14,10 +14,7 @@
 			"path": "dicegadget"
 		},
 		{
-			"path": "display"
-		},
-		{
-			"path": "sound"
+			"path": "core"
 		}
 	],
 	"settings": {}
