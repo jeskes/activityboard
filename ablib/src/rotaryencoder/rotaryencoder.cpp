@@ -2,13 +2,14 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-ActivityRotaryEncoder::ActivityRotaryEncoder(long initialValue, long minValue, long maxValue, unsigned long pressedTimeout)
+ActivityRotaryEncoder::ActivityRotaryEncoder(long initialValue, long minValue, long maxValue, long step, unsigned long pressedTimeout)
     : ActivityButton(pressedTimeout),
       minValue(minValue),
       maxValue(maxValue),
       handler(nullptr),
       lastValue(initialValue),
-      lastPosition(0) {
+      lastPosition(0),
+      step(step) {
   ESP32Encoder::useInternalWeakPullResistors = puType::up;
 }
 
@@ -25,7 +26,7 @@ void ActivityRotaryEncoder::loop() {
   if (handler) {
     long position = encoder.getCount();
     if (abs(position - lastPosition) > 1) {
-      long value = (position > lastPosition) ? min(lastValue + 1, maxValue) : max(lastValue - 1, minValue);
+      long value = (position > lastPosition) ? min(lastValue + step, maxValue) : max(lastValue - step, minValue);
       LOG("changed: old=%ld(%ld), new=%ld(%ld)", lastValue, lastPosition, value, position);
       if (lastValue != value) {
         lastValue = value;
@@ -37,7 +38,15 @@ void ActivityRotaryEncoder::loop() {
 }
 
 void ActivityRotaryEncoder::reset() {
-  encoder.setCount(0);
+	lastValue = 0;
+	lastPosition = 0;
+	encoder.setCount(0);
+}
+
+void ActivityRotaryEncoder::setValue(long value) {
+	lastValue = value;
+	lastPosition = 0;
+	encoder.setCount(0);
 }
 
 void ActivityRotaryEncoder::setHandler(std::function<void(long value)> handler) {

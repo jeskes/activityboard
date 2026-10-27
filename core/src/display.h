@@ -21,7 +21,7 @@ class Display {
   void drawMenu(MenuDef def);
   void drawBitmap(BitmapDef def, int16_t x, int16_t y);
   void drawBitmap(const char* path, int16_t x, int16_t y, uint16_t width = DEFAULT_BITMAP_WIDTH, uint16_t height = DEFAULT_BITMAP_HEIGHT);
-  void setBrightness(int brightness); /* 0 .. 255 */
+  void setBrightness(int brightness, bool updateEncoder); /* 0 .. 255 */
   void toggleBrightness();
 
  private:

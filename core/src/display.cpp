@@ -10,7 +10,7 @@ static ESP32Encoder encoder;
 Display::Display(Storage& storage, LedRing& ledRing)
     : tft(&spi, TFT_DC, TFT_CS, TFT_RST),
       storage(storage),
-      brightnessEncoder(INITIAL_BRIGHTNESS, MINIMUM_BRIGHTNESS, MAXIMUM_BRIGHTNESS),
+      brightnessEncoder(INITIAL_BRIGHTNESS, MINIMUM_BRIGHTNESS, MAXIMUM_BRIGHTNESS, BRIGHTNESS_STEP),
       ledRing(ledRing),
       brightness(INITIAL_BRIGHTNESS) {
 }
@@ -20,9 +20,9 @@ void Display::setup() {
   spi.begin(TFT_SCK, TFT_MISO, TFT_MOSI, -1);
   tft.begin();
   tft.setRotation(1);
-  setBrightness(brightness);
+  setBrightness(brightness, false);
   brightnessEncoder.setup(BRIGHTNESS_CLK, BRIGHTNESS_DT, BRIGHTNESS_SW);
-  brightnessEncoder.setHandler([this](long brightness) { this->setBrightness(brightness); });
+  brightnessEncoder.setHandler([this](long brightness) { this->setBrightness(brightness, false); });
   LOG("display initialized.");
 }
 
@@ -109,23 +109,25 @@ void Display::drawBitmap(const char* path, int16_t x, int16_t y, uint16_t width,
   }
 }
 
-void Display::setBrightness(int value) {
+void Display::setBrightness(int value, bool updateEncoder) {
   brightness = max(0, min(value, 255));
   LOG("set brightness: %d", brightness);
-  int pwmValue = 255 - brightness;
-  analogWrite(TFT_BL, pwmValue);
+  analogWrite(TFT_BL, brightness);
   ledRing.updateBacklight(brightness);
+  if (updateEncoder) {
+    brightnessEncoder.setValue(value);
+  }
 }
 
 void Display::toggleBrightness() {
   LOG("toggle brightness");
   if (brightness >= MAXIMUM_BRIGHTNESS) {
-    setBrightness(MINIMUM_BRIGHTNESS);
+    setBrightness(MINIMUM_BRIGHTNESS, true);
   }
   else if (brightness <= MINIMUM_BRIGHTNESS) {
-    setBrightness(MAXIMUM_BRIGHTNESS);
+    setBrightness(MAXIMUM_BRIGHTNESS, true);
   }
   else {
-    setBrightness(MINIMUM_BRIGHTNESS);
+    setBrightness(MINIMUM_BRIGHTNESS,true);
   }
 }

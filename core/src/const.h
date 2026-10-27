@@ -14,8 +14,9 @@
 #define BRIGHTNESS_DT 35
 #define BRIGHTNESS_SW 33
 
-#define INITIAL_BRIGHTNESS 128
-#define MINIMUM_BRIGHTNESS 50
+#define BRIGHTNESS_STEP 20
+#define INITIAL_BRIGHTNESS 180
+#define MINIMUM_BRIGHTNESS 0
 #define MAXIMUM_BRIGHTNESS 255
 
 /* dfplayer (RX must be protected by 1k resistence) */
