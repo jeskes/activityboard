@@ -4,7 +4,7 @@
 
 #include "../base/base.h"
 
-#define BUTTON_PRESSED_TIMEOUT 150
+#define BUTTON_PRESSED_TIMEOUT 100
 
 class ActivityButton {
  public:

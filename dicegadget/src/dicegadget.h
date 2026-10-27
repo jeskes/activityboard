@@ -3,6 +3,7 @@
 #include <core/core.h>
 #include <modules/modules.h>
 #include <numpad/numpad.h>
+#include <button/button.h>
 
 #include "const.h"
 
@@ -18,15 +19,22 @@ class DiceGadget : GadgetBase, CoreStatusHandler {
   ActivityCoreClient core;
   ActivityNumpadClient numpad;
 
+  ActivityButton startButton;
+  ActivityButton guessButton;
+  ActivityButton jingleButton;
+
   void stateMachine();
   void showIndicators();
   void throwDice();
   void reset();
 
   void setGuess(int guess, bool updateDisplay);
-  void setJingle(int jingle);
+  void setJingle(int jingle, bool updateDisplay);
+  
   bool checkNumpad();
   bool checkStartButton();
+  bool checkGuessButton();
+  bool checkJingleButton();
 
   enum class Status : int {
     IDLE = 0,
@@ -38,14 +46,18 @@ class DiceGadget : GadgetBase, CoreStatusHandler {
     NUMBER_INDICATING = 6
   };
 
-  Status status = Status::IDLE;
+  Status status;
   
-  int currentGuess = 0;
-  int currentNumber = 0;
-  int currentLanguage = 0;
-  int selectedJingle = INITIAL_JINGLE;
+  int currentGuess;
+  int currentNumber;
+  int currentLanguage;
+  int currentJingle;
 
-  unsigned long startTime = 0;
-  unsigned long startTimeIndicator = 0;
-  unsigned long resetDisplayTime = 0;
+  unsigned long startedTime;
+  unsigned long indicatingTime;
+  unsigned long displayResetPending;
+  
+  void checkDisplayReset();
+  void scheduleDisplayReset();
+  void cancelDisplayReset();
 };
