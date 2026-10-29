@@ -108,6 +108,12 @@ bool DiceGadget::checkNumpad() {
       setGuess(guess, false);
       return true;
     }
+    else if (ch == '*') {
+      setJingle((currentJingle + 1) % JINGLES_COUNT, true);
+    }
+    else if (ch == '#') {
+      return true;
+    }
   }
   return false;
 }
@@ -190,9 +196,10 @@ void DiceGadget::showIndicators() {
   }
 }
 
-bool DiceGadget::playerStateChanged(PlayerState playerState) {
+bool DiceGadget::handleCoreStatus(CoreStatus coreStatus) {
+  PlayerState playerState = coreStatus.playerState;
   // LOG("dice-status=%d, player-state=%d", status, playerState);
-  if (playerState == PlayerState::IDLE) {
+  if (/*playerMonitor == PlayerMonitor::PENDING && */ playerState == PlayerState::IDLE) {
     switch (status) {
       case Status::JINGLE_SOUND_PLAYING:
         status = Status::JINGLE_SOUND_ENDED;

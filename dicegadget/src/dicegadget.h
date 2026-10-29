@@ -1,9 +1,9 @@
 #pragma once
 
+#include <button/button.h>
 #include <core/core.h>
 #include <modules/modules.h>
 #include <numpad/numpad.h>
-#include <button/button.h>
 
 #include "const.h"
 
@@ -13,7 +13,7 @@ class DiceGadget : GadgetBase, CoreStatusHandler {
 
   void setup();
   void loop();
-  bool playerStateChanged(PlayerState state);
+  bool handleCoreStatus(CoreStatus status) override;
 
  private:
   ActivityCoreClient core;
@@ -30,7 +30,7 @@ class DiceGadget : GadgetBase, CoreStatusHandler {
 
   void setGuess(int guess, bool updateDisplay);
   void setJingle(int jingle, bool updateDisplay);
-  
+
   bool checkNumpad();
   bool checkStartButton();
   bool checkGuessButton();
@@ -47,7 +47,7 @@ class DiceGadget : GadgetBase, CoreStatusHandler {
   };
 
   Status status;
-  
+
   int currentGuess;
   int currentNumber;
   int currentLanguage;
@@ -56,7 +56,7 @@ class DiceGadget : GadgetBase, CoreStatusHandler {
   unsigned long startedTime;
   unsigned long indicatingTime;
   unsigned long displayResetPending;
-  
+
   void checkDisplayReset();
   void scheduleDisplayReset();
   void cancelDisplayReset();
