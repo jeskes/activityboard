@@ -44,18 +44,16 @@ void StoryGadget::loop() {
       resetPending = false;
       core.displayBitmap(BITMAP_STARTUP);
     }
-    if (input.selectPressed()) {
+    Input in = input.get();
+    if (in == Input::SELECT) {
       LOG("selection started");
       selection.run();
       resetPending = true;
     }
-    else {
-      int idx = input.numberPressed() - 1;
-      if (idx >= 0 && idx < selection.getStoriesCount()) {
-        LOG("story %d selected", idx + 1);
-        resetPending = true;
-        story.run(selection.getStory(idx));
-      }
+    else if (in >= Input::NUM_1 && (int)in <= selection.getStoriesCount()) {
+      LOG("story %d selected", in);
+      resetPending = true;
+      story.run(selection.getStory((int)in-1));
     }
   }
 

@@ -38,27 +38,26 @@ StoryId SelectionController::loop() {
     initCurrentSelection();
   }
 
-  int idx = input.numberPressed() - 1;
-  if (idx >= 0 && idx < getStoriesCount()) {
-    LOG("story %d selected", idx + 1);
-    return onStorySelected(idx);
-  }
+  Input in = input.get();
 
-  if (input.startPressed()) {
+  if (in == Input::START) {
     LOG("story %d selected", currentIndex + 1);
     return onStorySelected(currentIndex);
   }
-
-  if (input.repeatPressed()) {
+  else if (in >= Input::NUM_1 && (int)in <= storiesCount) {
+    LOG("story %d selected", in);
+    return onStorySelected((int)in - 1);
+  }
+  else if (in == Input::REPEAT) {
     LOG("repeat selection");
     initCurrentSelection();
   }
-  else if (input.skipPressed()) {
+  else if (in == Input::SKIP) {
     LOG("skip selection");
     currentIndex = (currentIndex + 1) % storiesCount;
     initCurrentSelection();
   }
-  else if (input.cancelPressed()) {
+  else if (in == Input::CANCEL) {
     LOG("selection cancelled");
     core.stopSound();
     currentIndex = -1;

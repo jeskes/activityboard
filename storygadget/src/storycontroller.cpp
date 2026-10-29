@@ -38,29 +38,30 @@ void StoryController::loop() {
     onChapterEnded();
   }
 
-  if (input.cancelPressed()) {
+  Input in = input.get();
+
+  if (in == Input::CANCEL) {
     LOG("cancel pressed");
     stop();
   }
-  else if (input.skipPressed()) {
+  else if (in == Input::SKIP) {
     LOG("skip pressed");
     core.stopSound();
   }
-  else if (input.repeatPressed()) {
+  else if (in == Input::REPEAT) {
     LOG("repeat pressed");
     startChapter(currentChapter);
   }
   else if (currentMenuId) {
-    uint8_t idx = input.numberPressed() - 1;
-    if (idx >= 0 && idx < currentMenuSize) {
-      LOG("menu option %d selected at numpad.", idx + 1);
-      onMenuSelected(idx);
+    if (in >= Input::NUM_1 && (int)in <= currentMenuSize) {
+      LOG("menu option %d selected at numpad.", in);
+      onMenuSelected(((int)in - 1));
     }
-    else if (input.selectPressed()) {
+    else if (in == Input::SELECT) {
       currentMenuSelection = (currentMenuSelection + 1) % currentMenuSize;
       core.displayMenu(currentMenuId, currentMenuSelection);
     }
-    else if (input.startPressed()) {
+    else if (in == Input::START) {
       onMenuSelected(currentMenuSelection);
     }
   }

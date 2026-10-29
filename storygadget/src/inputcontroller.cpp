@@ -11,27 +11,46 @@ void InputController::setup() {
   numpad.setup();
 }
 
-bool InputController::selectPressed() {
-	return selectButton.pressed();
-}
+Input InputController::get() {
+  if (selectButton.pressed()) {
+    return Input::SELECT;
+  }
+  if (startButton.pressed()) {
+    return Input::START;
+  }
+  if (startButton.pressed()) {
+    return Input::START;
+  }
+  if (repeatButton.pressed()) {
+    return Input::REPEAT;
+  }
+  if (skipButton.pressed()) {
+    return Input::SKIP;
+  }
+  if (cancelButton.pressed()) {
+    return Input::CANCEL;
+  }
 
-bool InputController::startPressed() {
-	return startButton.pressed() ||  numpad.getChar() == 'D';
-}
+  char ch = numpad.getChar();
+  switch (ch) {
+    case 'A':
+      return Input::REPEAT;
+    case 'B':
+      return Input::SKIP;
+    case 'C':
+      return Input::CANCEL;
+    case 'D':
+      return Input::START;
+    case '*':
+      return Input::SELECT;
+    default:
+      break;
+  }
 
-bool InputController::repeatPressed() {
-	return repeatButton.pressed() ||  numpad.getChar() == 'A';
-}
+  int num = ch - (int)'0';
+  if (num >= 0 && num <= 9) {
+    return (Input)num;
+  }
 
-bool InputController::skipPressed() {
-	return skipButton.pressed() ||  numpad.getChar() == 'B';
-}
-
-bool InputController::cancelPressed() {
-	return cancelButton.pressed() ||  numpad.getChar() == 'C';
-}
-
-int InputController::numberPressed() {
-  int idx = numpad.getChar() - (int)'0';
-  return idx >= 0 && idx <= 9 ? idx : -1;
+  return Input::NONE;
 }
