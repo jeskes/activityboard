@@ -1,9 +1,9 @@
 #include "selectioncontroller.h"
 
-SelectionController::SelectionController(Storage& storage, ActivityCoreClient& core, ActivityNumpadClient& numpad)
+SelectionController::SelectionController(Storage& storage, ActivityCoreClient& core, InputController& input)
     : storage(storage),
       core(core),
-      numpad(numpad) {
+      input(input) {
 }
 
 void SelectionController::setup() {
@@ -11,11 +11,11 @@ void SelectionController::setup() {
 }
 
 uint8_t SelectionController::getStoriesCount() {
-	return storiesCount;
+  return storiesCount;
 }
 
 StoryId SelectionController::getStory(uint8_t index) {
-	return stories[index];
+  return stories[index];
 }
 
 void SelectionController::run() {
@@ -35,22 +35,33 @@ StoryId SelectionController::loop() {
       currentIndex = -1;
       return nullptr;
     }
-
-    currentTimeout = millis() + SELECTION_TIMEOUT;
-    JsonObject storyDef = storiesDocument[stories[currentIndex]].as<JsonObject>();
-    core.playSound(storyDef["track"].as<TrackId>());
-    core.displayBitmap(storyDef["bitmap"].as<BitmapId>());
+    initCurrentSelection();
   }
 
-  int idx = numpad.getChar() - (int)'1';
-  if (idx >= 0 && idx < MAX_STORIES && stories[idx]) {
-    LOG("story %d selected at numpad.", idx + 1);
+  int idx = input.numberPressed() - 1;
+  if (idx >= 0 && idx < getStoriesCount()) {
+    LOG("story %d selected", idx + 1);
     return onStorySelected(idx);
   }
 
-  if (activityControls.buttonPressed(SELECT_BUTTON)) {
-    LOG("story %d selected using select button.", currentIndex + 1);
+  if (input.startPressed()) {
+    LOG("story %d selected", currentIndex + 1);
     return onStorySelected(currentIndex);
+  }
+
+  if (input.repeatPressed()) {
+    LOG("repeat selection");
+    initCurrentSelection();
+  }
+  else if (input.skipPressed()) {
+    LOG("skip selection");
+    currentIndex = (currentIndex + 1) % storiesCount;
+    initCurrentSelection();
+  }
+  else if (input.cancelPressed()) {
+    LOG("selection cancelled");
+    core.stopSound();
+    currentIndex = -1;
   }
 
   return nullptr;
@@ -73,6 +84,13 @@ void SelectionController::loadStories() {
       break;
     }
   }
+}
+
+void SelectionController::initCurrentSelection() {
+  currentTimeout = millis() + SELECTION_TIMEOUT;
+  JsonObject storyDef = storiesDocument[stories[currentIndex]].as<JsonObject>();
+  core.playSound(storyDef["track"].as<TrackId>());
+  core.displayBitmap(storyDef["bitmap"].as<BitmapId>());
 }
 
 StoryId SelectionController::onStorySelected(int index) {

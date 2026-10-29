@@ -5,11 +5,13 @@
 #include <storage/storage.h>
 
 #include "const.h"
+#include "inputcontroller.h"
 
 class StoryController : CoreStatusHandler {
  public:
-  StoryController(Storage& storage, ActivityCoreClient& core, ActivityNumpadClient& numpad);
+  StoryController(Storage& storage, ActivityCoreClient& core, InputController& input);
 
+  void setup();
   bool run(StoryId story);
   void loop();
   bool isBusy();
@@ -20,19 +22,26 @@ class StoryController : CoreStatusHandler {
   bool loadDefinition();
 
   ActivityCoreClient& core;
-  ActivityNumpadClient& numpad;
+  InputController& input;
 
   StoryId activeStory;
-  bool chapterTrackStopped;
-  uint8_t menuSelectionPending;
   ChapterId currentChapter;
-  
+
+  MenuId currentMenuId;
+  uint8_t currentMenuSize;
+  ;
+  uint8_t currentMenuSelection;
+
   bool next();
   bool stop();
 
   void startChapter(ChapterId chapter);
   void onChapterEnded();
   void onMenuSelected(uint8_t selectedIndex);
-  
-  bool playerStateChanged(PlayerState state);
+
+  enum class PlayerMonitor {
+	UNDEFINED, PENDING, ENDED
+  };
+  PlayerMonitor playerMonitor;
+  bool handleCoreStatus(CoreStatus status) override;
 };

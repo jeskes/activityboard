@@ -2,14 +2,14 @@
 
 #include <ArduinoJson.h>
 #include <core/core.h>
-#include <numpad/numpad.h>
 #include <storage/storage.h>
 
 #include "const.h"
+#include "inputcontroller.h"
 
 class SelectionController {
  public:
-  SelectionController(Storage& storage, ActivityCoreClient& core, ActivityNumpadClient& numpad);
+  SelectionController(Storage& storage, ActivityCoreClient& core, InputController& input);
 
   void setup();
 
@@ -30,10 +30,11 @@ class SelectionController {
   JsonDocument storiesDocument;
 
   ActivityCoreClient& core;
-  ActivityNumpadClient& numpad;
+  InputController& input;
 
   int currentIndex = -1;
   long currentTimeout = 0;
 
+  void initCurrentSelection();
   StoryId onStorySelected(int index);
 };

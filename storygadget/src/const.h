@@ -6,10 +6,13 @@
 
 /* local pins */
 
-#define START_BUTTON  32
-#define SELECT_BUTTON 33
-#define SELECTING_LED 25
-#define READING_LED   26
+#define SELECT_BUTTON 27
+#define START_BUTTON  26
+#define REPEAT_BUTTON  25
+#define SKIP_BUTTON  33
+#define CANCEL_BUTTON  32
+#define SELECTING_LED 13
+#define READING_LED   14
 
 /* global constants */
 

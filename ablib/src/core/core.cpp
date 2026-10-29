@@ -5,10 +5,15 @@
 
 #define POLLING_TIMEOUT 500
 
-static void pollCoreStatus();
+/* somehow it takes a long time to start sound at DFPlayer on core module */
+#define STATUS_HANDLER_BLOCK 1000
+
+static void pollStatus();
 static CoreStatusHandler* statusHandler = nullptr;
-static PlayerState lastPlayerState = PlayerState::UNKNOWN;
-static Task statusPollingTask(POLLING_TIMEOUT, TASK_FOREVER, &pollCoreStatus);
+static Task statusPollingTask(POLLING_TIMEOUT, TASK_FOREVER, &pollStatus);
+
+static void blockStatusHandler();
+static unsigned long statusHandlerBlock = 0;
 
 ActivityCoreClient::ActivityCoreClient(ClientId client, Scheduler& scheduler)
     : PeriphericalClient(client, scheduler) {
@@ -16,7 +21,7 @@ ActivityCoreClient::ActivityCoreClient(ClientId client, Scheduler& scheduler)
 }
 
 void ActivityCoreClient::setup() {
-  pollCoreStatus();
+  pollStatus();
 }
 
 void ActivityCoreClient::init(BitmapId startupBitmap) {
@@ -49,12 +54,14 @@ void ActivityCoreClient::putParam(ParameterId id, const char* value) {
 void ActivityCoreClient::playSound(TrackId track) {
   LOG("send play sound request : track=%d.", track);
   PlaySoundRequest request(client, track);
+  blockStatusHandler();
   resumeStatus();
   sendRequest(CORE_MODULE_ID, &request, sizeof(PlaySoundRequest));
 }
 
 void ActivityCoreClient::stopSound() {
   LOG("send play stop request.");
+  blockStatusHandler();
   StopSoundRequest request(client);
   sendRequest(CORE_MODULE_ID, &request, sizeof(StopSoundRequest));
 }
@@ -71,22 +78,22 @@ void ActivityCoreClient::displayBitmap(BitmapId id) {
   sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayBitmapRequest));
 }
 
-void ActivityCoreClient::displayMenu(MenuId id) {
-  LOG("send display menu request : id=%s.", id);
-  DisplayMenuRequest request(client, id);
+void ActivityCoreClient::displayMenu(MenuId id, uint8_t selectedIndex) {
+  LOG("send display menu request : id=%s (%d).", id, selectedIndex);
+  DisplayMenuRequest request(client, id, selectedIndex);
   sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayMenuRequest));
 }
 
 void ActivityCoreClient::setStatusHandler(CoreStatusHandler* handler, unsigned long pollingDelay, unsigned long pollingTimeout) {
-  if (handler != statusHandler) {
-    statusHandler = handler;
-    if (statusHandler) {
-      statusPollingTask.enableDelayed(pollingDelay);
-      statusPollingTask.setInterval(pollingTimeout);
-    }
-    else {
-      statusPollingTask.disable();
-    }
+  statusHandler = handler;
+  statusPollingTask.disable();
+  if (statusHandler) {
+    LOG("set status handler: delay=%lu, poll=%lu", pollingDelay, pollingTimeout);
+    statusPollingTask.setInterval(pollingTimeout);
+    statusPollingTask.enableDelayed(pollingDelay);
+  }
+  else {
+    LOG("status handler cleared");
   }
 }
 
@@ -104,19 +111,29 @@ bool ActivityCoreClient::isStatusPaused() {
   return !statusPollingTask.isEnabled();
 }
 
-static void pollCoreStatus() {
+static void pollStatus() {
   if (statusHandler) {
     CoreStatus status;
     PeriphericalClient::requestStatus(CORE_MODULE_ID, &status, sizeof(CoreStatus));
-    if (lastPlayerState != status.playerState) {
-      lastPlayerState = status.playerState;
-      bool cancelHandler = statusHandler->playerStateChanged(lastPlayerState);
+    if (!statusHandlerBlock || (millis() > statusHandlerBlock)) {
+      // LOG("player=%d", status.playerState);
+      bool cancelHandler = statusHandler->handleCoreStatus(status);
       if (cancelHandler) {
+        // LOG("polling canceled")
         statusPollingTask.disable();
       }
     }
+    else {
+      // LOG("status handler blocked: player=%d", status.playerState);
+    }
   }
   else {
+    // LOG("no status handler")
     statusPollingTask.disable();
   }
+}
+
+static void blockStatusHandler() {
+  // LOG("block status handler");
+  statusHandlerBlock = millis() + STATUS_HANDLER_BLOCK;
 }

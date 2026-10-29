@@ -2,8 +2,8 @@
 
 #include "const.h"
 
-#define WAIT_FOR_BUSY_COUNT 5
-#define WAIT_FOR_BUSY_TIMEOUT 300
+#define WAIT_FOR_BUSY_COUNT 10
+#define WAIT_FOR_BUSY_TIMEOUT 100
 
 static long volumeEncoderPosition = -999;
 static unsigned long volumeEncoderDebounceTime = 0;
@@ -60,14 +60,13 @@ bool Player::checkPlaying() {
 
 void Player::play(ClientId client, TrackId track) {
   LOG("play sound: client=%d, track=%d", client, track);
-  playerState = PlayerState::PLAYING;
-  // player.volume(volume);  // wake up
-  delay(100);
+  playerState = PlayerState::UNKNOWN;
   player.playFolder(client, track);
   awaitBusy(true);
 }
 
 void Player::stop() {
+  playerState = PlayerState::UNKNOWN;
   player.stop();
   awaitBusy(false);
 }
@@ -95,4 +94,5 @@ void Player::awaitBusy(bool busy) {
     }
     delay(WAIT_FOR_BUSY_TIMEOUT);
   }
+  playerState = busy ? PlayerState::PLAYING : PlayerState::IDLE;
 }

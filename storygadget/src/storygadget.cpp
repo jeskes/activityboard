@@ -2,13 +2,11 @@
 
 StoryGadget::StoryGadget()
     : core(STORYGADGET_ID, scheduler),
-      selectionController(storage, core, numpad),
-      storyController(storage, core, numpad) {
+      selection(storage, core, input),
+      story(storage, core, input) {
 }
 
 void StoryGadget::setup() {
-  pinMode(START_BUTTON, INPUT_PULLUP);
-  pinMode(SELECT_BUTTON, INPUT_PULLUP);
   pinMode(SELECTING_LED, OUTPUT);
   pinMode(READING_LED, OUTPUT);
 
@@ -18,60 +16,49 @@ void StoryGadget::setup() {
   GadgetBase::setup();
 
   core.setup();
-  numpad.setup();
   storage.setup();
-  selectionController.setup();
+  input.setup();
+  selection.setup();
+  story.setup();
 
   core.init(BITMAP_STARTUP);
 
   LOG("Story Gadget started.");
 }
 
-static unsigned long heartbeat = 0;
-
 void StoryGadget::loop() {
   GadgetBase::loop();
 
-  if (millis() > heartbeat) {
-    LOG("selection-busy=%d, story-busy=%d, storage=%d, numpad=%d", selectionController.isBusy(), storyController.isBusy(), storage.sd.cardType(), numpad.available());
-    heartbeat = millis() + 2000;
-  }
-
-  if (selectionController.isBusy()) {
-    StoryId selectedStory = selectionController.loop();
+  if (selection.isBusy()) {
+    StoryId selectedStory = selection.loop();
     if (selectedStory) {
       resetPending = true;
-      storyController.run(selectedStory);
+      story.run(selectedStory);
     }
   }
-  else if (storyController.isBusy()) {
-    storyController.loop();
+  else if (story.isBusy()) {
+    story.loop();
   }
   else {
     if (resetPending) {
       resetPending = false;
       core.displayBitmap(BITMAP_STARTUP);
     }
-    if (activityControls.buttonPressed(START_BUTTON)) {
-      LOG("selection started using start button.");
-      selectionController.run();
+    if (input.selectPressed()) {
+      LOG("selection started");
+      selection.run();
       resetPending = true;
     }
     else {
-      int idx = numpad.getChar() - (int)'1';
-      if (idx >= 0 && idx < selectionController.getStoriesCount()) {
-        LOG("story %d directly selected at numpad.", idx + 1);
+      int idx = input.numberPressed() - 1;
+      if (idx >= 0 && idx < selection.getStoriesCount()) {
+        LOG("story %d selected", idx + 1);
         resetPending = true;
-        storyController.run(selectionController.getStory(idx));
-      }
-      if (idx == -1) {
-        LOG("selection started at numpad.");
-        selectionController.run();
-        resetPending = true;
+        story.run(selection.getStory(idx));
       }
     }
   }
 
-  digitalWrite(SELECTING_LED, selectionController.isBusy() ? HIGH : LOW);
-  digitalWrite(READING_LED, storyController.isBusy() ? HIGH : LOW);
+  digitalWrite(SELECTING_LED, selection.isBusy() ? HIGH : LOW);
+  digitalWrite(READING_LED, story.isBusy() ? HIGH : LOW);
 }

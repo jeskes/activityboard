@@ -67,11 +67,12 @@ struct __attribute__((packed)) DisplayBitmapRequest : public BaseRequest {
 };
 
 struct __attribute__((packed)) DisplayMenuRequest : public BaseRequest {
-  DisplayMenuRequest(ClientId client, MenuId id)
-      : BaseRequest(client, RequestType::DISPLAY_MENU) {
+  DisplayMenuRequest(ClientId client, MenuId id, uint8_t selectedIndex)
+      : BaseRequest(client, RequestType::DISPLAY_MENU), selectedIndex(selectedIndex) {
     strlcpy(menuId, id, ID_BUFFER_SIZE);
   }
   char menuId[ID_BUFFER_SIZE];
+  uint8_t selectedIndex;
 };
 
 struct __attribute__((packed)) PlaySoundRequest : public BaseRequest {
@@ -114,7 +115,7 @@ struct __attribute__((packed)) CoreStatus : public BaseStatus {
 
 class CoreStatusHandler {
  public:
-  virtual bool playerStateChanged(PlayerState state) = 0;
+  virtual bool handleCoreStatus(CoreStatus status) = 0;
 };
 
 class ActivityCoreClient : public PeriphericalClient {
@@ -133,7 +134,7 @@ class ActivityCoreClient : public PeriphericalClient {
   void clearDisplay();
   void displayMessage(MessageId messageId);
   void displayBitmap(BitmapId bitmapId);
-  void displayMenu(MenuId menuId);
+  void displayMenu(MenuId menuId, uint8_t selectedIndex);
 
   void pauseStatus();
   bool isStatusPaused();

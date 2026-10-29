@@ -10,8 +10,8 @@ PeriphericalClient::PeriphericalClient(ClientId client, Scheduler& scheduler)
 }
 
 bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint8_t length) {
-  LOG("send request: module=%d, type=0x%04x, length=%d", module, (uint16_t)request->type, length);
-  DUMP(request, length);
+  // LOG("send request: module=%d, type=0x%04x, length=%d", module, (uint16_t)request->type, length);
+  // DUMP(request, length);
 
   /* maybe put send in a task/queue using scheduler... */
 
@@ -21,7 +21,7 @@ bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint
 
   // LOG("sent peripherical request: %d bytes", length);
   // TODO --- throttle or request buffer at service side
-  delay(100);
+  delay(300);
 
   return true;
 }
@@ -33,6 +33,7 @@ bool PeriphericalClient::requestStatus(uint8_t module, BaseStatus* status, uint8
     for (int idx = 0; idx < length; idx++) {
       buffer[idx] = Wire.read();
     }
+    // DUMP(status, length);
     return true;
   }
   else {
@@ -74,9 +75,9 @@ void PeriphericalService::loop() {
 #if defined(ARDUINO_ARCH_ESP32)
     // noInterrupts();
 #endif
-	DUMP(currentRequest, requestLength);
+    // DUMP(currentRequest, requestLength);
     memcpy(buffer, currentRequest, REQUEST_BUFFER_SIZE);
-	requestLength = 0;
+    requestLength = 0;
     currentRequest = nullptr;
 #if defined(ARDUINO_ARCH_ESP32)
     // interrupts();
@@ -86,6 +87,7 @@ void PeriphericalService::loop() {
 }
 
 bool PeriphericalService::sendStatus(BaseStatus* status, uint8_t length) {
+  // DUMP(status, length);
   /* size_t size = */ Wire.write((uint8_t*)status, length);
   // LOG("send status : length=%d, size=%d", length, size);
   return true;

@@ -1,45 +1,19 @@
 #include "storycontroller.h"
 
-StoryController::StoryController(Storage& storage, ActivityCoreClient& core, ActivityNumpadClient& numpad)
+StoryController::StoryController(Storage& storage, ActivityCoreClient& core, InputController& input)
     : storage(storage),
       core(core),
-      numpad(numpad) {
+      input(input),
+      playerMonitor(PlayerMonitor::UNDEFINED) {
 }
 
-void StoryController::loop() {
-  if (chapterTrackStopped) {
-    chapterTrackStopped = false;
-    onChapterEnded();
-  }
-
-  char ch = numpad.getChar();
-  if (ch == '#') {
-    LOG("STOP selected at numpad.");
-    stop();
-  }
-  else if (ch == '*') {
-    LOG("NEXT selected at numpad.");
-    core.stopSound();
-  }
-  else if (ch == '0') {
-    LOG("REPLAY (0) selected at numpad.");
-    startChapter(currentChapter);
-  }
-  else if (menuSelectionPending) {
-    uint8_t idx = ch - (int)'1';
-    if (idx >= 0 && idx < menuSelectionPending) {
-      LOG("menu option %d selected at numpad.", idx + 1);
-      onMenuSelected(idx);
-    }
-  }
+void StoryController::setup() {
 }
 
 bool StoryController::run(StoryId story) {
   activeStory = story;
   currentChapter = nullptr;
-  chapterTrackStopped = false;
-  menuSelectionPending = false;
-  core.setStatusHandler(this);
+  playerMonitor = PlayerMonitor::UNDEFINED;
 
   if (!loadDefinition()) {
     activeStory = nullptr;
@@ -53,8 +27,43 @@ bool StoryController::run(StoryId story) {
   }
 
   startChapter(start);
+  core.setStatusHandler(this);
 
   return true;
+}
+
+void StoryController::loop() {
+  if (playerMonitor == PlayerMonitor::ENDED) {
+    playerMonitor = PlayerMonitor::UNDEFINED;
+    onChapterEnded();
+  }
+
+  if (input.cancelPressed()) {
+    LOG("cancel pressed");
+    stop();
+  }
+  else if (input.skipPressed()) {
+    LOG("skip pressed");
+    core.stopSound();
+  }
+  else if (input.repeatPressed()) {
+    LOG("repeat pressed");
+    startChapter(currentChapter);
+  }
+  else if (currentMenuId) {
+    uint8_t idx = input.numberPressed() - 1;
+    if (idx >= 0 && idx < currentMenuSize) {
+      LOG("menu option %d selected at numpad.", idx + 1);
+      onMenuSelected(idx);
+    }
+    else if (input.selectPressed()) {
+      currentMenuSelection = (currentMenuSelection + 1) % currentMenuSize;
+      core.displayMenu(currentMenuId, currentMenuSelection);
+    }
+    else if (input.startPressed()) {
+      onMenuSelected(currentMenuSelection);
+    }
+  }
 }
 
 void StoryController::startChapter(ChapterId chapter) {
@@ -66,25 +75,33 @@ void StoryController::startChapter(ChapterId chapter) {
   core.displayBitmap(bitmap);
 
   TrackId track = chapterDef["track"].as<TrackId>();
-  chapterTrackStopped = false;
   core.playSound(track);
+  playerMonitor = PlayerMonitor::PENDING;
+
+  currentMenuId = nullptr;
+  currentMenuSize = 0;
+  currentMenuSelection = 0;
 }
 
 void StoryController::onChapterEnded() {
   if (!currentChapter) {
     return;
   }
+
+  LOG("chapter ended: %s", currentChapter);
   JsonObject chapterDef = definition["chapters"][currentChapter].as<JsonObject>();
 
   if (chapterDef["menu"].is<JsonObject>()) {
     JsonObject menuDef = chapterDef["menu"].as<JsonObject>();
 
-    MenuId menu = menuDef["id"].as<MenuId>();
-    core.displayMenu(menu);
-    menuSelectionPending = menuDef["options"].as<JsonArray>().size();
+    currentMenuId = menuDef["id"].as<MenuId>();
+    currentMenuSize = menuDef["options"].as<JsonArray>().size();
+    currentMenuSelection = 0;
+    core.displayMenu(currentMenuId, currentMenuSelection);
 
-    TrackId track = menuDef["id"].as<TrackId>();
-    core.playSound(track);
+    // maybe explicitly define track for menu
+    // TrackId track = menuDef["id"].as<TrackId>();
+    // core.playSound(track);
   }
   else if (chapterDef["next"].is<ChapterId>()) {
     ChapterId nextChapter = chapterDef["next"].as<ChapterId>();
@@ -110,6 +127,7 @@ void StoryController::onMenuSelected(uint8_t selectedIndex) {
 }
 
 bool StoryController::next() {
+  LOG("next ")
   if (!currentChapter) {
     return false;
   }
@@ -121,9 +139,12 @@ bool StoryController::stop() {
   if (!activeStory) {
     return false;
   }
+
   activeStory = nullptr;
   core.stopSound();
   core.displayBitmap(BITMAP_STARTUP);
+  core.setStatusHandler(nullptr);
+
   return true;
 }
 
@@ -141,9 +162,10 @@ bool StoryController::isBusy() {
   return activeStory != 0;
 }
 
-bool StoryController::playerStateChanged(PlayerState playerState) {
-  if (playerState == PlayerState::IDLE) {
-    chapterTrackStopped = true;
+bool StoryController::handleCoreStatus(CoreStatus status) {
+  if (playerMonitor == PlayerMonitor::PENDING && status.playerState == PlayerState::IDLE) {
+    LOG("idle");
+    playerMonitor = PlayerMonitor::ENDED;
     return true;
   }
   return false;

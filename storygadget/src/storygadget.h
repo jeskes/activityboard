@@ -4,6 +4,7 @@
 #include <storage/storage.h>
 
 #include "const.h"
+#include "inputcontroller.h"
 #include "selectionController.h"
 #include "storycontroller.h"
 
@@ -18,10 +19,10 @@ class StoryGadget : public GadgetBase {
 
   Storage storage;
   ActivityCoreClient core;
-  ActivityNumpadClient numpad;
   
-  SelectionController selectionController;
-  StoryController storyController;
+  InputController input;
+  SelectionController selection;
+  StoryController story;
 
   bool resetPending = true;
 };

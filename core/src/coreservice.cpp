@@ -65,6 +65,7 @@ void CoreService::processRequest(BaseRequest* request) {
 void CoreService::publishStatus() {
   CoreStatus status;
   status.playerState = Player::playerState;
+  // LOG( "player=%d", status.playerState);
   PeriphericalService::sendStatus(&status, sizeof(CoreStatus));
 }
 
@@ -94,7 +95,8 @@ void CoreService::handleRequest(DisplayMenuRequest* request) {
   MenuDef def = contexts.get(request->client).getMenuDef(request->menuId);
   LOG("open menu: id=%s.", request->menuId);
   auto& dsp = display;
-  runner.schedule([&dsp, def]() { dsp.drawMenu(def); });
+  auto selectedIndex = request->selectedIndex;
+  runner.schedule([&dsp, def, selectedIndex]() { dsp.drawMenu(def, selectedIndex); });
 }
 
 void CoreService::handleRequest(DisplayBitmapRequest* request) {

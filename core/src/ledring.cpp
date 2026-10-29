@@ -30,8 +30,7 @@ void LedRing::updateVolume(int volume, bool mute) {
   int ledsToLight = map(volume, 0, MAXIMUM_VOLUME, 0, 8);
 
   for (int i = 0; i < (LEDRING_LED_COUNT / LEDRING_RING_COUNT); i++) {
-    if (i < ledsToLight) {
-      // linear gradient : blue to orange
+    if (!i || i < ledsToLight) {
       uint8_t r = map(i, 0, 7, 0, 200);
       uint8_t g = map(i, 0, 7, 150, 50);
       uint8_t b = map(i, 0, 7, 200, 0);

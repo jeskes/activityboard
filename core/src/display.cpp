@@ -54,7 +54,7 @@ void Display::drawText(uint16_t backgroundColor, uint16_t textColor, const char*
   tft.print(text);
 }
 
-void Display::drawMenu(MenuDef def) {
+void Display::drawMenu(MenuDef def, uint8_t selectedIndex) {
   if (!def.title) {
     return;
   }
@@ -75,7 +75,7 @@ void Display::drawMenu(MenuDef def) {
   for (uint8_t idx = 0; idx < MAX_MENU_OPTIONS; idx++) {
     if (def.options[idx] != nullptr) {
       tft.setCursor(15, optionY);
-      tft.setTextColor(ILI9341_GREEN, ILI9341_BLACK);
+      tft.setTextColor(idx == selectedIndex ? ILI9341_GREEN : ILI9341_WHITE, ILI9341_BLACK);
       tft.print(def.options[idx]);
       optionY += rowHeight;
     }
