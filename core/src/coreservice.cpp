@@ -107,7 +107,7 @@ void CoreService::handleRequest(DisplayBitmapRequest* request) {
 }
 
 void CoreService::handleRequest(PlaySoundRequest* request) {
-  player.play(request->client, request->track);
+  player.play(request->folder, request->track);
 }
 
 void CoreService::handleRequest(StopSoundRequest* request) {

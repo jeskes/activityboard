@@ -8,8 +8,6 @@
 #include "selectionController.h"
 #include "storycontroller.h"
 
-const ClientId STORYGADGET_ID = 12;
-
 class StoryGadget : public GadgetBase {
  public:
   StoryGadget();

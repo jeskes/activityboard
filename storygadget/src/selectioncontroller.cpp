@@ -52,8 +52,8 @@ StoryId SelectionController::loop() {
     LOG("repeat selection");
     initCurrentSelection();
   }
-  else if (in == Input::SKIP) {
-    LOG("skip selection");
+  else if (in == Input::NEXT) {
+    LOG("next selection");
     currentIndex = (currentIndex + 1) % storiesCount;
     initCurrentSelection();
   }

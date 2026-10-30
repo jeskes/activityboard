@@ -15,32 +15,36 @@ class StoryController : CoreStatusHandler {
   bool run(StoryId story);
   void loop();
   bool isBusy();
+  bool inMenu();
 
  private:
   Storage& storage;
-  JsonDocument definition;
-  bool loadDefinition();
-
   ActivityCoreClient& core;
   InputController& input;
 
+  JsonDocument definition;
+  bool loadDefinition();
+  TrackFolder tracks;
+
   StoryId activeStory;
-  ChapterId currentChapter;
-
-  MenuId currentMenuId;
-  uint8_t currentMenuSize;
-  ;
-  uint8_t currentMenuSelection;
-
-  bool next();
   bool stop();
 
+  ChapterId currentChapter;
   void startChapter(ChapterId chapter);
   void onChapterEnded();
-  void onMenuSelected(uint8_t selectedIndex);
+
+  MenuId currentMenu;
+  JsonObject currentMenuDef;
+  uint8_t currentMenuSize;
+  uint8_t currentMenuSelection;
+  void startMenu(MenuId menu);
+  void startMenuOption(uint8_t index);
+  void onMenuOptionSelected(uint8_t index);
 
   enum class PlayerMonitor {
-	UNDEFINED, PENDING, ENDED
+    UNDEFINED,
+    PENDING,
+    ENDED
   };
   PlayerMonitor playerMonitor;
   bool handleCoreStatus(CoreStatus status) override;

@@ -135,11 +135,11 @@ MenuDef ClientContext::getMenuDef(MenuId id) {
 BitmapDef ClientContext::getBitmapDef(BitmapId id) {
   BitmapDef def;
   if (bitmaps[id].is<const char*>()) {
-    sprintf(def.path, "/%02d/%s", client, bitmaps[id].as<const char*>());
+    sprintf(def.path, "/%02d/bitmaps/%s", client, bitmaps[id].as<const char*>());
   }
   else if (bitmaps[id].is<JsonObject>()) {
     JsonObject object = bitmaps[id].as<JsonObject>();
-    sprintf(def.path, "/%02d/%s", client, object["path"].as<const char*>());
+    sprintf(def.path, "/%02d/bitmaps/%s", client, object["path"].as<const char*>());
     if (object["width"].is<int>()) {
       def.width = object["width"].as<int>();
     }
@@ -149,7 +149,7 @@ BitmapDef ClientContext::getBitmapDef(BitmapId id) {
   }
   else {
     LOG("bitmap id %d not found.", id);
-    strcpy(def.path, "/10/fallback.raw");
+    strcpy(def.path, "/10/bitmaps/fallback.raw");
   }
   return def;
 }

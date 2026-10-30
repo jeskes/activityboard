@@ -3,18 +3,14 @@
 #include "const.h"
 
 void InputController::setup() {
-  selectButton.setup(SELECT_BUTTON);
   startButton.setup(START_BUTTON);
   repeatButton.setup(REPEAT_BUTTON);
-  skipButton.setup(SKIP_BUTTON);
+  nextButton.setup(NEXT_BUTTON);
   cancelButton.setup(CANCEL_BUTTON);
   numpad.setup();
 }
 
 Input InputController::get() {
-  if (selectButton.pressed()) {
-    return Input::SELECT;
-  }
   if (startButton.pressed()) {
     return Input::START;
   }
@@ -24,8 +20,8 @@ Input InputController::get() {
   if (repeatButton.pressed()) {
     return Input::REPEAT;
   }
-  if (skipButton.pressed()) {
-    return Input::SKIP;
+  if (nextButton.pressed()) {
+    return Input::NEXT;
   }
   if (cancelButton.pressed()) {
     return Input::CANCEL;
@@ -34,15 +30,13 @@ Input InputController::get() {
   char ch = numpad.getChar();
   switch (ch) {
     case 'A':
-      return Input::REPEAT;
-    case 'B':
-      return Input::SKIP;
-    case 'C':
-      return Input::CANCEL;
-    case 'D':
       return Input::START;
-    case '*':
-      return Input::SELECT;
+    case 'B':
+      return Input::REPEAT;
+    case 'C':
+      return Input::NEXT;
+    case 'D':
+      return Input::CANCEL;
     default:
       break;
   }

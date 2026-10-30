@@ -58,10 +58,10 @@ bool Player::checkPlaying() {
   return playing;
 }
 
-void Player::play(ClientId client, TrackId track) {
-  LOG("play sound: client=%d, track=%d", client, track);
+void Player::play(TrackFolder folder, TrackId track) {
+  LOG("play sound: folder=%d, track=%d", folder, track);
   playerState = PlayerState::UNKNOWN;
-  player.playFolder(client, track);
+  player.playFolder(folder, track);
   awaitBusy(true);
 }
 

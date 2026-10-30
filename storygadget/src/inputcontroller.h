@@ -15,11 +15,10 @@ enum class Input : int {
   NUM_7 = 7,
   NUM_8 = 8,
   NUM_9 = 9,
-  SELECT = 10,
-  START = 11,
-  REPEAT = 12,
-  SKIP = 13,
-  CANCEL = 14
+  START = 10,
+  REPEAT = 11,
+  NEXT = 12,
+  CANCEL = 13
 };
 
 class InputController {
@@ -29,10 +28,9 @@ class InputController {
   Input get();
 
  private:
-  ActivityButton selectButton;
   ActivityButton startButton;
   ActivityButton repeatButton;
-  ActivityButton skipButton;
+  ActivityButton nextButton;
   ActivityButton cancelButton;
   ActivityNumpadClient numpad;
 };

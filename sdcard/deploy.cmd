@@ -1,158 +1,120 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Pfade definieren (aktuelles Verzeichnis des Skripts)
 set "SOURCE_DIR=%~dp0"
 set "TARGET_DRIVE=D:"
-:: Das Zielverzeichnis für XCOPY braucht den Backslash
 set "TARGET_PATH=D:\"
 
 echo ============================================================
-echo   SD-Karten Kopier-Skript (Direkt ins Hauptverzeichnis)
+echo deploy sd cards (core, sound, storygadget)
 echo ============================================================
 echo.
 
 :: --------------------------------------------------------------
-:: 1. Ordner: display
+:: core
 :: --------------------------------------------------------------
-:process_display
-echo [1/3] Ordner "display" verarbeiten?
-set /p "choice=[J]a / [N]eien (ueberspringen) / [A]bbrechen: "
-if /i "%choice%"=="A" goto end
+
+:process_core
+echo process core card?
+set /p "choice=[Y]es / [N]o (skip) / [C]ancel: "
+if /i "%choice%"=="C" goto end
 if /i "%choice%"=="N" (
-    echo "display" uebersprungen.
+    echo core skipped.
     goto process_sound
 )
-if /i "%choice%" neq "J" goto process_display
+if /i "%choice%" neq "Y" goto process_core
 
-:: Schleife bis SD-Karte bereit ist
-:check_sd_display
+:check_sd_core
 if not exist "%TARGET_PATH%" (
-    echo.
-    echo [!] FEHLER: SD-Karte in %TARGET_DRIVE% wurde nicht gefunden!
-    echo Bitte legen Sie die SD-Karte fuer "display" ein.
+    echo please insert core sd card in %TARGET_DRIVE%.
     pause
-    goto check_sd_display
+    goto check_sd_core
 )
 
-echo.
-echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-echo !!! ACHTUNG: LAUFWERK %TARGET_DRIVE% WIRD BERREINIGT / FORMATIERT !!!
-echo !!! ALLE DATEN AUF DER SD-KARTE GEHEN VERLOREN               !!!
-echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-set /p "confirm=Geben Sie zur Bestaetigung 'LOESCHEN' ein (Grossbuchstaben!): "
-if "%confirm%"=="LOESCHEN" (
-    echo Formatierung von %TARGET_DRIVE% wird gestartet...
-    :: /Q = Schnellformatierung, /X = Erzwingt das Bereitstellenaufheben (Auswerfen aktiver Griffe)
-    format %TARGET_DRIVE% /Q /X /V:Display
+set /p "confirm=enter 'format' in order to format sd card: "
+if "%confirm%"=="format" (
+    format %TARGET_DRIVE% /Q /X /V:core
 ) else (
-    echo Formatierung ABGEBROCHEN. Fahre ohne Loeschen fort.
+    echo continue without formatting sd card.
 )
-echo.
 
-echo Fuehre "convert-bitmaps.cmd" aus...
-cd /d "%SOURCE_DIR%display"
+echo converting bitmaps...
+cd /d "%SOURCE_DIR%core"
 call convert-bitmaps.cmd
 if %errorlevel% neq 0 (
-    echo WARNUNG: "convert-bitmaps.cmd" wurde mit Fehlern beendet.
-    echo Trotzdem fortfahren?
+    echo failed to convert bitmaps. continue?
     pause
 )
 
-echo Kopiere Inhalte aus "display" direkt nach %TARGET_PATH%...
-xcopy "%SOURCE_DIR%display" "%TARGET_PATH%" /E /I /Y
-echo "display" erfolgreich kopiert!
-echo.
-echo ============================================================
+xcopy "%SOURCE_DIR%core" "%TARGET_PATH%" /E /I /Y
+echo successfuly copied core sd card.
 echo.
 
 :: --------------------------------------------------------------
-:: 2. Ordner: sound
+:: sound
 :: --------------------------------------------------------------
+
 :process_sound
-echo [2/3] Ordner "sound" verarbeiten?
-set /p "choice=[J]a / [N]eien (ueberspringen) / [A]bbrechen: "
-if /i "%choice%"=="A" goto end
+echo process sound card?
+set /p "choice=[Y]es / [N]o (skip) / [C]ancel: "
+if /i "%choice%"=="C" goto end
 if /i "%choice%"=="N" (
-    echo "sound" uebersprungen.
+    echo sound skipped.
     goto process_storygadget
 )
-if /i "%choice%" neq "J" goto process_sound
+if /i "%choice%" neq "Y" goto process_sound
 
 :check_sd_sound
 if not exist "%TARGET_PATH%" (
-    echo.
-    echo [!] FEHLER: SD-Karte in %TARGET_DRIVE% wurde nicht gefunden!
-    echo Bitte legen Sie die SD-Karte fuer "sound" ein.
+    echo please insert sound sd card in %TARGET_DRIVE%.
     pause
     goto check_sd_sound
 )
 
-echo.
-echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-echo !!! ACHTUNG: LAUFWERK %TARGET_DRIVE% WIRD BERREINIGT / FORMATIERT !!!
-echo !!! ALLE DATEN AUF DER SD-KARTE GEHEN VERLOREN               !!!
-echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-set /p "confirm=Geben Sie zur Bestaetigung 'LOESCHEN' ein (Grossbuchstaben!): "
-if "%confirm%"=="LOESCHEN" (
-    echo Formatierung von %TARGET_DRIVE% wird gestartet...
-    format %TARGET_DRIVE% /Q /X V:Sound
+set /p "confirm=enter 'format' in order to format sd card: "
+if "%confirm%"=="format" (
+    format %TARGET_DRIVE% /Q /X /V:sound
 ) else (
-    echo Formatierung ABGEBROCHEN. Fahre ohne Loeschen fort.
+    echo continue without formatting sd card.
 )
-echo.
 
-echo Kopiere Inhalte aus "sound" direkt nach %TARGET_PATH%...
 xcopy "%SOURCE_DIR%sound" "%TARGET_PATH%" /E /I /Y
-echo "sound" erfolgreich kopiert!
-echo.
-echo ============================================================
+echo successfuly copied sound sd card.
 echo.
 
 :: --------------------------------------------------------------
-:: 3. Ordner: storygadget
+:: storygadget
 :: --------------------------------------------------------------
+
 :process_storygadget
-echo [3/3] Ordner "storygadget" verarbeiten?
-set /p "choice=[J]a / [N]eien (ueberspringen) / [A]bbrechen: "
-if /i "%choice%"=="A" goto end
+echo process storygadget?
+set /p "choice=[Y]es / [N]o (skip) / [C]ancel: "
+if /i "%choice%"=="C" goto end
 if /i "%choice%"=="N" (
-    echo "storygadget" uebersprungen.
+    echo storygadget skipped.
     goto end
 )
-if /i "%choice%" neq "J" goto process_storygadget
+if /i "%choice%" neq "Y" goto process_storygadget
 
 :check_sd_storygadget
 if not exist "%TARGET_PATH%" (
-    echo.
-    echo [!] FEHLER: SD-Karte in %TARGET_DRIVE% wurde nicht gefunden!
-    echo Bitte legen Sie die SD-Karte fuer "storygadget" ein.
+    echo please insert storygadget sd card in %TARGET_DRIVE%.
     pause
     goto check_sd_storygadget
 )
 
-echo.
-echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-echo !!! ACHTUNG: LAUFWERK %TARGET_DRIVE% WIRD BERREINIGT / FORMATIERT !!!
-echo !!! ALLE DATEN AUF DER SD-KARTE GEHEN VERLOREN               !!!
-echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-set /p "confirm=Geben Sie zur Bestaetigung 'LOESCHEN' ein (Grossbuchstaben!): "
-if "%confirm%"=="LOESCHEN" (
-    echo Formatierung von %TARGET_DRIVE% wird gestartet...
-    format %TARGET_DRIVE% /Q /X V:StoryGadget
+set /p "confirm=enter 'format' in order to format sd card: "
+if "%confirm%"=="format" (
+    format %TARGET_DRIVE% /Q /X /V:storygadget
 ) else (
-    echo Formatierung ABGEBROCHEN. Fahre ohne Loeschen fort.
+    echo continue without formatting sd card.
 )
-echo.
 
-echo Kopiere Inhalte aus "storygadget" direkt nach %TARGET_PATH%...
 xcopy "%SOURCE_DIR%storygadget" "%TARGET_PATH%" /E /I /Y
-echo "storygadget" erfolgreich kopiert!
-echo.
-echo ============================================================
+echo successfuly copied storygadget sd card.
 echo.
 
 :end
-echo FERTIG! Vorgang beendet.
+echo done.
 pause
 exit /b 0

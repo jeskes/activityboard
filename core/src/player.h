@@ -15,7 +15,7 @@ class Player {
   void setup();
   void loop();
 
-  void play(ClientId client, TrackId track);
+  void play(TrackFolder folder, TrackId track);
   void stop();
 
   static PlayerState playerState;

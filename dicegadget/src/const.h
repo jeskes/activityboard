@@ -1,12 +1,17 @@
 #pragma once
 
+#include <core/core.h>
+
+/* client-id of this gadget */
+const ClientId DICEGADGET_ID = 11;
+
 /* startup blinking rate */
 #define BLINK_RATE 50
 
 /* noise pine for randim */
 #define NOISE_PIN A0
 
-/* start button pin */
+/* button pins */
 #define START_BUTTON 2
 #define GUESS_BUTTON 3
 #define JINGLE_BUTTON 4
@@ -29,23 +34,27 @@
 /* languages: 00x english, 01x bavarian, 02x russian, 03x german */
 #define LANGUAGES_COUNT 4
 
-/* jingle sounds: 101 ... 110 */
-#define JINGLES_COUNT 10
+/* jingle sounds: 101..103 */
+#define JINGLES_COUNT 3
 #define JINGLE_START 101
-#define INITIAL_JINGLE 5
+#define INITIAL_JINGLE 0
 
-/* client-id of this gadget */
-const ClientId DICEGADGET_ID = 11;
+/* message identifiers */
+const MessageId WELCOME_MESSAGE = "WELCOME";
+const MessageId GUESS_MESSAGE = "GUESS";
+const MessageId JINGLE_MESSAGE = "JINGLE";
+const MessageId STARTED_MESSAGE = "STARTED";
+const MessageId NUMBER_MESSAGE = "NUMBER";
+const MessageId MATCH_MESSAGE = "MATCH";
+const MessageId SORRY_MESSAGE = "SORRY";
 
-/* display identifiers */
-const MessageId MESSAGE_WELCOME = "WELCOME";
-const MessageId MESSAGE_GUESS = "GUESS";
-const MessageId MESSAGE_JINGLE = "JINGLE";
-const MessageId MESSAGE_STARTED = "STARTED";
-const MessageId MESSAGE_NUMBER = "NUMBER";
-const MessageId MESSAGE_MATCH = "MATCH";
-const MessageId MESSAGE_SORRY = "SORRY";
-const BitmapId BITMAP_STARTUP = "STARTUP";
-const ParameterId PARAMETER_NUMBER = "number";
-const ParameterId PARAMETER_GUESS = "guess";
-const ParameterId PARAMETER_JINGLE = "jingle";
+/* bitmap identifiers */
+const BitmapId STARTUP_BITMAP = "STARTUP";
+
+/* parameter identifiers */
+const ParameterId NUMBER_PARAMETER = "number";
+const ParameterId GUESS_PARAMETER = "guess";
+const ParameterId JINGLE_PARAMETER = "jingle";
+
+/* track identifiers */
+const TrackId STARTUP_TRACK = 101;

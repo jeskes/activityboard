@@ -10,7 +10,8 @@ const ClientId SYSTEM_CLIENT_ID = 10;
 
 using ParameterId = const char*;
 
-using TrackId = uint16_t;
+using TrackId = uint8_t;
+using TrackFolder = uint8_t;
 
 using MessageId = const char*;
 using BitmapId = const char*;
@@ -76,10 +77,12 @@ struct __attribute__((packed)) DisplayMenuRequest : public BaseRequest {
 };
 
 struct __attribute__((packed)) PlaySoundRequest : public BaseRequest {
-	PlaySoundRequest(ClientId client, TrackId track)
+	PlaySoundRequest(ClientId client, TrackFolder folder, TrackId track)
       : BaseRequest(client, RequestType::PLAY_SOUND),
+	  folder(folder),
 	  track(track) {
   }
+  TrackFolder folder;
   TrackId track;
 };
 
@@ -129,6 +132,7 @@ class ActivityCoreClient : public PeriphericalClient {
   void putParam(const char* name, const char* value);
 
   void playSound(TrackId track);
+  void playSound(TrackFolder folder, TrackId track);
   void stopSound();
   
   void clearDisplay();

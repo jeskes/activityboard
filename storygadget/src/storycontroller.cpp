@@ -35,7 +35,12 @@ bool StoryController::run(StoryId story) {
 void StoryController::loop() {
   if (playerMonitor == PlayerMonitor::ENDED) {
     playerMonitor = PlayerMonitor::UNDEFINED;
-    onChapterEnded();
+    if (inMenu()) {
+      startMenuOption(currentMenuSelection);
+    }
+    else {
+      onChapterEnded();
+    }
   }
 
   Input in = input.get();
@@ -44,26 +49,28 @@ void StoryController::loop() {
     LOG("cancel pressed");
     stop();
   }
-  else if (in == Input::SKIP) {
-    LOG("skip pressed");
-    core.stopSound();
+  else if (currentMenu) {
+    if (in >= Input::NUM_1 && (int)in <= currentMenuSize) {
+      LOG("menu option %d selected at numpad.", in);
+      onMenuOptionSelected(((int)in - 1));
+    }
+    else if (in == Input::START) {
+      onMenuOptionSelected(currentMenuSelection);
+    }
+    else if (in == Input::REPEAT) {
+      startMenu(currentMenu);
+    }
+    else if (in == Input::NEXT) {
+      startMenuOption((currentMenuSelection + 1) % currentMenuSize);
+    }
   }
   else if (in == Input::REPEAT) {
     LOG("repeat pressed");
     startChapter(currentChapter);
   }
-  else if (currentMenuId) {
-    if (in >= Input::NUM_1 && (int)in <= currentMenuSize) {
-      LOG("menu option %d selected at numpad.", in);
-      onMenuSelected(((int)in - 1));
-    }
-    else if (in == Input::SELECT) {
-      currentMenuSelection = (currentMenuSelection + 1) % currentMenuSize;
-      core.displayMenu(currentMenuId, currentMenuSelection);
-    }
-    else if (in == Input::START) {
-      onMenuSelected(currentMenuSelection);
-    }
+  else if (in == Input::NEXT) {
+    LOG("next pressed");
+    core.stopSound();
   }
 }
 
@@ -76,10 +83,10 @@ void StoryController::startChapter(ChapterId chapter) {
   core.displayBitmap(bitmap);
 
   TrackId track = chapterDef["track"].as<TrackId>();
-  core.playSound(track);
+  core.playSound(tracks, track);
   playerMonitor = PlayerMonitor::PENDING;
 
-  currentMenuId = nullptr;
+  currentMenu = nullptr;
   currentMenuSize = 0;
   currentMenuSelection = 0;
 }
@@ -92,17 +99,8 @@ void StoryController::onChapterEnded() {
   LOG("chapter ended: %s", currentChapter);
   JsonObject chapterDef = definition["chapters"][currentChapter].as<JsonObject>();
 
-  if (chapterDef["menu"].is<JsonObject>()) {
-    JsonObject menuDef = chapterDef["menu"].as<JsonObject>();
-
-    currentMenuId = menuDef["id"].as<MenuId>();
-    currentMenuSize = menuDef["options"].as<JsonArray>().size();
-    currentMenuSelection = 0;
-    core.displayMenu(currentMenuId, currentMenuSelection);
-
-    // maybe explicitly define track for menu
-    // TrackId track = menuDef["id"].as<TrackId>();
-    // core.playSound(track);
+  if (chapterDef["menu"].is<MenuId>()) {
+    startMenu(chapterDef["menu"].as<MenuId>());
   }
   else if (chapterDef["next"].is<ChapterId>()) {
     ChapterId nextChapter = chapterDef["next"].as<ChapterId>();
@@ -113,27 +111,29 @@ void StoryController::onChapterEnded() {
   }
 }
 
-void StoryController::onMenuSelected(uint8_t selectedIndex) {
-  if (!currentChapter) {
-    return;
-  }
-  JsonObject chapterDef = definition["chapters"][currentChapter].as<JsonObject>();
-  if (!chapterDef["menu"].is<JsonObject>()) {
-    return;
-  }
-  JsonObject menuDef = chapterDef["menu"].as<JsonObject>();
-  JsonArray options = menuDef["options"].as<JsonArray>();
-  ChapterId nextChapter = options[selectedIndex].as<ChapterId>();
-  startChapter(nextChapter);
+void StoryController::startMenu(MenuId menu) {
+  currentMenu = menu;
+  currentMenuDef = definition["menus"][currentMenu].as<JsonObject>();
+  currentMenuSize = currentMenuDef["options"].as<JsonArray>().size();
+  currentMenuSelection = 0;
+
+  core.displayMenu(currentMenu, currentMenuSelection);
+  core.playSound(tracks, currentMenuDef["track"].as<TrackId>());
+  playerMonitor = PlayerMonitor::PENDING;
 }
 
-bool StoryController::next() {
-  LOG("next ")
-  if (!currentChapter) {
-    return false;
-  }
-  onChapterEnded();
-  return true;
+void StoryController::startMenuOption(uint8_t index) {
+  currentMenuSelection = index;
+  core.displayMenu(currentMenu, index);
+  JsonObject option = currentMenuDef["options"].as<JsonArray>()[index].as<JsonObject>();
+  TrackId track = option["track"].as<TrackId>();
+  core.playSound(tracks, track);
+}
+
+void StoryController::onMenuOptionSelected(uint8_t index) {
+  JsonObject option = currentMenuDef["options"].as<JsonArray>()[index].as<JsonObject>();
+  ChapterId nextChapter = option["next"].as<ChapterId>();
+  startChapter(nextChapter);
 }
 
 bool StoryController::stop() {
@@ -143,7 +143,7 @@ bool StoryController::stop() {
 
   activeStory = nullptr;
   core.stopSound();
-  core.displayBitmap(BITMAP_STARTUP);
+  core.displayBitmap(STARTUP_BITMAP);
   core.setStatusHandler(nullptr);
 
   return true;
@@ -156,11 +156,16 @@ bool StoryController::loadDefinition() {
     LOG("cannot load story");
     return false;
   }
+  tracks = definition["tracks"].as<TrackFolder>();
   return true;
 }
 
 bool StoryController::isBusy() {
   return activeStory != 0;
+}
+
+bool StoryController::inMenu() {
+  return currentMenu != nullptr;
 }
 
 bool StoryController::handleCoreStatus(CoreStatus status) {

@@ -9,9 +9,9 @@
 	"noddyFarmerstraw": {
 		"title": "After visiting Farmer Straw",
 		"options": [
-			"should he see the pigs",
-			"should he play with the dog",
-			"should he say goodbye"
+			"should he see the pigs?",
+			"should he play with the dog?",
+			"should he say goodbye?"
 		]
 	}
 }

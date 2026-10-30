@@ -9,9 +9,10 @@ StoryGadget::StoryGadget()
 void StoryGadget::setup() {
   pinMode(SELECTING_LED, OUTPUT);
   pinMode(READING_LED, OUTPUT);
+  pinMode(MENU_LED, OUTPUT);
 
-  const uint8_t blinks[] = {SELECTING_LED, READING_LED};
-  activityControls.blink(blinks, 2, 5, 200);
+  const uint8_t blinks[] = {SELECTING_LED, READING_LED, MENU_LED};
+  activityControls.blink(blinks, 3, 5, 150);
 
   GadgetBase::setup();
 
@@ -21,7 +22,8 @@ void StoryGadget::setup() {
   selection.setup();
   story.setup();
 
-  core.init(BITMAP_STARTUP);
+  core.init(STARTUP_BITMAP);
+  core.playSound(STARTUP_TRACK);
 
   LOG("Story Gadget started.");
 }
@@ -42,21 +44,22 @@ void StoryGadget::loop() {
   else {
     if (resetPending) {
       resetPending = false;
-      core.displayBitmap(BITMAP_STARTUP);
+      core.displayBitmap(STARTUP_BITMAP);
     }
     Input in = input.get();
-    if (in == Input::SELECT) {
-      LOG("selection started");
+    if (in == Input::START) {
+      LOG("started");
       selection.run();
       resetPending = true;
     }
     else if (in >= Input::NUM_1 && (int)in <= selection.getStoriesCount()) {
       LOG("story %d selected", in);
       resetPending = true;
-      story.run(selection.getStory((int)in-1));
+      story.run(selection.getStory((int)in - 1));
     }
   }
 
   digitalWrite(SELECTING_LED, selection.isBusy() ? HIGH : LOW);
-  digitalWrite(READING_LED, story.isBusy() ? HIGH : LOW);
+  digitalWrite(READING_LED, (story.isBusy() && !story.inMenu()) ? HIGH : LOW);
+  digitalWrite(MENU_LED, (story.isBusy() && story.inMenu()) ? HIGH : LOW);
 }

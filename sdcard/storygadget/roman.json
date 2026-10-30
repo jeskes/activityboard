@@ -1,36 +1,45 @@
 {
 	"start": "langweilig",
+	"tracks": 20,
 	"chapters": {
 		"langweilig": {
-			"track": 101,
+			"track": 1,
 			"bitmap": "romanLangweilig",
-			"menu": {
-				"id": "romanMenu1",
-				"track": 191,
-				"options": [
-					"schlafen",
-					"spazieren"
-				]
-			}
+			"menu": "romanMenu1"
 		},
 		"schlafen": {
-			"track": 102,
+			"track": 2,
 			"bitmap": "romanSchlafen",
 			"next": "gluecklich"
 		},
 		"spazieren": {
-			"track": 103,
+			"track": 3,
 			"bitmap": "romanSpazieren",
 			"next": "gluecklich"
 		},
 		"gluecklich": {
-			"track": 104,
+			"track": 4,
 			"bitmap": "romanGluecklich",
 			"next": "zuhause"
 		},
 		"zuhause": {
-			"track": 105,
+			"track": 5,
 			"bitmap": "romanZuhause"
+		}
+	},
+	"menus": {
+		"romanMenu1": {
+			"track": 100,
+			"options": [
+				{
+					"next": "schlafen",
+					"track": 101
+				},
+				{
+					"next": "spazieren",
+					"track": 102
+				}
+			]
 		}
 	}
 }

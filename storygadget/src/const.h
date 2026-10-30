@@ -2,21 +2,27 @@
 
 #include <core/core.h>
 
-#define MAX_STORIES 3
+/* client-id of this gadget */
+const ClientId STORYGADGET_ID = 12;
 
-/* local pins */
+/* pins */
 
-#define SELECT_BUTTON 27
-#define START_BUTTON  26
+#define START_BUTTON   26
 #define REPEAT_BUTTON  25
-#define SKIP_BUTTON  33
+#define NEXT_BUTTON    33
 #define CANCEL_BUTTON  32
+
 #define SELECTING_LED 13
 #define READING_LED   14
+#define MENU_LED 27
 
 /* global constants */
 
-const BitmapId BITMAP_STARTUP = "STARTUP";
+#define MAX_STORIES 10
+
+const BitmapId STARTUP_BITMAP = "STARTUP";
+const TrackId STARTUP_TRACK = 1;
+
 const long SELECTION_TIMEOUT = 10000;
 
 /* global types */

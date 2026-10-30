@@ -50,4 +50,4 @@
 /* startup */
 
 #define STARTUP_TRACK_ID 100
-#define STARTUP_BITMAP "/10/startup.raw"
+#define STARTUP_BITMAP "/10/bitmaps/startup.raw"

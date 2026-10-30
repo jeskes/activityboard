@@ -34,7 +34,8 @@ void DiceGadget::setup() {
   core.setup();
   numpad.setup();
 
-  core.init(BITMAP_STARTUP);
+  core.init(STARTUP_BITMAP);
+  core.playSound(STARTUP_TRACK);
   core.setStatusHandler(this);
 
   LOG("Dice Gadget started.");
@@ -67,14 +68,14 @@ void DiceGadget::stateMachine() {
     case Status::JINGLE_SOUND_ENDED:
       status = Status::NUMBER_SOUND_PLAYING;
       core.playSound(10 * currentLanguage + currentNumber);
-      core.displayMessage(MESSAGE_NUMBER);
+      core.displayMessage(NUMBER_MESSAGE);
       break;
     case Status::NUMBER_SOUND_ENDED:
       status = Status::NUMBER_INDICATING;
       indicatingTime = millis();
       if (currentGuess) {
         core.playSound(200 + (currentGuess == currentNumber ? 1 : 2));
-        core.displayMessage(currentGuess == currentNumber ? MESSAGE_MATCH : MESSAGE_SORRY);
+        core.displayMessage(currentGuess == currentNumber ? MATCH_MESSAGE : SORRY_MESSAGE);
       }
       break;
     case Status::NUMBER_INDICATING:
@@ -148,9 +149,9 @@ void DiceGadget::setGuess(int guess, bool updateDisplay) {
   if (currentGuess != guess) {
     LOG("set guess: %d", guess);
     currentGuess = guess;
-    core.putParam(PARAMETER_GUESS, currentGuess);
+    core.putParam(GUESS_PARAMETER, currentGuess);
     if (updateDisplay) {
-      core.displayMessage(MESSAGE_GUESS);
+      core.displayMessage(GUESS_MESSAGE);
       scheduleDisplayReset();
     }
   }
@@ -160,10 +161,10 @@ void DiceGadget::setJingle(int jingle, bool updateDisplay) {
   if (currentJingle != jingle) {
     currentJingle = jingle;
     LOG("set jingle: %d", currentJingle);
-    core.putParam(PARAMETER_JINGLE, currentJingle);
+    core.putParam(JINGLE_PARAMETER, currentJingle);
     core.playSound(JINGLE_START + currentJingle);
     if (updateDisplay) {
-      core.displayMessage(MESSAGE_JINGLE);
+      core.displayMessage(JINGLE_MESSAGE);
       scheduleDisplayReset();
     }
   }
@@ -174,8 +175,8 @@ void DiceGadget::throwDice() {
   startedTime = millis();
   currentNumber = random(1, countIndicators + 1);
   currentLanguage = random(0, LANGUAGES_COUNT);
-  core.putParam(PARAMETER_NUMBER, currentNumber);
-  core.displayMessage(MESSAGE_STARTED);
+  core.putParam(NUMBER_PARAMETER, currentNumber);
+  core.displayMessage(STARTED_MESSAGE);
   core.playSound(JINGLE_START + currentJingle);
   status = Status::JINGLE_SOUND_PLAYING;
 }
@@ -217,7 +218,7 @@ bool DiceGadget::handleCoreStatus(CoreStatus coreStatus) {
 void DiceGadget::checkDisplayReset() {
   if (displayResetPending && (millis() > displayResetPending)) {
     displayResetPending = 0;
-    core.displayBitmap(BITMAP_STARTUP);
+    core.displayBitmap(STARTUP_BITMAP);
   }
 }
 
