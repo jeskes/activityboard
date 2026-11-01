@@ -67,7 +67,7 @@ void DiceGadget::stateMachine() {
       break;
     case Status::JINGLE_SOUND_ENDED:
       status = Status::NUMBER_SOUND_PLAYING;
-      core.playSound(10 * currentLanguage + currentNumber);
+      playNumber(currentNumber);
       core.displayMessage(NUMBER_MESSAGE);
       break;
     case Status::NUMBER_SOUND_ENDED:
@@ -149,6 +149,7 @@ void DiceGadget::setGuess(int guess, bool updateDisplay) {
   if (currentGuess != guess) {
     LOG("set guess: %d", guess);
     currentGuess = guess;
+	playNumber(guess);
     core.putParameter(GUESS_PARAMETER, currentGuess);
     if (updateDisplay) {
       core.displayMessage(GUESS_MESSAGE);
@@ -161,8 +162,8 @@ void DiceGadget::setJingle(int jingle, bool updateDisplay) {
   if (currentJingle != jingle) {
     currentJingle = jingle;
     LOG("set jingle: %d", currentJingle);
+	playJingle();
     core.putParameter(JINGLE_PARAMETER, currentJingle);
-    core.playSound(JINGLE_START + currentJingle);
     if (updateDisplay) {
       core.displayMessage(JINGLE_MESSAGE);
       scheduleDisplayReset();
@@ -174,16 +175,14 @@ void DiceGadget::throwDice() {
   cancelDisplayReset();
   startedTime = millis();
   currentNumber = random(1, countIndicators + 1);
-  currentLanguage = random(0, LANGUAGES_COUNT);
+  playJingle();
   core.putParameter(NUMBER_PARAMETER, currentNumber);
   core.displayMessage(STARTED_MESSAGE);
-  core.playSound(JINGLE_START + currentJingle);
   status = Status::JINGLE_SOUND_PLAYING;
 }
 
 void DiceGadget::reset() {
   currentNumber = 0;
-  currentLanguage = 0;
   startedTime = 0;
   indicatingTime = 0;
   scheduleDisplayReset();
@@ -195,6 +194,15 @@ void DiceGadget::showIndicators() {
     int level = (idx == currentNumber - 1) ? HIGH : LOW;
     digitalWrite(indicators[idx], level);
   }
+}
+
+void DiceGadget::playNumber(int number) {
+  int language = random(0, LANGUAGES_COUNT);
+  core.playSound(10 * language + number);
+}
+
+void DiceGadget::playJingle() {
+	core.playSound(JINGLE_START + currentJingle);
 }
 
 bool DiceGadget::handleCoreStatus(CoreStatus coreStatus) {

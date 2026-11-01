@@ -50,7 +50,6 @@ class DiceGadget : GadgetBase, CoreStatusHandler {
 
   int currentGuess;
   int currentNumber;
-  int currentLanguage;
   int currentJingle;
 
   unsigned long startedTime;
@@ -60,4 +59,7 @@ class DiceGadget : GadgetBase, CoreStatusHandler {
   void checkDisplayReset();
   void scheduleDisplayReset();
   void cancelDisplayReset();
+
+  void playJingle();
+  void playNumber(int number);
 };
