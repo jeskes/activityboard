@@ -3,7 +3,7 @@
 #include "const.h"
 
 CoreService::CoreService()
-    : PeriphericalService(publishStatus),
+    : PeriphericalService(nullptr),
       player(ledRing),
       contexts(storage),
       display(storage, ledRing) {
@@ -30,9 +30,16 @@ void CoreService::loop() {
   display.loop();
 }
 
+/* ========================================================================= */
+/*                                            request handling (onReceive()) */
+/* ========================================================================= */
+
 void CoreService::processRequest(BaseRequest* request) {
-  LOG("request arrived: %d", request->type);
+  LOG("request arrived: client=%d, type=0x%X", request->client, request->type);
   switch (request->type) {
+    case RequestType::STATUS:
+      handleRequest((StatusRequest*)request);
+      break;
     case RequestType::INIT:
       handleRequest((InitCoreRequest*)request);
       break;
@@ -57,16 +64,29 @@ void CoreService::processRequest(BaseRequest* request) {
     case RequestType::DISPLAY_BITMAP:
       handleRequest((DisplayBitmapRequest*)request);
       break;
+    case RequestType::READ_DATA:
+      handleRequest((ReadDataRequest*)request);
+      break;
     default:
       break;
   }
 }
-
-void CoreService::publishStatus() {
-  CoreStatus status;
-  status.playerState = Player::playerState;
-  // LOG( "player=%d", status.playerState);
-  PeriphericalService::sendStatus(&status, sizeof(CoreStatus));
+void CoreService::handleRequest(StatusRequest* request) {
+  LOG("requested status: %d", request->type);
+  switch (request->type) {
+    case StatusType::CORE_STATUS: {
+      CoreStatus status;
+      status.playerState = Player::playerState;
+      Wire.slaveWrite((uint8_t*)&status, sizeof(CoreStatus));
+    } break;
+    case StatusType::CORE_DATA:
+      DataProvider::readBuffer();
+      DataProvider::writeBuffer();
+      break;
+    default:
+      LOG("unknow status type: %d", request->type);
+      break;
+  }
 }
 
 void CoreService::handleRequest(InitCoreRequest* request) {
@@ -112,4 +132,10 @@ void CoreService::handleRequest(PlaySoundRequest* request) {
 
 void CoreService::handleRequest(StopSoundRequest* request) {
   player.stop();
+}
+
+void CoreService::handleRequest(ReadDataRequest* request) {
+  DataDef def = contexts.get(request->client).getDataDef(request->dataId);
+  LOG("read data: id=%s, path=%s", request->dataId, def.path);
+  DataProvider::init(storage.open(def.path));
 }

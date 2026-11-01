@@ -13,7 +13,7 @@ void ActivityNumpadClient::setup() {
     LOG("numpad not found at address %d", NUMPAD_MODULE_ID);
   }
   else {
-    LOG("loading keymap: %d", keymap);
+    LOG("loading keymap: %s", keymap);
     keyPad.loadKeyMap(keymap);
     LOG("numpad initialized at address %d", NUMPAD_MODULE_ID);
 	initialized = true;

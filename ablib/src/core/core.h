@@ -16,6 +16,7 @@ using TrackFolder = uint8_t;
 using MessageId = const char*;
 using BitmapId = const char*;
 using MenuId = const char*;
+using DataId = const char*;
 
 /* ========================================================================= */
 /*                                                        core request types */
@@ -69,7 +70,8 @@ struct __attribute__((packed)) DisplayBitmapRequest : public BaseRequest {
 
 struct __attribute__((packed)) DisplayMenuRequest : public BaseRequest {
   DisplayMenuRequest(ClientId client, MenuId id, uint8_t selectedIndex)
-      : BaseRequest(client, RequestType::DISPLAY_MENU), selectedIndex(selectedIndex) {
+      : BaseRequest(client, RequestType::DISPLAY_MENU),
+        selectedIndex(selectedIndex) {
     strlcpy(menuId, id, ID_BUFFER_SIZE);
   }
   char menuId[ID_BUFFER_SIZE];
@@ -77,10 +79,10 @@ struct __attribute__((packed)) DisplayMenuRequest : public BaseRequest {
 };
 
 struct __attribute__((packed)) PlaySoundRequest : public BaseRequest {
-	PlaySoundRequest(ClientId client, TrackFolder folder, TrackId track)
+  PlaySoundRequest(ClientId client, TrackFolder folder, TrackId track)
       : BaseRequest(client, RequestType::PLAY_SOUND),
-	  folder(folder),
-	  track(track) {
+        folder(folder),
+        track(track) {
   }
   TrackFolder folder;
   TrackId track;
@@ -90,6 +92,14 @@ struct __attribute__((packed)) StopSoundRequest : public BaseRequest {
   StopSoundRequest(ClientId client)
       : BaseRequest(client, RequestType::STOP_SOUND) {
   }
+};
+
+struct __attribute__((packed)) ReadDataRequest : public BaseRequest {
+  ReadDataRequest(ClientId client, DataId id)
+      : BaseRequest(client, RequestType::READ_DATA) {
+    strlcpy(dataId, id, ID_BUFFER_SIZE);
+  }
+  char dataId[ID_BUFFER_SIZE];
 };
 
 /* ========================================================================= */
@@ -121,24 +131,40 @@ class CoreStatusHandler {
   virtual bool handleCoreStatus(CoreStatus status) = 0;
 };
 
+class DataStream : public Stream {
+ public:
+  DataStream();
+  bool eof = false;
+  int read() override;
+  int available() override;
+  int peek() override;
+  size_t write(uint8_t) override;
+  void flush() override;
+
+  int bufferIndex;
+  uint8_t buffer[REQUEST_BUFFER_SIZE];
+};
+
 class ActivityCoreClient : public PeriphericalClient {
  public:
   ActivityCoreClient(ClientId clientId, Scheduler& scheduler);
 
   void setup();
   void init(BitmapId startupBitmap);
- 
-  void putParam(const char* name, uint16_t value);
-  void putParam(const char* name, const char* value);
 
-  void playSound(TrackId track);
-  void playSound(TrackFolder folder, TrackId track);
+  void putParameter(ParameterId id, uint16_t value);
+  void putParameter(ParameterId id, const char* value);
+
+  void playSound(TrackId id);
+  void playSound(TrackFolder folder, TrackId id);
   void stopSound();
-  
+
   void clearDisplay();
-  void displayMessage(MessageId messageId);
-  void displayBitmap(BitmapId bitmapId);
-  void displayMenu(MenuId menuId, uint8_t selectedIndex);
+  void displayMessage(MessageId id);
+  void displayBitmap(BitmapId id);
+  void displayMenu(MenuId id, uint8_t selectedIndex);
+
+  DataStream readData(DataId id);
 
   void pauseStatus();
   bool isStatusPaused();

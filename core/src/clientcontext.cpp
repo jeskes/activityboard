@@ -16,57 +16,44 @@ ClientContext& ClientContexts::get(ClientId client) {
   }
 
   ClientContext& context = contexts[client];
-  init(client, context);
+  context.init(storage, client);
 
   return context;
 }
 
-void ClientContexts::init(ClientId client, ClientContext& context) {
-  context.client = client;
+/* context */
+
+void ClientContext::init(Storage& storage, ClientId client) {
+  this->client = client;
 
   char path[PATH_BUFFER_SIZE];
-  sprintf(path, "/%02d/parameters.json", client);
+  sprintf(path, "/%02d/config.json", client);
 
-  JsonDocument doc;
-  if (!storage.loadJson(path, doc)) {
-    LOG("no parameters file found: path=%s.", path);
+  if (!storage.loadJson(path, config)) {
+    LOG("no config file found: client=%d, path=%s.", client, path);
+    return;
   }
-  else {
-    JsonArray names = doc.as<JsonArray>();
+
+  LOG("loaded config file: client=%d, path=%s", client, path);
+
+  if (config["parameters"].is<JsonArray>()) {
+    JsonArray names = config["parameters"].as<JsonArray>();
     for (JsonVariant v : names) {
       const char* name = v.as<const char*>();
-      context.params[name] = "";
-      context.params[name].reserve(VALUE_BUFFER_SIZE);
+      params[name] = "";
+      params[name].reserve(VALUE_BUFFER_SIZE);
     }
-    LOG("initialized parameters: client=%d, count=%d.", client, names.size());
-  }
-
-  sprintf(path, "/%02d/messages.json", client);
-  if (!storage.loadJson(path, context.messages)) {
-    LOG("no messages file found: %s.", path);
+    LOG("parameters: client=%d, count=%d", client, names.size());
   }
   else {
-    LOG("initialized messages: client=%d, count=%d.", client, context.messages.size());
+    LOG("parameters: client=%d, count=0");
   }
 
-  sprintf(path, "/%02d/menus.json", client);
-  if (!storage.loadJson(path, context.menus)) {
-    LOG("no menus file found: %s.", path);
-  }
-  else {
-    LOG("initialized menus: client=%d, count=%d.", client, context.menus.size());
-  }
-
-  sprintf(path, "/%02d/bitmaps.json", client);
-  if (!storage.loadJson(path, context.bitmaps)) {
-    LOG("no bitmaps file found: %s.", path);
-  }
-  else {
-    LOG("initialized bitmaps: client=%d, count=%d.", client, context.bitmaps.size());
-  }
+  LOG("messages: client=%d, count=%d", client, config["messages"].is<JsonObject>() ? config["messages"].as<JsonObject>().size() : 0);
+  LOG("menus: client=%d, count=%d", client, config["menus"].is<JsonObject>() ? config["menus"].as<JsonObject>().size() : 0);
+  LOG("bitmaps: client=%d, count=%d", client, config["bitmaps"].is<JsonObject>() ? config["bitmaps"].as<JsonObject>().size() : 0);
+  LOG("data: client=%d, count=%d", client, config["data"].is<JsonObject>() ? config["data"].as<JsonObject>().size() : 0);
 }
-
-/* context */
 
 void ClientContext::putParam(const char* name, const char* value, byte append) {
   if (append) {
@@ -79,12 +66,11 @@ void ClientContext::putParam(const char* name, const char* value, byte append) {
 }
 
 const char* ClientContext::getMessage(const char* id) {
-  const char* message = messages[id];
-  if (!message) {
-    LOG("message id %s not found.", id);
-    return id;
+  if (config["messages"][id].is<const char*>()) {
+    return config["messages"][id].as<const char*>();
   }
-  return message;
+  LOG("message id %s not found.", id);
+  return id;
 }
 
 String ClientContext::formatMessage(MessageId id) {
@@ -114,31 +100,34 @@ String ClientContext::formatMessage(MessageId id) {
 
 MenuDef ClientContext::getMenuDef(MenuId id) {
   MenuDef def;
-  if (menus[id].is<JsonObject>()) {
-    JsonObject object = menus[id].as<JsonObject>();
+  if (config["menus"][id].is<JsonObject>()) {
+    JsonObject object = config["menus"][id].as<JsonObject>();
     def.title = object["title"].as<const char*>();
     int idx = 0;
     for (JsonVariant option : object["options"].as<JsonArray>()) {
       if (idx < MAX_MENU_OPTIONS) {
         def.options[idx] = option.as<const char*>();
-		idx++;
+        idx++;
       }
     }
-	while( idx < MAX_MENU_OPTIONS ) {
-		def.options[idx] = nullptr;
-		idx++;
-	}
+    while (idx < MAX_MENU_OPTIONS) {
+      def.options[idx] = nullptr;
+      idx++;
+    }
+  }
+  else {
+    LOG("menu id %s not found", id);
   }
   return def;
 }
 
 BitmapDef ClientContext::getBitmapDef(BitmapId id) {
   BitmapDef def;
-  if (bitmaps[id].is<const char*>()) {
-    sprintf(def.path, "/%02d/bitmaps/%s", client, bitmaps[id].as<const char*>());
+  if (config["bitmaps"][id].is<const char*>()) {
+    sprintf(def.path, "/%02d/bitmaps/%s", client, config["bitmaps"][id].as<const char*>());
   }
-  else if (bitmaps[id].is<JsonObject>()) {
-    JsonObject object = bitmaps[id].as<JsonObject>();
+  else if (config["bitmaps"][id].is<JsonObject>()) {
+    JsonObject object = config["bitmaps"][id].as<JsonObject>();
     sprintf(def.path, "/%02d/bitmaps/%s", client, object["path"].as<const char*>());
     if (object["width"].is<int>()) {
       def.width = object["width"].as<int>();
@@ -148,8 +137,20 @@ BitmapDef ClientContext::getBitmapDef(BitmapId id) {
     }
   }
   else {
-    LOG("bitmap id %d not found.", id);
+    LOG("bitmap id %s not found.", id);
     strcpy(def.path, "/10/bitmaps/fallback.raw");
+  }
+  return def;
+}
+
+DataDef ClientContext::getDataDef(DataId id) {
+  DataDef def;
+  if (config["data"][id].is<const char*>()) {
+    sprintf(def.path, "/%02d/data/%s", client, config["data"][id].as<const char*>());
+  }
+  else {
+    LOG("data id %s not found.", id);
+    strcpy(def.path, "/10/data/fallback.txt");
   }
   return def;
 }

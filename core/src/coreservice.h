@@ -4,11 +4,12 @@
 #include <modules/modules.h>
 
 #include "clientcontext.h"
+#include "dataprovider.h"
 #include "display.h"
+#include "ledring.h"
 #include "player.h"
 #include "storage/storage.h"
 #include "taskrunner.h"
-#include "ledring.h"
 
 class CoreService : public PeriphericalService {
  public:
@@ -27,6 +28,7 @@ class CoreService : public PeriphericalService {
 
   void processRequest(BaseRequest* request) override;
 
+  void handleRequest(StatusRequest* request);
   void handleRequest(InitCoreRequest* request);
   void handleRequest(ParameterRequest* request);
   void handleRequest(PlaySoundRequest* request);
@@ -35,7 +37,5 @@ class CoreService : public PeriphericalService {
   void handleRequest(DisplayMessageRequest* request);
   void handleRequest(DisplayMenuRequest* request);
   void handleRequest(DisplayBitmapRequest* request);
-
- private:
-  static void publishStatus();
+  void handleRequest(ReadDataRequest* request);
 };

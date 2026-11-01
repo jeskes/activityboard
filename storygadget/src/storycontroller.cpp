@@ -1,8 +1,8 @@
 #include "storycontroller.h"
 
-StoryController::StoryController(Storage& storage, ActivityCoreClient& core, InputController& input)
-    : storage(storage),
-      core(core),
+StoryController::StoryController(Definition& definition, ActivityCoreClient& core, InputController& input)
+    : core(core),
+      definition(definition),
       input(input),
       playerMonitor(PlayerMonitor::UNDEFINED) {
 }
@@ -15,13 +15,11 @@ bool StoryController::run(StoryId story) {
   currentChapter = nullptr;
   playerMonitor = PlayerMonitor::UNDEFINED;
 
-  if (!loadDefinition()) {
-    activeStory = nullptr;
-    return false;
-  }
-
-  ChapterId start = definition["start"].as<ChapterId>();
+  storyDefinition = definition.getStoryDefinition(story);
+  tracks = storyDefinition["tracks"].as<TrackFolder>();
+  ChapterId start = storyDefinition["start"].as<ChapterId>();
   if (!start) {
+	LOG("no start found--------------");
     activeStory = nullptr;
     return false;
   }
@@ -77,7 +75,7 @@ void StoryController::loop() {
 void StoryController::startChapter(ChapterId chapter) {
   LOG("start chapter : %s", chapter);
   currentChapter = chapter;
-  JsonObject chapterDef = definition["chapters"][currentChapter].as<JsonObject>();
+  JsonObject chapterDef = storyDefinition["chapters"][currentChapter].as<JsonObject>();
 
   BitmapId bitmap = chapterDef["bitmap"].as<BitmapId>();
   core.displayBitmap(bitmap);
@@ -97,7 +95,7 @@ void StoryController::onChapterEnded() {
   }
 
   LOG("chapter ended: %s", currentChapter);
-  JsonObject chapterDef = definition["chapters"][currentChapter].as<JsonObject>();
+  JsonObject chapterDef = storyDefinition["chapters"][currentChapter].as<JsonObject>();
 
   if (chapterDef["menu"].is<MenuId>()) {
     startMenu(chapterDef["menu"].as<MenuId>());
@@ -113,7 +111,7 @@ void StoryController::onChapterEnded() {
 
 void StoryController::startMenu(MenuId menu) {
   currentMenu = menu;
-  currentMenuDef = definition["menus"][currentMenu].as<JsonObject>();
+  currentMenuDef = storyDefinition["menus"][currentMenu].as<JsonObject>();
   currentMenuSize = currentMenuDef["options"].as<JsonArray>().size();
   currentMenuSelection = 0;
 
@@ -146,17 +144,6 @@ bool StoryController::stop() {
   core.displayBitmap(STARTUP_BITMAP);
   core.setStatusHandler(nullptr);
 
-  return true;
-}
-
-bool StoryController::loadDefinition() {
-  char path[20];
-  sprintf(path, "/%s.json", activeStory);
-  if (!storage.loadJson(path, definition)) {
-    LOG("cannot load story");
-    return false;
-  }
-  tracks = definition["tracks"].as<TrackFolder>();
   return true;
 }
 

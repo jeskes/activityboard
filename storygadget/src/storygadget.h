@@ -7,6 +7,7 @@
 #include "inputcontroller.h"
 #include "selectionController.h"
 #include "storycontroller.h"
+#include "definition.h"
 
 class StoryGadget : public GadgetBase {
  public:
@@ -15,9 +16,8 @@ class StoryGadget : public GadgetBase {
   void setup();
   void loop();
 
-  Storage storage;
   ActivityCoreClient core;
-  
+  Definition definition;
   InputController input;
   SelectionController selection;
   StoryController story;

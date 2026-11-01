@@ -20,8 +20,11 @@ const ClientId STORYGADGET_ID = 12;
 
 #define MAX_STORIES 10
 
+const MessageId LOADING_STORY = "LOADING_STORY";
 const BitmapId STARTUP_BITMAP = "STARTUP";
 const TrackId STARTUP_TRACK = 1;
+
+const DataId STORIES_DATA = "stories";
 
 const long SELECTION_TIMEOUT = 10000;
 

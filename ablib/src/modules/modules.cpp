@@ -6,34 +6,29 @@
 
 PeriphericalClient::PeriphericalClient(ClientId client, Scheduler& scheduler)
     : client(client) {
-  /* scheduler not used yet */
 }
 
 bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint8_t length) {
   // LOG("send request: module=%d, type=0x%04x, length=%d", module, (uint16_t)request->type, length);
   // DUMP(request, length);
 
-  /* maybe put send in a task/queue using scheduler... */
-
   Wire.beginTransmission(module);
   Wire.write((uint8_t*)request, length);
   Wire.endTransmission();
-
-  // LOG("sent peripherical request: %d bytes", length);
-  // TODO --- throttle or request buffer at service side
-  delay(300);
+  delay(50);
 
   return true;
 }
 
-bool PeriphericalClient::requestStatus(uint8_t module, BaseStatus* status, uint8_t length) {
+bool PeriphericalClient::requestStatus(uint8_t module, StatusType type, uint8_t* buffer, uint8_t length) {
+  StatusRequest request(0, type);
+  sendRequest(module, &request, sizeof(StatusRequest));
   int received = Wire.requestFrom(module, length);
   if (received == length) {
-    uint8_t* buffer = (uint8_t*)status;
     for (int idx = 0; idx < length; idx++) {
       buffer[idx] = Wire.read();
     }
-    // DUMP(status, length);
+    // DUMP(buffer, length);
     return true;
   }
   else {
@@ -42,6 +37,10 @@ bool PeriphericalClient::requestStatus(uint8_t module, BaseStatus* status, uint8
     }
     return false;
   }
+}
+
+bool PeriphericalClient::requestStatus(uint8_t module, StatusType type, BaseStatus* status, uint8_t length) {
+	return requestStatus(module, type, (uint8_t*) status, length);
 }
 
 /* ========================================================================= */
@@ -88,8 +87,7 @@ void PeriphericalService::loop() {
 
 bool PeriphericalService::sendStatus(BaseStatus* status, uint8_t length) {
   // DUMP(status, length);
-  /* size_t size = */ Wire.write((uint8_t*)status, length);
-  // LOG("send status : length=%d, size=%d", length, size);
+  Wire.write((uint8_t*)status, length);
   return true;
 }
 

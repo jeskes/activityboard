@@ -1,0 +1,19 @@
+{
+	"bitmaps": {
+		"STARTUP": "startup.raw"
+	},
+	"messages": {
+		"WELCOME": "Willkommen bei Lingo Bingo",
+		"GUESS": "Dein Tipp : {{guess}}",
+		"JINGLE": "Aktueller Jingle : {{jingle}}",
+		"STARTED": "ich würfle, bitte warten",
+		"NUMBER": "Gewürfelt : {{number}}",
+		"MATCH": "Du hast richtig getippt",
+		"SORRY": "Deine {{guess}} ist leider falsch"
+	},
+	"parameters": [
+		"number",
+		"guess",
+		"jingle"
+	]
+}

@@ -1,21 +1,12 @@
 #include "selectioncontroller.h"
 
-SelectionController::SelectionController(Storage& storage, ActivityCoreClient& core, InputController& input)
-    : storage(storage),
+SelectionController::SelectionController(Definition& definition, ActivityCoreClient& core, InputController& input)
+    : definition(definition),
       core(core),
       input(input) {
 }
 
 void SelectionController::setup() {
-  loadStories();
-}
-
-uint8_t SelectionController::getStoriesCount() {
-  return storiesCount;
-}
-
-StoryId SelectionController::getStory(uint8_t index) {
-  return stories[index];
 }
 
 void SelectionController::run() {
@@ -31,7 +22,7 @@ bool SelectionController::isBusy() {
 StoryId SelectionController::loop() {
   if (millis() > currentTimeout) {
     currentIndex++;
-    if (currentIndex >= storiesCount) {
+    if (currentIndex >= definition.storiesCount) {
       currentIndex = -1;
       return nullptr;
     }
@@ -44,7 +35,7 @@ StoryId SelectionController::loop() {
     LOG("story %d selected", currentIndex + 1);
     return onStorySelected(currentIndex);
   }
-  else if (in >= Input::NUM_1 && (int)in <= storiesCount) {
+  else if (in >= Input::NUM_1 && (int)in <= definition.storiesCount) {
     LOG("story %d selected", in);
     return onStorySelected((int)in - 1);
   }
@@ -54,7 +45,7 @@ StoryId SelectionController::loop() {
   }
   else if (in == Input::NEXT) {
     LOG("next selection");
-    currentIndex = (currentIndex + 1) % storiesCount;
+    currentIndex = (currentIndex + 1) % definition.storiesCount;
     initCurrentSelection();
   }
   else if (in == Input::CANCEL) {
@@ -66,34 +57,15 @@ StoryId SelectionController::loop() {
   return nullptr;
 }
 
-void SelectionController::loadStories() {
-  if (!storage.loadJson("/stories.json", storiesDocument)) {
-    LOG("cannot load stories");
-    return;
-  }
-
-  storiesCount = 0;
-  JsonObject entries = storiesDocument.as<JsonObject>();
-  for (JsonPair entry : entries) {
-    if (storiesCount < MAX_STORIES) {
-      stories[storiesCount] = entry.key().c_str();
-      storiesCount++;
-    }
-    else {
-      break;
-    }
-  }
-}
-
 void SelectionController::initCurrentSelection() {
   currentTimeout = millis() + SELECTION_TIMEOUT;
-  JsonObject storyDef = storiesDocument[stories[currentIndex]].as<JsonObject>();
-  core.playSound(storyDef["track"].as<TrackId>());
-  core.displayBitmap(storyDef["bitmap"].as<BitmapId>());
+  JsonObject storyInfo = definition.getStoryInfo(currentIndex);
+  core.playSound(storyInfo["track"].as<TrackId>());
+  core.displayBitmap(storyInfo["bitmap"].as<BitmapId>());
 }
 
 StoryId SelectionController::onStorySelected(int index) {
   core.stopSound();
   currentIndex = -1;
-  return stories[index];
+  return definition.getStoryId(index);
 }

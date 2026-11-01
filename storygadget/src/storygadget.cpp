@@ -2,8 +2,9 @@
 
 StoryGadget::StoryGadget()
     : core(STORYGADGET_ID, scheduler),
-      selection(storage, core, input),
-      story(storage, core, input) {
+      definition(core),
+      selection(definition, core, input),
+      story(definition, core, input) {
 }
 
 void StoryGadget::setup() {
@@ -17,7 +18,7 @@ void StoryGadget::setup() {
   GadgetBase::setup();
 
   core.setup();
-  storage.setup();
+  definition.setup();
   input.setup();
   selection.setup();
   story.setup();
@@ -52,10 +53,10 @@ void StoryGadget::loop() {
       selection.run();
       resetPending = true;
     }
-    else if (in >= Input::NUM_1 && (int)in <= selection.getStoriesCount()) {
+    else if (in >= Input::NUM_1 && (int)in <= definition.storiesCount ) {
       LOG("story %d selected", in);
       resetPending = true;
-      story.run(selection.getStory((int)in - 1));
+      story.run(definition.getStoryId((int)in - 1));
     }
   }
 
