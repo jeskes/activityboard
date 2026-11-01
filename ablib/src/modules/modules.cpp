@@ -123,7 +123,7 @@ static void onRequest() {
 /* ========================================================================= */
 
 void GadgetBase::setup() {
-  delay(1000);
+  delay(GADGET_STARTUP_DELAY);
   activityBoard.setup();
   LOG("gadget setup done.");
 }

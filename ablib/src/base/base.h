@@ -14,6 +14,8 @@
 #define CORE_MODULE_ID 0x10
 #define NUMPAD_MODULE_ID 0x20
 
+#define GADGET_STARTUP_DELAY 2000
+
 #ifdef ARDUINO_ARCH_ESP32
 const int WIRE_SDA = 21;
 const int WIRE_SCL = 22;

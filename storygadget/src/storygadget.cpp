@@ -13,7 +13,7 @@ void StoryGadget::setup() {
   pinMode(MENU_LED, OUTPUT);
 
   const uint8_t blinks[] = {SELECTING_LED, READING_LED, MENU_LED};
-  activityControls.blink(blinks, 3, 5, 150);
+  activityControls.blink(blinks, 3, 5, 200);
 
   GadgetBase::setup();
 
