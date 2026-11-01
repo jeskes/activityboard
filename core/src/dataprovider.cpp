@@ -46,7 +46,7 @@ void DataProvider::readBuffer() {
     else {
       LOG("data read: %d bytes. more data possible", bytesBuffered);
     }
-    // DUMP(buffer, bytesBuffered);
+    DUMP(buffer, bytesBuffered);
   }
 }
 

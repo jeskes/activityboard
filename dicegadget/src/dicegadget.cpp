@@ -26,7 +26,6 @@ void DiceGadget::setup() {
     pinMode(indicators[idx], OUTPUT);
   }
 
-  activityControls.blink(indicators, countIndicators, 2, 200);
   randomSeed(analogRead(NOISE_PIN));
 
   GadgetBase::setup();
@@ -36,6 +35,7 @@ void DiceGadget::setup() {
 
   core.init(STARTUP_BITMAP);
   core.playSound(STARTUP_TRACK);
+  activityControls.blink(indicators, countIndicators, 2, 200);
   core.setStatusHandler(this);
 
   LOG("Dice Gadget started.");
@@ -149,7 +149,7 @@ void DiceGadget::setGuess(int guess, bool updateDisplay) {
   if (currentGuess != guess) {
     LOG("set guess: %d", guess);
     currentGuess = guess;
-    core.putParam(GUESS_PARAMETER, currentGuess);
+    core.putParameter(GUESS_PARAMETER, currentGuess);
     if (updateDisplay) {
       core.displayMessage(GUESS_MESSAGE);
       scheduleDisplayReset();
@@ -161,7 +161,7 @@ void DiceGadget::setJingle(int jingle, bool updateDisplay) {
   if (currentJingle != jingle) {
     currentJingle = jingle;
     LOG("set jingle: %d", currentJingle);
-    core.putParam(JINGLE_PARAMETER, currentJingle);
+    core.putParameter(JINGLE_PARAMETER, currentJingle);
     core.playSound(JINGLE_START + currentJingle);
     if (updateDisplay) {
       core.displayMessage(JINGLE_MESSAGE);
@@ -175,7 +175,7 @@ void DiceGadget::throwDice() {
   startedTime = millis();
   currentNumber = random(1, countIndicators + 1);
   currentLanguage = random(0, LANGUAGES_COUNT);
-  core.putParam(NUMBER_PARAMETER, currentNumber);
+  core.putParameter(NUMBER_PARAMETER, currentNumber);
   core.displayMessage(STARTED_MESSAGE);
   core.playSound(JINGLE_START + currentJingle);
   status = Status::JINGLE_SOUND_PLAYING;

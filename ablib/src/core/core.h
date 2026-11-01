@@ -133,7 +133,7 @@ class CoreStatusHandler {
 
 class DataStream : public Stream {
  public:
-  DataStream();
+  DataStream(ClientId client);
   bool eof = false;
   int read() override;
   int available() override;
@@ -143,6 +143,7 @@ class DataStream : public Stream {
 
   int bufferIndex;
   uint8_t buffer[REQUEST_BUFFER_SIZE];
+  ClientId client;
 };
 
 class ActivityCoreClient : public PeriphericalClient {

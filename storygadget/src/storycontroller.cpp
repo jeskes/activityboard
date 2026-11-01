@@ -83,10 +83,24 @@ void StoryController::startChapter(ChapterId chapter) {
   currentChapter = chapter;
   JsonObject chapterDef = storyDefinition["chapters"][currentChapter].as<JsonObject>();
 
+  if( chapterDef.isNull() ) {
+	LOG("chapter definition not found");
+	return;
+  }
+
   BitmapId bitmap = chapterDef["bitmap"].as<BitmapId>();
+  if( !bitmap) {
+	LOG("chapter bitmap not found");
+	return;
+  }
+
   core.displayBitmap(bitmap);
 
   TrackId track = chapterDef["track"].as<TrackId>();
+  if( !track) {
+	LOG("chapter track not found");
+  }
+
   core.playSound(tracks, track);
   playerMonitor = PlayerMonitor::PENDING;
 

@@ -35,7 +35,7 @@ void CoreService::loop() {
 /* ========================================================================= */
 
 void CoreService::processRequest(BaseRequest* request) {
-  LOG("request arrived: client=%d, type=0x%X", request->client, request->type);
+  // LOG("request arrived: client=%d, type=0x%X", request->client, request->type);
   switch (request->type) {
     case RequestType::STATUS:
       handleRequest((StatusRequest*)request);
@@ -72,7 +72,7 @@ void CoreService::processRequest(BaseRequest* request) {
   }
 }
 void CoreService::handleRequest(StatusRequest* request) {
-  LOG("requested status: %d", request->type);
+  // LOG("requested status: %d", request->type);
   switch (request->type) {
     case StatusType::CORE_STATUS: {
       CoreStatus status;

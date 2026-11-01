@@ -13,6 +13,7 @@
 #define STATUS_HANDLER_BLOCK 1000
 
 static void pollStatus();
+static ClientId pollingClient;
 static CoreStatusHandler* statusHandler = nullptr;
 static Task statusPollingTask(POLLING_TIMEOUT, TASK_FOREVER, &pollStatus);
 
@@ -25,6 +26,7 @@ static unsigned long statusHandlerBlock = 0;
 
 ActivityCoreClient::ActivityCoreClient(ClientId client, Scheduler& scheduler)
     : PeriphericalClient(client, scheduler) {
+  pollingClient = client;
   scheduler.addTask(statusPollingTask);
 }
 
@@ -120,10 +122,11 @@ DataStream ActivityCoreClient::readData(DataId id) {
   LOG("send read data request : id=%s.", id);
   ReadDataRequest request(client, id);
   sendRequest(CORE_MODULE_ID, &request, sizeof(ReadDataRequest));
-  return DataStream();
+  return DataStream(client);
 }
 
-DataStream::DataStream() {
+DataStream::DataStream(ClientId client)
+    : client(client) {
   bufferIndex = REQUEST_BUFFER_SIZE;
   memset(buffer, 0, REQUEST_BUFFER_SIZE);
 }
@@ -134,11 +137,9 @@ int DataStream::read() {
   }
 
   if (bufferIndex >= REQUEST_BUFFER_SIZE) {
-    // LOG("request data from core");
     memset(buffer, 0, REQUEST_BUFFER_SIZE);
-    bool success = PeriphericalClient::requestStatus(CORE_MODULE_ID, StatusType::CORE_DATA, buffer, REQUEST_BUFFER_SIZE);
-    // LOG("data received: success=%d", success);
-    // DUMP(buffer, REQUEST_BUFFER_SIZE);
+    PeriphericalClient::requestStatus(CORE_MODULE_ID, client, StatusType::CORE_DATA, buffer, REQUEST_BUFFER_SIZE, REQUEST_DATA_RECEIVE_DELAY);
+    DUMP(buffer, REQUEST_BUFFER_SIZE);
     bufferIndex = 0;
   }
 
@@ -149,6 +150,7 @@ int DataStream::read() {
     eof = true;
     return -1;
   }
+
   return c;
 }
 
@@ -157,6 +159,7 @@ int DataStream::available() {
 }
 
 int DataStream::peek() {
+  LOG("peek");
   return -1;
 }
 
@@ -201,7 +204,7 @@ bool ActivityCoreClient::isStatusPaused() {
 static void pollStatus() {
   if (statusHandler) {
     CoreStatus status;
-    PeriphericalClient::requestStatus(CORE_MODULE_ID, StatusType::CORE_STATUS, &status, sizeof(CoreStatus));
+    PeriphericalClient::requestStatus(CORE_MODULE_ID, pollingClient, StatusType::CORE_STATUS, &status, sizeof(CoreStatus));
     if (!statusHandlerBlock || (millis() > statusHandlerBlock)) {
       // LOG("player=%d", status.playerState);
       bool cancelHandler = statusHandler->handleCoreStatus(status);

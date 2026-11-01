@@ -61,19 +61,17 @@ JsonDocument& Definition::getStoryDefinition(StoryId story) {
 }
 
 void Definition::loadStory(JsonDocument& doc, DataId data) {
+  LOG("loading story definition: %s", data);
   core.displayMessage(LOADING_STORY);
   DataStream stream = core.readData(data);
   DeserializationError error = deserializeJson(doc, stream);
   if (error) {
-    LOG("cannot load story definition: data=%s, error=%s", data, error.c_str());
+    LOG("cannot load story definition: error=%s", error.c_str());
   }
   else {
-    /*
+    LOG("story definition loaded");
     Serial.println();
     serializeJsonPretty(doc, Serial);
     Serial.println();
-    */
-    ChapterId start = doc["start"].as<ChapterId>();
-    LOG("start: %s", start ? start : "not found");
   }
 }

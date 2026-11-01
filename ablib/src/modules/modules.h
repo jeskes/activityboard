@@ -58,8 +58,8 @@ struct __attribute__((packed)) BaseStatus {
 class PeriphericalClient {
  public:
   static bool sendRequest(ModuleId module, BaseRequest* request, uint8_t length);
-  static bool requestStatus(ModuleId module, StatusType type, uint8_t* status, uint8_t length);
-  static bool requestStatus(ModuleId module, StatusType type, BaseStatus* status, uint8_t length);
+  static bool requestStatus(ModuleId module, ClientId client, StatusType type, BaseStatus* status, uint8_t length);
+  static bool requestStatus(ModuleId module, ClientId client, StatusType type, uint8_t* status, uint8_t length, unsigned long receiveDelay = REQUEST_STATUS_RECEIVE_DELAY);
 
  protected:
   PeriphericalClient(ClientId client, Scheduler& scheduler);

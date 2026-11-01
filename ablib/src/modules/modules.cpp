@@ -15,14 +15,16 @@ bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint
   Wire.beginTransmission(module);
   Wire.write((uint8_t*)request, length);
   Wire.endTransmission();
-  delay(50);
+  delay(REQUEST_SEND_DELAY);
 
   return true;
 }
 
-bool PeriphericalClient::requestStatus(uint8_t module, StatusType type, uint8_t* buffer, uint8_t length) {
-  StatusRequest request(0, type);
+bool PeriphericalClient::requestStatus(uint8_t module, uint8_t client, StatusType type, uint8_t* buffer, uint8_t length, unsigned long receiveDelay) {
+  // LOG("request status: module=%d, client=%d, type=%d", module, client, type);
+  StatusRequest request(client, type);
   sendRequest(module, &request, sizeof(StatusRequest));
+  delay(receiveDelay);
   int received = Wire.requestFrom(module, length);
   if (received == length) {
     for (int idx = 0; idx < length; idx++) {
@@ -39,8 +41,8 @@ bool PeriphericalClient::requestStatus(uint8_t module, StatusType type, uint8_t*
   }
 }
 
-bool PeriphericalClient::requestStatus(uint8_t module, StatusType type, BaseStatus* status, uint8_t length) {
-	return requestStatus(module, type, (uint8_t*) status, length);
+bool PeriphericalClient::requestStatus(uint8_t module, ClientId client, StatusType type, BaseStatus* status, uint8_t length) {
+  return requestStatus(module, client, type, (uint8_t*)status, length);
 }
 
 /* ========================================================================= */
