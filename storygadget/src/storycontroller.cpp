@@ -19,7 +19,7 @@ bool StoryController::run(StoryId story) {
   tracks = storyDefinition["tracks"].as<TrackFolder>();
   ChapterId start = storyDefinition["start"].as<ChapterId>();
   if (!start) {
-	LOG("no start found--------------");
+    LOG("error: no start found");
     activeStory = nullptr;
     return false;
   }
@@ -35,6 +35,7 @@ void StoryController::loop() {
     playerMonitor = PlayerMonitor::UNDEFINED;
     if (inMenu()) {
       startMenuOption(currentMenuSelection);
+      menuSelectionTimeout = millis() + SELECTION_TIMEOUT;
     }
     else {
       onChapterEnded();
@@ -59,6 +60,11 @@ void StoryController::loop() {
       startMenu(currentMenu);
     }
     else if (in == Input::NEXT) {
+      menuSelectionTimeout = 0;
+      startMenuOption((currentMenuSelection + 1) % currentMenuSize);
+    }
+    else if (menuSelectionTimeout && millis() > menuSelectionTimeout) {
+      menuSelectionTimeout = millis() + SELECTION_TIMEOUT;
       startMenuOption((currentMenuSelection + 1) % currentMenuSize);
     }
   }
@@ -115,7 +121,7 @@ void StoryController::startMenu(MenuId menu) {
   currentMenuSize = currentMenuDef["options"].as<JsonArray>().size();
   currentMenuSelection = 0;
 
-  core.displayMenu(currentMenu, currentMenuSelection);
+  core.displayMenu(currentMenu, -1);
   core.playSound(tracks, currentMenuDef["track"].as<TrackId>());
   playerMonitor = PlayerMonitor::PENDING;
 }
@@ -132,6 +138,7 @@ void StoryController::onMenuOptionSelected(uint8_t index) {
   JsonObject option = currentMenuDef["options"].as<JsonArray>()[index].as<JsonObject>();
   ChapterId nextChapter = option["next"].as<ChapterId>();
   startChapter(nextChapter);
+  menuSelectionTimeout = 0;
 }
 
 bool StoryController::stop() {

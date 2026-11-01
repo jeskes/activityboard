@@ -21,7 +21,7 @@ class SelectionController {
   InputController& input;
 
   int currentIndex = -1;
-  long currentTimeout = 0;
+  unsigned long currentTimeout = 0;
 
   void initCurrentSelection();
   StoryId onStorySelected(int index);

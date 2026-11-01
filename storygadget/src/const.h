@@ -26,7 +26,7 @@ const TrackId STARTUP_TRACK = 1;
 
 const DataId STORIES_DATA = "stories";
 
-const long SELECTION_TIMEOUT = 10000;
+const unsigned long SELECTION_TIMEOUT = 10000;
 
 /* global types */
 
