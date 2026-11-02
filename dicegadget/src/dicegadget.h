@@ -63,4 +63,7 @@ class DiceGadget : GadgetBase, CoreStatusHandler {
 
   void playJingle();
   void playNumber(int number);
+
+  TrackId makeJingleTrackId(int jingle);
+  TrackId makeNumberTrackId(int language, int number);
 };

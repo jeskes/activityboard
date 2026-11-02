@@ -15,5 +15,37 @@
 		"number",
 		"guess",
 		"jingle"
-	]
+	],
+	"tracks": {
+		"startup": "startup.mp3",
+		"success": "success.mp3",
+		"failure": "failure.mp3",
+		"001": "english/1.mp3",
+		"002": "english/2.mp3",
+		"003": "english/3.mp3",
+		"004": "english/4.mp3",
+		"005": "english/5.mp3",
+		"006": "english/6.mp3",
+		"011": "bavarian/1.mp3",
+		"012": "bavarian/2.mp3",
+		"013": "bavarian/3.mp3",
+		"014": "bavarian/4.mp3",
+		"015": "bavarian/5.mp3",
+		"016": "bavarian/6.mp3",
+		"021": "russian/1.mp3",
+		"022": "russian/2.mp3",
+		"023": "russian/3.mp3",
+		"024": "russian/4.mp3",
+		"025": "russian/5.mp3",
+		"026": "russian/6.mp3",
+		"031": "german/1.mp3",
+		"032": "german/2.mp3",
+		"033": "german/3.mp3",
+		"034": "german/4.mp3",
+		"035": "german/5.mp3",
+		"036": "german/6.mp3",
+		"101": "jingles/1.mp3",
+		"102": "jingles/2.mp3",
+		"103": "jingles/3.mp3"
+	}
 }

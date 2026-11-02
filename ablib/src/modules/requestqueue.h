@@ -8,8 +8,9 @@ struct Request {
 
 class RequestQueue {
  public:
-  volatile uint8_t queueHead;
-  volatile uint8_t queueTail;
+  RequestQueue();
+  volatile uint8_t queueHead = 0;
+  volatile uint8_t queueTail = 0;
   volatile Request queue[REQUEST_QUEUE_SIZE];
 
   void push(int length);

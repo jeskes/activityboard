@@ -44,5 +44,8 @@
 	"messages": {
 		"WELCOME": "Willkommen bei Storybook",
 		"LOADING_STORY": "Geschichte wird geladen..."
+	},
+	"tracks": {
+		
 	}
 }

@@ -68,12 +68,8 @@ void ActivityCoreClient::putParameter(ParameterId id, const char* value) {
 /* ========================================================================= */
 
 void ActivityCoreClient::playSound(TrackId track) {
-  playSound(client, track);
-}
-
-void ActivityCoreClient::playSound(TrackFolder folder, TrackId track) {
-  LOG("send play sound request : folder=%d, track=%d.", folder, track);
-  PlaySoundRequest request(client, folder, track);
+  LOG("send play sound request : track=%s", track);
+  PlaySoundRequest request(client, track);
   blockStatusHandler();
   resumeStatus();
   sendRequest(CORE_MODULE_ID, &request, sizeof(PlaySoundRequest));

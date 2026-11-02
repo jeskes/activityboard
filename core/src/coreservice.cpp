@@ -4,7 +4,7 @@
 
 CoreService::CoreService()
     : PeriphericalService(nullptr),
-      player(ledRing),
+      player(storage, ledRing),
       contexts(storage),
       display(storage, ledRing) {
 }
@@ -12,8 +12,6 @@ CoreService::CoreService()
 void CoreService::setup(uint8_t module) {
   PeriphericalService::setup(module);
   // delay(1500); /* wait a while to get power for storage */
-
-  pinMode(PLAYER_BUSY, INPUT_PULLUP);
 
   ledRing.setup();
   storage.setup();
@@ -35,7 +33,7 @@ void CoreService::loop() {
 /* ========================================================================= */
 
 void CoreService::processRequest(BaseRequest* request) {
-  // LOG("request arrived: client=%d, type=0x%X", request->client, request->type);
+  LOG("process request: client=%d, type=0x%X", request->client, request->type);
   switch (request->type) {
     case RequestType::STATUS:
       handleRequest((StatusRequest*)request);
@@ -76,7 +74,7 @@ void CoreService::handleRequest(StatusRequest* request) {
   switch (request->type) {
     case StatusType::CORE_STATUS: {
       CoreStatus status;
-      status.playerState = Player::playerState;
+      status.playerState = AudioPlayer::playerState;
       Wire.slaveWrite((uint8_t*)&status, sizeof(CoreStatus));
     } break;
     case StatusType::CORE_DATA:
@@ -93,6 +91,7 @@ void CoreService::handleRequest(InitCoreRequest* request) {
   LOG("draw startup bitmap: id=%s, path=%s.", request->startupBitmap, def.path);
   auto& dsp = display;
   runner.schedule([&dsp, def]() { dsp.drawBitmap(def, 0, 0); });
+  LOG("scheduled");
 }
 
 void CoreService::handleRequest(ClearDisplayRequest* request) {
@@ -126,7 +125,9 @@ void CoreService::handleRequest(DisplayBitmapRequest* request) {
 }
 
 void CoreService::handleRequest(PlaySoundRequest* request) {
-  player.play(request->folder, request->track);
+  TrackDef def = contexts.get(request->client).getTrackDef(request->trackId);
+  LOG("play track: id=%s, path=%s.", request->trackId, def.path);
+  player.play(def.path);
 }
 
 void CoreService::handleRequest(StopSoundRequest* request) {

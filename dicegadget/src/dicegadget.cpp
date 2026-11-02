@@ -34,9 +34,10 @@ void DiceGadget::setup() {
   numpad.setup();
 
   core.init(STARTUP_BITMAP);
-  core.playSound(STARTUP_TRACK);
+  // core.playSound(STARTUP_TRACK);
   activityControls.blink(indicators, countIndicators, 2, 200);
   core.setStatusHandler(this);
+  core.pauseStatus();
 
   LOG("Dice Gadget started.");
 }
@@ -79,7 +80,7 @@ void DiceGadget::stateMachine() {
       status = Status::NUMBER_INDICATING;
       indicatingTime = millis();
       if (currentGuess) {
-        core.playSound(200 + (currentGuess == currentNumber ? 1 : 2));
+        core.playSound(currentGuess == currentNumber ? SUCCESS_TRACK : FAILURE_TRACK);
         core.displayMessage(currentGuess == currentNumber ? MATCH_MESSAGE : SORRY_MESSAGE);
       }
       break;
@@ -161,7 +162,7 @@ void DiceGadget::setGuess(int guess) {
   if (currentGuess != guess) {
     LOG("set guess: %d", guess);
     currentGuess = guess;
-    playNumber(guess);
+    // playNumber(guess);
     guessIndicatingTime = millis() + INDICATING_TIMEOUT;
     core.putParameter(GUESS_PARAMETER, currentGuess);
     core.displayMessage(GUESS_MESSAGE);
@@ -213,11 +214,11 @@ void DiceGadget::showIndicators() {
 
 void DiceGadget::playNumber(int number) {
   int language = random(0, LANGUAGES_COUNT);
-  core.playSound(10 * language + number);
+  core.playSound(makeNumberTrackId(language, number));
 }
 
 void DiceGadget::playJingle() {
-  core.playSound(JINGLE_START + currentJingle);
+  core.playSound(makeJingleTrackId(currentJingle));
 }
 
 bool DiceGadget::handleCoreStatus(CoreStatus coreStatus) {
@@ -251,4 +252,16 @@ void DiceGadget::scheduleDisplayReset() {
 
 void DiceGadget::cancelDisplayReset() {
   displayResetPending = 0;
+}
+
+TrackId DiceGadget::makeJingleTrackId(int jingle) {
+  static char buffer[10];
+  sprintf(buffer,"%03d", JINGLE_START + jingle);
+  return buffer;
+}
+
+TrackId DiceGadget::makeNumberTrackId(int language, int number) {
+  static char buffer[10];
+  sprintf(buffer,"%03d", 10 * language + number);
+  return buffer;
 }

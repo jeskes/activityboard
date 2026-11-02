@@ -40,21 +40,23 @@ const ClientId DICEGADGET_ID = 11;
 #define INITIAL_JINGLE 0
 
 /* message identifiers */
-const MessageId WELCOME_MESSAGE = "WELCOME";
-const MessageId GUESS_MESSAGE = "GUESS";
-const MessageId JINGLE_MESSAGE = "JINGLE";
-const MessageId STARTED_MESSAGE = "STARTED";
-const MessageId NUMBER_MESSAGE = "NUMBER";
-const MessageId MATCH_MESSAGE = "MATCH";
-const MessageId SORRY_MESSAGE = "SORRY";
+constexpr const MessageId WELCOME_MESSAGE = "WELCOME";
+constexpr const MessageId GUESS_MESSAGE = "GUESS";
+constexpr const MessageId JINGLE_MESSAGE = "JINGLE";
+constexpr const MessageId STARTED_MESSAGE = "STARTED";
+constexpr const MessageId NUMBER_MESSAGE = "NUMBER";
+constexpr const MessageId MATCH_MESSAGE = "MATCH";
+constexpr const MessageId SORRY_MESSAGE = "SORRY";
 
 /* bitmap identifiers */
-const BitmapId STARTUP_BITMAP = "STARTUP";
+constexpr const BitmapId STARTUP_BITMAP = "STARTUP";
 
 /* parameter identifiers */
-const ParameterId NUMBER_PARAMETER = "number";
-const ParameterId GUESS_PARAMETER = "guess";
-const ParameterId JINGLE_PARAMETER = "jingle";
+constexpr const ParameterId NUMBER_PARAMETER = "number";
+constexpr const ParameterId GUESS_PARAMETER = "guess";
+constexpr const ParameterId JINGLE_PARAMETER = "jingle";
 
 /* track identifiers */
-const TrackId STARTUP_TRACK = 103;
+constexpr const TrackId STARTUP_TRACK = "startup";
+constexpr const TrackId SUCCESS_TRACK = "success";
+constexpr const TrackId FAILURE_TRACK = "failure";

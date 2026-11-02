@@ -4,6 +4,11 @@
 static portMUX_TYPE queueMutex = portMUX_INITIALIZER_UNLOCKED;
 #endif
 
+RequestQueue::RequestQueue()
+    : queueHead(0),
+      queueTail(0) {
+}
+
 void RequestQueue::push(int length) {
   uint8_t nextHead = (queueHead + 1) & (REQUEST_QUEUE_SIZE - 1); /* queue size must be 2^n */
   if (nextHead == queueTail) {
@@ -36,6 +41,7 @@ bool RequestQueue::pull(uint8_t* request) {
   if (queueHead == queueTail) {
     return false;
   }
+
 
 #ifdef ARDUINO_ARCH_ESP32
   portENTER_CRITICAL(&queueMutex);

@@ -14,7 +14,7 @@ void setup() {
   coreService.setup(CORE_MODULE_ID);
 
   coreService.display.drawBitmap(STARTUP_BITMAP, 0, 0);
-  coreService.player.play(SYSTEM_CLIENT_ID, STARTUP_TRACK_ID);
+  coreService.player.play(STARTUP_TRACK);
 }
 
 void loop() {

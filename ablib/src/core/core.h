@@ -10,12 +10,10 @@ const ClientId SYSTEM_CLIENT_ID = 10;
 
 using ParameterId = const char*;
 
-using TrackId = uint8_t;
-using TrackFolder = uint8_t;
-
 using MessageId = const char*;
 using BitmapId = const char*;
 using MenuId = const char*;
+using TrackId = const char*;
 using DataId = const char*;
 
 /* ========================================================================= */
@@ -48,7 +46,7 @@ struct __attribute__((packed)) ParameterRequest : public BaseRequest {
     this->append = append;
   }
   char id[PARAM_BUFFER_SIZE];
-  byte append;
+  uint8_t append;
   char value[DISPLAY_PARAM_VALUE_BUFFER_SIZE];
 };
 
@@ -79,13 +77,11 @@ struct __attribute__((packed)) DisplayMenuRequest : public BaseRequest {
 };
 
 struct __attribute__((packed)) PlaySoundRequest : public BaseRequest {
-  PlaySoundRequest(ClientId client, TrackFolder folder, TrackId track)
-      : BaseRequest(client, RequestType::PLAY_SOUND),
-        folder(folder),
-        track(track) {
+  PlaySoundRequest(ClientId client, TrackId id)
+      : BaseRequest(client, RequestType::PLAY_SOUND) {
+    strlcpy(trackId, id, ID_BUFFER_SIZE);
   }
-  TrackFolder folder;
-  TrackId track;
+  char trackId[ID_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) StopSoundRequest : public BaseRequest {
@@ -157,7 +153,6 @@ class ActivityCoreClient : public PeriphericalClient {
   void putParameter(ParameterId id, const char* value);
 
   void playSound(TrackId id);
-  void playSound(TrackFolder folder, TrackId id);
   void stopSound();
 
   void clearDisplay();
