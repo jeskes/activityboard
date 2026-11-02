@@ -136,5 +136,5 @@ void CoreService::handleRequest(StopSoundRequest* request) {
 void CoreService::handleRequest(ReadDataRequest* request) {
   DataDef def = contexts.get(request->client).getDataDef(request->dataId);
   LOG("read data: id=%s, path=%s", request->dataId, def.path);
-  DataProvider::init(storage.open(def.path));
+  storage.sdAccess([&]() { DataProvider::init(storage.open(def.path)); });
 }

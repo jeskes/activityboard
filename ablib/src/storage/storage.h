@@ -6,6 +6,8 @@
 #include <FS.h>
 #include <SD.h>
 
+#include <type_traits>
+
 #define DEFAULT_SD_CLK 18
 #define DEFAULT_SD_MISO 19
 #define DEFAULT_SD_MOSI 23
@@ -25,7 +27,24 @@ class Storage {
   File open(const char* path);
   bool loadJson(const char* path, JsonDocument& json);
 
+  template <typename F>
+  auto sdAccess(F&& func) -> decltype(func()) {
+    if (xSemaphoreTake(sdMutex, portMAX_DELAY) == pdTRUE) {
+      if constexpr (std::is_void_v<decltype(func())>) {
+        func();
+        xSemaphoreGive(sdMutex);
+      }
+      else {
+        auto result = func();
+        xSemaphoreGive(sdMutex);
+        return result;
+      }
+    }
+    return decltype(func())(); /* fallback */
+  }
+
  private:
+  SemaphoreHandle_t sdMutex;
   void list(const char* folder = "/");
 };
 

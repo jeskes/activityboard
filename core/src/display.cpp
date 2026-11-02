@@ -17,12 +17,18 @@ Display::Display(Storage& storage, LedRing& ledRing)
 
 void Display::setup() {
   LOG("setup TFT display...");
+
   spi.begin(TFT_SCK, TFT_MISO, TFT_MOSI, -1);
   tft.begin();
+
   tft.setRotation(1);
+
   setBrightness(brightness, false);
   brightnessEncoder.setup(BRIGHTNESS_CLK, BRIGHTNESS_DT, BRIGHTNESS_SW);
   brightnessEncoder.setHandler([this](long brightness) { this->setBrightness(brightness, false); });
+
+  buffer = (uint16_t*)malloc(DISPLAY_BUFFER_SIZE);
+
   LOG("display initialized.");
 }
 
@@ -94,19 +100,24 @@ void Display::drawBitmap(const char* path, int16_t x, int16_t y, uint16_t width,
     return;
   }
 
-  File file = storage.open(path);
+  File file = storage.sdAccess([&]() { return storage.open(path); });
   if (!file) {
     LOG("bitmap file not found: file=%s", path);
     return;
   }
 
-  LOG("bitmap found - draw %s.", path);
+  int maxRows = DISPLAY_BUFFER_SIZE / (width * 2);
+  int row = 0;
+  do {
+    int rows = min(maxRows, height - row);
+    int chunkSize = rows * width * 2;
+    storage.sdAccess([&]() { file.read((uint8_t*)buffer, chunkSize); });
+    tft.drawRGBBitmap(x, y + row, buffer, width, rows);
+    row += rows;
+    vTaskDelay(pdMS_TO_TICKS(2));
+  } while (row < height);
 
-  uint16_t rowBuffer[width]; /* 2 bytes per pixel (16bit rgb565be) */
-  for (int16_t row = 0; row < height; row++) {
-    file.read((uint8_t*)rowBuffer, width * 2);
-    tft.drawRGBBitmap(x, y + row, rowBuffer, width, 1);
-  }
+  storage.sdAccess([&]() { file.close(); });
 }
 
 void Display::setBrightness(int value, bool updateEncoder) {
@@ -128,6 +139,6 @@ void Display::toggleBrightness() {
     setBrightness(MAXIMUM_BRIGHTNESS, true);
   }
   else {
-    setBrightness(MINIMUM_BRIGHTNESS,true);
+    setBrightness(MINIMUM_BRIGHTNESS, true);
   }
 }
