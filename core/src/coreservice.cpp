@@ -80,8 +80,7 @@ void CoreService::handleRequest(StatusRequest* request) {
       Wire.slaveWrite((uint8_t*)&status, sizeof(CoreStatus));
     } break;
     case StatusType::CORE_DATA:
-      DataProvider::readBuffer();
-      DataProvider::writeBuffer();
+      DataProvider::writeBlock();
       break;
     default:
       LOG("unknow status type: %d", request->type);

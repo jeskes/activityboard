@@ -122,6 +122,7 @@ DataStream ActivityCoreClient::readData(DataId id) {
   LOG("send read data request : id=%s.", id);
   ReadDataRequest request(client, id);
   sendRequest(CORE_MODULE_ID, &request, sizeof(ReadDataRequest));
+  delay(REQUEST_DATA_READ_DELAY);
   return DataStream(client);
 }
 

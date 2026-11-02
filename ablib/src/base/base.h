@@ -40,9 +40,13 @@ const int WIRE_SCL = A5;
 #define DEFAULT_BUZZER_FREQUENCY 150
 #define DEFAULT_BUZZER_TIMEOUT 250
 
-#define REQUEST_SEND_DELAY 50
+// must be 2^n
+#define REQUEST_QUEUE_SIZE 16
+
+#define REQUEST_SEND_DELAY 5
 #define REQUEST_STATUS_RECEIVE_DELAY 5
-#define REQUEST_DATA_RECEIVE_DELAY 25
+#define REQUEST_DATA_READ_DELAY 100
+#define REQUEST_DATA_RECEIVE_DELAY 5
 
 /* ========================================================================= */
 /*                                                     global activity board */
