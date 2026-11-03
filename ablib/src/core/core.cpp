@@ -3,14 +3,12 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#define POLLING_TIMEOUT 500
-
 /* somehow it takes a long time to start sound at DFPlayer on core module */
 #define STATUS_HANDLER_BLOCK 1000
 
 static void pollStatus();
 static CoreStatusHandler* statusHandler = nullptr;
-static Task statusPollingTask(POLLING_TIMEOUT, TASK_FOREVER, &pollStatus);
+static Task statusPollingTask(STATUS_POLLING_TIMEOUT, TASK_FOREVER, &pollStatus);
 
 static void blockStatusHandler();
 static unsigned long statusHandlerBlock = 0;

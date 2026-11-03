@@ -1,6 +1,18 @@
 #include "base.h"
 
+#ifdef ARDUINO_ARCH_ESP32
+#include "driver/i2c.h"
+/*
+#include "hal/i2c_ll.h"
+#include "soc/i2c_struct.h"
+*/
+#endif
+
 ActivityBoard activityBoard;
+
+/* ========================================================================= */
+/*                                                                    master */
+/* ========================================================================= */
 
 void ActivityBoard::setup() {
   Serial.begin(SERIAL_BAUD);
@@ -21,7 +33,12 @@ void ActivityBoard::setup() {
   // Wire.setTimeout(50);
   LOG("Wire initialized for gadget (master).");
 #endif
+  Wire.setClock(100000);
 }
+
+/* ========================================================================= */
+/*                                                                     slave */
+/* ========================================================================= */
 
 void ActivityBoard::setup(uint8_t module) {
   LOG("initialize wire as peripherical service (module=%d).", module);
@@ -32,7 +49,7 @@ void ActivityBoard::setup(uint8_t module) {
 #if defined(ARDUINO_ARCH_ESP32)
   int trials = 40;
   bool success = false;
-  while (trials && !(success = Wire.begin(module, WIRE_SDA, WIRE_SCL, 0))) {
+  while (trials && !(success = Wire.begin(module, WIRE_SDA, WIRE_SCL, 100000))) {
     delay(50);
     trials--;
   }
@@ -42,7 +59,7 @@ void ActivityBoard::setup(uint8_t module) {
   else {
     LOG("Wire initialization failed.");
   }
-  Wire.setTimeout(50);
+  i2c_set_timeout(I2C_NUM_0, 400000);
 #else
   Wire.begin(module);
   Wire.setTimeout(50);

@@ -1,5 +1,7 @@
 #include "modules.h"
 
+#include "requestqueue.h"
+
 /* ========================================================================= */
 /* PERIPHERICAL CLIENT                                                       */
 /* ========================================================================= */
@@ -15,13 +17,17 @@ bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint
 
   /* maybe put send in a task/queue using scheduler... */
 
+  uint8_t buffer[REQUEST_BUFFER_SIZE] = {0};
+  memcpy(buffer, request, length);
+  DUMP(buffer, REQUEST_BUFFER_SIZE);
+
   Wire.beginTransmission(module);
-  Wire.write((uint8_t*)request, length);
+  Wire.write(buffer, REQUEST_BUFFER_SIZE);
   Wire.endTransmission();
 
   // LOG("sent peripherical request: %d bytes", length);
   // TODO --- throttle or request buffer at service side
-  delay(300);
+  delay(50);
 
   return true;
 }
@@ -33,7 +39,7 @@ bool PeriphericalClient::requestStatus(uint8_t module, BaseStatus* status, uint8
     for (int idx = 0; idx < length; idx++) {
       buffer[idx] = Wire.read();
     }
-    DUMP(status, length);
+    // DUMP(status, length);
     return true;
   }
   else {
@@ -53,10 +59,7 @@ static void onReceive(int length);
 
 static void (*statusSender)();
 
-static BaseRequest* currentRequest = nullptr;
-
-static uint8_t requestLength = 0;
-static uint8_t requestBuffer[REQUEST_BUFFER_SIZE];
+RequestQueue requestQueue;
 
 PeriphericalService::PeriphericalService(void (*sender)()) {
   statusSender = sender;
@@ -70,48 +73,21 @@ void PeriphericalService::setup(uint8_t module) {
 }
 
 void PeriphericalService::loop() {
-  if (currentRequest != nullptr) {
-    uint8_t buffer[REQUEST_BUFFER_SIZE];
-#if defined(ARDUINO_ARCH_ESP32)
-    // noInterrupts();
-#endif
-    // DUMP(currentRequest, requestLength);
-    memcpy(buffer, currentRequest, REQUEST_BUFFER_SIZE);
-    requestLength = 0;
-    currentRequest = nullptr;
-#if defined(ARDUINO_ARCH_ESP32)
-    // interrupts();
-#endif
+  static uint8_t buffer[REQUEST_BUFFER_SIZE];
+  if (requestQueue.pull(buffer)) {
     processRequest((BaseRequest*)buffer);
   }
 }
 
 bool PeriphericalService::sendStatus(BaseStatus* status, uint8_t length) {
   size_t size = Wire.write((uint8_t*)status, length);
-  LOG("send status : length=%d, size=%d", length, size);
-  DUMP(status, length);
+  // LOG("send status : length=%d, size=%d", length, size);
+  // DUMP(status, length);
   return true;
 }
 
 static void onReceive(int length) {
-  if (currentRequest) {
-    LOG("no receive");
-    return;
-  }
-
-  if (length > REQUEST_BUFFER_SIZE) {
-    length = REQUEST_BUFFER_SIZE;
-  }
-
-  uint8_t* p = (uint8_t*)&requestBuffer;
-  memset(p, 0, REQUEST_BUFFER_SIZE);
-
-  for (int i = 0; i < length; i++) {
-    *p++ = (uint8_t)Wire.read();
-  }
-  requestLength = length;
-
-  currentRequest = (BaseRequest*)requestBuffer;
+  requestQueue.push(length);
 }
 
 static void onRequest() {

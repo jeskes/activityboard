@@ -114,7 +114,7 @@ struct __attribute__((packed)) CoreStatus : public BaseStatus {
 /* ========================================================================= */
 
 #define STATUS_POLLING_DELAY 200
-#define STATUS_POLLING_TIMEOUT 50
+#define STATUS_POLLING_TIMEOUT 500
 
 class CoreStatusHandler {
  public:
