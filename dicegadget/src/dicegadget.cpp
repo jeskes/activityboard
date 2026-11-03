@@ -37,6 +37,7 @@ void DiceGadget::setup() {
   core.playSound(STARTUP_TRACK);
   activityControls.blink(indicators, countIndicators, 2, 200);
   core.setStatusHandler(this);
+  core.pauseStatus();
 
   LOG("Dice Gadget started.");
 }
@@ -232,7 +233,7 @@ bool DiceGadget::handleCoreStatus(CoreStatus coreStatus) {
         status = Status::NUMBER_SOUND_ENDED;
         return true;
       default:
-        break;
+        return true;
     }
   }
   return false;
