@@ -33,7 +33,7 @@ bool PeriphericalClient::requestStatus(uint8_t module, BaseStatus* status, uint8
     for (int idx = 0; idx < length; idx++) {
       buffer[idx] = Wire.read();
     }
-    // DUMP(status, length);
+    DUMP(status, length);
     return true;
   }
   else {
@@ -87,9 +87,9 @@ void PeriphericalService::loop() {
 }
 
 bool PeriphericalService::sendStatus(BaseStatus* status, uint8_t length) {
-  // DUMP(status, length);
-  /* size_t size = */ Wire.write((uint8_t*)status, length);
-  // LOG("send status : length=%d, size=%d", length, size);
+  size_t size = Wire.write((uint8_t*)status, length);
+  LOG("send status : length=%d, size=%d", length, size);
+  DUMP(status, length);
   return true;
 }
 
