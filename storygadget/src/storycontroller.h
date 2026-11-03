@@ -37,6 +37,8 @@ class StoryController : CoreStatusHandler {
   JsonObject currentMenuDef;
   uint8_t currentMenuSize;
   uint8_t currentMenuSelection;
+  long menuSelectionTimeout;
+
   void startMenu(MenuId menu);
   void startMenuOption(uint8_t index);
   void onMenuOptionSelected(uint8_t index);
