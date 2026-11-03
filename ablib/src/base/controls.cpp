@@ -1,7 +1,4 @@
 #include "base.h"
-#if defined(ARDUINO_ARCH_ESP32)
-#include <ESP32Encoder.h>
-#endif
 
 ActivityControls activityControls;
 

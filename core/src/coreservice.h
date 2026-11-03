@@ -23,7 +23,7 @@ class CoreService : public PeriphericalService {
   TaskRunner runner;
 
   void setup(uint8_t module) override;
-  void loop() override;
+   void loop() override ;
 
   void processRequest(BaseRequest* request) override;
 

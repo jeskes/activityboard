@@ -31,7 +31,7 @@ void CoreService::loop() {
 }
 
 void CoreService::processRequest(BaseRequest* request) {
-  LOG("request arrived: %d", request->type);
+  LOG("process request: 0x%04X", request->type);
   switch (request->type) {
     case RequestType::INIT:
       handleRequest((InitCoreRequest*)request);

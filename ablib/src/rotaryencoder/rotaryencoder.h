@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) && defined(AB_ROTARYENCODER)
 #include <ESP32Encoder.h>
 
 #include <functional>
