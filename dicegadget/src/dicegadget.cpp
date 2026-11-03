@@ -163,7 +163,7 @@ void DiceGadget::setGuess(int guess) {
     currentGuess = guess;
     playNumber(guess);
     guessIndicatingTime = millis() + INDICATING_TIMEOUT;
-    core.putParameter(GUESS_PARAMETER, currentGuess);
+    core.putParam(GUESS_PARAMETER, currentGuess);
     core.displayMessage(GUESS_MESSAGE);
     scheduleDisplayReset();
   }
@@ -174,7 +174,7 @@ void DiceGadget::setJingle(int jingle) {
     currentJingle = jingle;
     LOG("set jingle: %d", currentJingle);
     playJingle();
-    core.putParameter(JINGLE_PARAMETER, currentJingle);
+    core.putParam(JINGLE_PARAMETER, currentJingle);
     core.displayMessage(JINGLE_MESSAGE);
     scheduleDisplayReset();
   }
@@ -185,7 +185,7 @@ void DiceGadget::throwDice() {
   startedTime = millis();
   currentNumber = random(1, countIndicators + 1);
   playJingle();
-  core.putParameter(NUMBER_PARAMETER, currentNumber);
+  core.putParam(NUMBER_PARAMETER, currentNumber);
   core.displayMessage(STARTED_MESSAGE);
   status = Status::JINGLE_SOUND_PLAYING;
   guessIndicatingTime = 0;
