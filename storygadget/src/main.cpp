@@ -5,7 +5,6 @@ StoryGadget storyGadget;
 
 void setup() {
   storyGadget.setup();
-  storyGadget.storage.diagnostics();
 }
 
 void loop() {
