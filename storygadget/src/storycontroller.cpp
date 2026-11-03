@@ -79,26 +79,29 @@ void StoryController::loop() {
 }
 
 void StoryController::startChapter(ChapterId chapter) {
+  if (!chapter) {
+    return;
+  }
   LOG("start chapter : %s", chapter);
   currentChapter = chapter;
   JsonObject chapterDef = storyDefinition["chapters"][currentChapter].as<JsonObject>();
 
-  if( chapterDef.isNull() ) {
-	LOG("chapter definition not found");
-	return;
+  if (chapterDef.isNull()) {
+    LOG("chapter definition not found");
+    return;
   }
 
   BitmapId bitmap = chapterDef["bitmap"].as<BitmapId>();
-  if( !bitmap) {
-	LOG("chapter bitmap not found");
-	return;
+  if (!bitmap) {
+    LOG("chapter bitmap not found");
+    return;
   }
 
   core.displayBitmap(bitmap);
 
   TrackId track = chapterDef["track"].as<TrackId>();
-  if( !track) {
-	LOG("chapter track not found");
+  if (!track) {
+    LOG("chapter track not found");
   }
 
   core.playSound(tracks, track);
@@ -149,6 +152,7 @@ void StoryController::startMenuOption(uint8_t index) {
 }
 
 void StoryController::onMenuOptionSelected(uint8_t index) {
+  LOG("menu option selected: %d", index);
   JsonObject option = currentMenuDef["options"].as<JsonArray>()[index].as<JsonObject>();
   ChapterId nextChapter = option["next"].as<ChapterId>();
   startChapter(nextChapter);

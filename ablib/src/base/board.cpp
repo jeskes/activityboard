@@ -10,7 +10,7 @@ void ActivityBoard::setup() {
   LOG("initialize wire as gadget (master).");
   clearI2CBus();
 #if defined(ARDUINO_ARCH_ESP32)
-  if (!Wire.begin(WIRE_SDA, WIRE_SCL, 100000)) {
+  if (!Wire.begin(WIRE_SDA, WIRE_SCL)) {
     LOG("failed to initialize wire.");
   }
   else {

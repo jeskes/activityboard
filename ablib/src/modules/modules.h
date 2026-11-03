@@ -3,6 +3,7 @@
 #include <Arduino.h>
 
 #include "../base/base.h"
+#include "requestqueue.h"
 
 /* ========================================================================= */
 /*                                                   peripherical api (base) */
@@ -41,11 +42,11 @@ struct __attribute__((packed)) BaseRequest {
 };
 
 struct __attribute__((packed)) StatusRequest : public BaseRequest {
-  StatusRequest(ClientId client, StatusType type)
+  StatusRequest(ClientId client, StatusType statusType)
       : BaseRequest(client, RequestType::STATUS),
-        type(type) {
+        statusType(statusType) {
   }
-  StatusType type;
+  StatusType statusType;
 };
 
 struct __attribute__((packed)) BaseStatus {
@@ -57,9 +58,9 @@ struct __attribute__((packed)) BaseStatus {
 
 class PeriphericalClient {
  public:
-  static bool sendRequest(ModuleId module, BaseRequest* request, uint8_t length);
-  static bool requestStatus(ModuleId module, ClientId client, StatusType type, BaseStatus* status, uint8_t length);
-  static bool requestStatus(ModuleId module, ClientId client, StatusType type, uint8_t* status, uint8_t length, unsigned long receiveDelay = REQUEST_STATUS_RECEIVE_DELAY);
+  static bool sendRequest(ModuleId module, BaseRequest* request, uint8_t length, bool sendStop = true);
+  static bool requestData(ModuleId module, ClientId client, StatusType type, uint8_t* buffer, uint8_t length, unsigned long receiveDelay = REQUEST_STATUS_RECEIVE_DELAY);
+  static bool requestStatus(ModuleId module, ClientId client, StatusType type, BaseStatus* status, uint8_t length, unsigned long receiveDelay = REQUEST_STATUS_RECEIVE_DELAY);
 
  protected:
   PeriphericalClient(ClientId client, Scheduler& scheduler);
@@ -74,7 +75,8 @@ class PeriphericalService {
   virtual void loop();
 
   virtual void processRequest(BaseRequest* request) = 0;
-
+  
+  static RequestQueue requestQueue;
   static bool sendStatus(BaseStatus* status, uint8_t length);
 };
 

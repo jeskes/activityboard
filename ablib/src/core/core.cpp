@@ -121,7 +121,7 @@ void ActivityCoreClient::displayMenu(MenuId id, uint8_t selectedIndex) {
 DataStream ActivityCoreClient::readData(DataId id) {
   LOG("send read data request : id=%s.", id);
   ReadDataRequest request(client, id);
-  sendRequest(CORE_MODULE_ID, &request, sizeof(ReadDataRequest));
+  sendRequest(CORE_MODULE_ID, &request, sizeof(ReadDataRequest), false);
   delay(REQUEST_DATA_READ_DELAY);
   return DataStream(client);
 }
@@ -139,7 +139,7 @@ int DataStream::read() {
 
   if (bufferIndex >= REQUEST_BUFFER_SIZE) {
     memset(buffer, 0, REQUEST_BUFFER_SIZE);
-    PeriphericalClient::requestStatus(CORE_MODULE_ID, client, StatusType::CORE_DATA, buffer, REQUEST_BUFFER_SIZE, REQUEST_DATA_RECEIVE_DELAY);
+    PeriphericalClient::requestData(CORE_MODULE_ID, client, StatusType::CORE_DATA, buffer, REQUEST_BUFFER_SIZE, 20);
     DUMP(buffer, REQUEST_BUFFER_SIZE);
     bufferIndex = 0;
   }

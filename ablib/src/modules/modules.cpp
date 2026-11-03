@@ -10,7 +10,7 @@ PeriphericalClient::PeriphericalClient(ClientId client, Scheduler& scheduler)
     : client(client) {
 }
 
-bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint8_t length) {
+bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint8_t length, bool sendStop) {
   // LOG("send request: module=%d, type=0x%04x, length=%d", module, (uint16_t)request->type, length);
   // DUMP(request, length);
 
@@ -22,8 +22,8 @@ bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint
   return true;
 }
 
-bool PeriphericalClient::requestStatus(uint8_t module, uint8_t client, StatusType type, uint8_t* buffer, uint8_t length, unsigned long receiveDelay) {
-  // LOG("request status: module=%d, client=%d, type=%d", module, client, type);
+bool PeriphericalClient::requestData(uint8_t module, ClientId client, StatusType type, uint8_t* buffer, uint8_t length, unsigned long receiveDelay) {
+  // LOG("request data: module=%d, module, client, type);
   StatusRequest request(client, type);
   sendRequest(module, &request, sizeof(StatusRequest));
   delay(receiveDelay);
@@ -43,8 +43,8 @@ bool PeriphericalClient::requestStatus(uint8_t module, uint8_t client, StatusTyp
   }
 }
 
-bool PeriphericalClient::requestStatus(uint8_t module, ClientId client, StatusType type, BaseStatus* status, uint8_t length) {
-  return requestStatus(module, client, type, (uint8_t*)status, length);
+bool PeriphericalClient::requestStatus(uint8_t module, ClientId client, StatusType type, BaseStatus* status, uint8_t length, unsigned long receiveDelay) {
+  return requestData(module, client, type, (uint8_t*)status, length, receiveDelay);
 }
 
 /* ========================================================================= */
@@ -56,7 +56,7 @@ static void onReceive(int length);
 
 static void (*statusSender)();
 
-static RequestQueue requestQueue;
+RequestQueue PeriphericalService::requestQueue;
 
 PeriphericalService::PeriphericalService(void (*sender)()) {
   statusSender = sender;
@@ -83,7 +83,7 @@ bool PeriphericalService::sendStatus(BaseStatus* status, uint8_t length) {
 }
 
 static void onReceive(int length) {
-  requestQueue.push(length);
+  PeriphericalService::requestQueue.push(length);
 }
 
 static void onRequest() {

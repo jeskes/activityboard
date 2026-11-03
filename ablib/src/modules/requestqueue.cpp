@@ -4,29 +4,43 @@
 static portMUX_TYPE queueMutex = portMUX_INITIALIZER_UNLOCKED;
 #endif
 
+void RequestQueue::setHandler(RequestQueueHandler handler) {
+  this->handler = handler;
+}
+
 void RequestQueue::push(int length) {
+  if (length > REQUEST_BUFFER_SIZE) {
+    length = REQUEST_BUFFER_SIZE;
+  }
+
+  int idx = 0;
+  uint8_t buffer[REQUEST_BUFFER_SIZE];
+  while (idx < length && Wire.available()) {
+    buffer[idx++] = Wire.read();
+  }
+  while (idx < length) {
+    buffer[idx++] = 0;
+  }
+  while (Wire.available()) {
+    Wire.read();
+  }
+
+  if (handler) {
+    if (handler((BaseRequest*)&buffer)) {
+      return;
+    }
+  }
+
   uint8_t nextHead = (queueHead + 1) & (REQUEST_QUEUE_SIZE - 1); /* queue size must be 2^n */
   if (nextHead == queueTail) {
     LOG("request queue is full - skip this request");
     return;
   }
 
-  if (length > REQUEST_BUFFER_SIZE) {
-    length = REQUEST_BUFFER_SIZE;
-  }
-
   volatile Request* entry = &queue[queueHead];
   entry->length = length;
-
-  int idx = 0;
-  while (idx < length && Wire.available()) {
-    entry->data[idx++] = Wire.read();
-  }
-  while (idx < length) {
-    entry->data[idx++] = 0;
-  }
-  while (Wire.available()) {
-    Wire.read();
+  for (int idx = 0; idx < length; idx++) {
+    entry->data[idx] = buffer[idx];
   }
 
   queueHead = nextHead;

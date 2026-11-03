@@ -22,8 +22,10 @@ void DataProvider::writeBlock() {
   if (buffer) {
     unsigned int blockSize = min(bytesRead - bytesWritten, (unsigned int)REQUEST_BUFFER_SIZE);
     if (bytesRead > bytesWritten) {
-      DUMP(buffer + bytesWritten, blockSize);
-      bytesWritten += Wire.slaveWrite(buffer + bytesWritten, blockSize);
+      // DUMP(buffer + bytesWritten, blockSize);
+      size_t written = Wire.slaveWrite(buffer + bytesWritten, blockSize);
+	  LOG("bytes written: %d", written);
+	  bytesWritten += written;
     }
     if (bytesRead <= bytesWritten) {
       close();

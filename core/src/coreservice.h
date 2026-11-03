@@ -28,14 +28,22 @@ class CoreService : public PeriphericalService {
 
   void processRequest(BaseRequest* request) override;
 
-  void handleRequest(StatusRequest* request);
-  void handleRequest(InitCoreRequest* request);
-  void handleRequest(ParameterRequest* request);
-  void handleRequest(PlaySoundRequest* request);
-  void handleRequest(StopSoundRequest* request);
-  void handleRequest(ClearDisplayRequest* request);
-  void handleRequest(DisplayMessageRequest* request);
-  void handleRequest(DisplayMenuRequest* request);
-  void handleRequest(DisplayBitmapRequest* request);
-  void handleRequest(ReadDataRequest* request);
+  void processRequest(StatusRequest* request);
+  void processRequest(InitCoreRequest* request);
+  void processRequest(ParameterRequest* request);
+  void processRequest(PlaySoundRequest* request);
+  void processRequest(StopSoundRequest* request);
+  void processRequest(ClearDisplayRequest* request);
+  void processRequest(DisplayMessageRequest* request);
+  void processRequest(DisplayMenuRequest* request);
+  void processRequest(DisplayBitmapRequest* request);
+  void processRequest(ReadDataRequest* request);
+
+ private:
+  static StatusType requestedStatus;
+  static void publishStatus();
+  static void publishCoreStatus();
+  static void publishDataStream();
+
+  static bool handleRequest( BaseRequest* request);
 };
