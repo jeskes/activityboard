@@ -26,7 +26,6 @@ void DiceGadget::setup() {
     pinMode(indicators[idx], OUTPUT);
   }
 
-  activityControls.blink(indicators, countIndicators, 2, 200);
   randomSeed(analogRead(NOISE_PIN));
 
   GadgetBase::setup();
@@ -36,6 +35,7 @@ void DiceGadget::setup() {
 
   core.init(STARTUP_BITMAP);
   core.playSound(STARTUP_TRACK);
+  activityControls.blink(indicators, countIndicators, 2, 200);
   core.setStatusHandler(this);
 
   LOG("Dice Gadget started.");
@@ -48,6 +48,11 @@ void DiceGadget::loop() {
 }
 
 void DiceGadget::stateMachine() {
+  if (numpad.getChar() == 'D') {
+    reset();
+    core.displayBitmap(STARTUP_BITMAP);
+  }
+
   switch (status) {
     case Status::IDLE:
       checkDisplayReset();
@@ -67,7 +72,7 @@ void DiceGadget::stateMachine() {
       break;
     case Status::JINGLE_SOUND_ENDED:
       status = Status::NUMBER_SOUND_PLAYING;
-      core.playSound(10 * currentLanguage + currentNumber);
+      playNumber(currentNumber);
       core.displayMessage(NUMBER_MESSAGE);
       break;
     case Status::NUMBER_SOUND_ENDED:
@@ -105,15 +110,21 @@ bool DiceGadget::checkNumpad() {
   if (ch) {
     LOG("numpad key: %c", ch);
     int guess = ch - (int)'0';
-    if (guess >= 0 && guess <= 6) {
-      setGuess(guess, false);
+    if (guess > 0 && guess <= 6) {
+      setGuess(guess);
+      return false;
+    }
+    else if (ch == 'A' || ch == '#') {
       return true;
     }
-    else if (ch == '*') {
-      setJingle((currentJingle + 1) % JINGLES_COUNT, true);
+    else if (ch == 'B') {
+      setJingle(currentJingle);
     }
-    else if (ch == '#') {
-      return true;
+    else if (ch == 'C' || ch == 'C') {
+      setJingle((currentJingle + 1) % JINGLES_COUNT);
+    }
+    else if (ch == 'D') {
+      reset();
     }
   }
   return false;
@@ -131,7 +142,8 @@ bool DiceGadget::checkGuessButton() {
   bool pressed = guessButton.pressed();
   if (pressed) {
     LOG("guess button pressed");
-    setGuess((currentGuess + 1) % 7, true);
+    int guess = currentGuess + 1;
+    setGuess(guess > 6 ? 1 : guess);
   }
   return pressed;
 }
@@ -140,33 +152,31 @@ bool DiceGadget::checkJingleButton() {
   bool pressed = jingleButton.pressed();
   if (pressed) {
     LOG("jingle button pressed");
-    setJingle((currentJingle + 1) % JINGLES_COUNT, true);
+    setJingle((currentJingle + 1) % JINGLES_COUNT);
   }
   return pressed;
 }
 
-void DiceGadget::setGuess(int guess, bool updateDisplay) {
+void DiceGadget::setGuess(int guess) {
   if (currentGuess != guess) {
     LOG("set guess: %d", guess);
     currentGuess = guess;
+    playNumber(guess);
+    guessIndicatingTime = millis() + INDICATING_TIMEOUT;
     core.putParam(GUESS_PARAMETER, currentGuess);
-    if (updateDisplay) {
-      core.displayMessage(GUESS_MESSAGE);
-      scheduleDisplayReset();
-    }
+    core.displayMessage(GUESS_MESSAGE);
+    scheduleDisplayReset();
   }
 }
 
-void DiceGadget::setJingle(int jingle, bool updateDisplay) {
+void DiceGadget::setJingle(int jingle) {
   if (currentJingle != jingle) {
     currentJingle = jingle;
     LOG("set jingle: %d", currentJingle);
+    playJingle();
     core.putParam(JINGLE_PARAMETER, currentJingle);
-    core.playSound(JINGLE_START + currentJingle);
-    if (updateDisplay) {
-      core.displayMessage(JINGLE_MESSAGE);
-      scheduleDisplayReset();
-    }
+    core.displayMessage(JINGLE_MESSAGE);
+    scheduleDisplayReset();
   }
 }
 
@@ -174,18 +184,18 @@ void DiceGadget::throwDice() {
   cancelDisplayReset();
   startedTime = millis();
   currentNumber = random(1, countIndicators + 1);
-  currentLanguage = random(0, LANGUAGES_COUNT);
+  playJingle();
   core.putParam(NUMBER_PARAMETER, currentNumber);
   core.displayMessage(STARTED_MESSAGE);
-  core.playSound(JINGLE_START + currentJingle);
   status = Status::JINGLE_SOUND_PLAYING;
+  guessIndicatingTime = 0;
 }
 
 void DiceGadget::reset() {
   currentNumber = 0;
-  currentLanguage = 0;
   startedTime = 0;
   indicatingTime = 0;
+  core.stopSound();
   scheduleDisplayReset();
   status = Status::IDLE;
 }
@@ -195,6 +205,19 @@ void DiceGadget::showIndicators() {
     int level = (idx == currentNumber - 1) ? HIGH : LOW;
     digitalWrite(indicators[idx], level);
   }
+
+  if (currentGuess && guessIndicatingTime && guessIndicatingTime > millis()) {
+    digitalWrite(indicators[currentGuess - 1], HIGH);
+  }
+}
+
+void DiceGadget::playNumber(int number) {
+  int language = random(0, LANGUAGES_COUNT);
+  core.playSound(10 * language + number);
+}
+
+void DiceGadget::playJingle() {
+  core.playSound(JINGLE_START + currentJingle);
 }
 
 bool DiceGadget::handleCoreStatus(CoreStatus coreStatus) {

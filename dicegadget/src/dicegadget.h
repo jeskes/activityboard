@@ -28,8 +28,8 @@ class DiceGadget : GadgetBase, CoreStatusHandler {
   void throwDice();
   void reset();
 
-  void setGuess(int guess, bool updateDisplay);
-  void setJingle(int jingle, bool updateDisplay);
+  void setGuess(int guess);
+  void setJingle(int jingle);
 
   bool checkNumpad();
   bool checkStartButton();
@@ -50,14 +50,17 @@ class DiceGadget : GadgetBase, CoreStatusHandler {
 
   int currentGuess;
   int currentNumber;
-  int currentLanguage;
   int currentJingle;
 
   unsigned long startedTime;
   unsigned long indicatingTime;
   unsigned long displayResetPending;
+  unsigned long guessIndicatingTime;
 
   void checkDisplayReset();
   void scheduleDisplayReset();
   void cancelDisplayReset();
+
+  void playJingle();
+  void playNumber(int number);
 };
