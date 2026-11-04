@@ -1,13 +1,13 @@
 #pragma once
 
 #include <button/button.h>
-#include <core/core.h>
-#include <modules/modules.h>
+#include <modules/gadget.h>
+#include <modules/coreclient.h>
 #include <numpad/numpad.h>
 
 #include "const.h"
 
-class DiceGadget : GadgetBase, CoreStatusHandler {
+class DiceGadget : public GadgetBase, public CoreStatusHandler {
  public:
   DiceGadget();
 

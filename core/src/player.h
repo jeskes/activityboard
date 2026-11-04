@@ -3,8 +3,8 @@
 #include <ESP32Encoder.h>
 
 #include "DFRobotDFPlayerMini.h"
-#include "core/core.h"
-#include "modules/modules.h"
+#include "base/base.h"
+#include "modules/requests.h"
 #include "rotaryencoder/rotaryencoder.h"
 #include "ledring.h"
 

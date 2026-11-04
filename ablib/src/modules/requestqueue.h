@@ -1,13 +1,17 @@
 #pragma once
+
 #include "../base/base.h"
 
 struct BaseRequest;
 
-using RequestQueueHandler = bool (*)(BaseRequest* request);
-
 struct Request {
   size_t length;
   uint8_t data[REQUEST_BUFFER_SIZE];
+};
+
+class RequestHandler {
+ public:
+  virtual bool handleRequest(BaseRequest* request) = 0;
 };
 
 class RequestQueue {
@@ -19,8 +23,8 @@ class RequestQueue {
   void push(int length);
   bool pull(uint8_t* request);
 
-  void setHandler(RequestQueueHandler handler);
+  void setHandler(RequestHandler* handler);
 
-private:
-	RequestQueueHandler handler;
+ private:
+  RequestHandler* handler;
 };

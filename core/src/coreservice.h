@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SPI.h>
-#include <modules/modules.h>
+#include <modules/periphericalservice.h>
 
 #include "clientcontext.h"
 #include "display.h"
@@ -27,15 +27,15 @@ class CoreService : public PeriphericalService {
 
   void processRequest(BaseRequest* request) override;
 
-  void handleRequest(InitCoreRequest* request);
-  void handleRequest(ParameterRequest* request);
-  void handleRequest(PlaySoundRequest* request);
-  void handleRequest(StopSoundRequest* request);
-  void handleRequest(ClearDisplayRequest* request);
-  void handleRequest(DisplayMessageRequest* request);
-  void handleRequest(DisplayMenuRequest* request);
-  void handleRequest(DisplayBitmapRequest* request);
+  void processRequest(InitCoreRequest* request);
+  void processRequest(ParameterRequest* request);
+  void processRequest(PlaySoundRequest* request);
+  void processRequest(StopSoundRequest* request);
+  void processRequest(ClearDisplayRequest* request);
+  void processRequest(DisplayMessageRequest* request);
+  void processRequest(DisplayMenuRequest* request);
+  void processRequest(DisplayBitmapRequest* request);
 
  private:
-  static void publishStatus();
+  bool handleRequest(BaseRequest* request) override;
 };

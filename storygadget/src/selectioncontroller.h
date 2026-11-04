@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ArduinoJson.h>
-#include <core/core.h>
+#include <modules/coreclient.h>
 #include <storage/storage.h>
 
 #include "const.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/core.h>
+#include <base/base.h>
 
 /* client-id of this gadget */
 const ClientId DICEGADGET_ID = 11;

@@ -1,21 +1,56 @@
 #pragma once
 
-#include "../modules/modules.h"
+#include <Arduino.h>
+
+#include "../base/base.h"
 
 /* ========================================================================= */
-/*                                                        core general types */
+/*                                                     general request types */
 /* ========================================================================= */
 
-const ClientId SYSTEM_CLIENT_ID = 10;
+enum class RequestType : uint8_t {
+  UNKNOWN = 0x00,
+  INIT = 0x01,
+  PARAMETER = 0x02,
+  PLAY_SOUND = 0x10,
+  STOP_SOUND = 0x11,
+  CLEAR_DISPLAY = 0x20,
+  DISPLAY_MESSAGE = 0x21,
+  DISPLAY_BITMAP = 0x22,
+  DISPLAY_MENU = 0x23,
+  STATUS = 0xA0
+};
 
-using ParameterId = const char*;
+enum class StatusType : uint8_t {
+  UNKNOWN = 0,
+  CORE_STATUS = 0x01,
+};
 
-using TrackId = uint8_t;
-using TrackFolder = uint8_t;
+struct __attribute__((packed)) BaseRequest {
+  BaseRequest(ClientId client, RequestType t)
+      : client(client),
+        type(t) {
+  }
+  ClientId client;
+  RequestType type;
+};
 
-using MessageId = const char*;
-using BitmapId = const char*;
-using MenuId = const char*;
+struct __attribute__((packed)) StatusRequest : public BaseRequest {
+  StatusRequest(ClientId client, StatusType statusType)
+      : BaseRequest(client, RequestType::STATUS),
+        statusType(statusType) {
+  }
+  StatusType statusType;
+};
+
+struct __attribute__((packed)) BaseStatus {
+  uint8_t serial;
+  StatusType type;
+  BaseStatus(uint8_t serial, StatusType t)
+      : serial(serial),
+        type(t) {
+  }
+};
 
 /* ========================================================================= */
 /*                                                        core request types */
@@ -35,20 +70,16 @@ struct __attribute__((packed)) ClearDisplayRequest : public BaseRequest {
   }
 };
 
-/* 32 - 1 (client) - 2 (request-type) - 10 (id-length) - 1 (append-flag) - 2 terminating 0 */
-
-#define DISPLAY_PARAM_VALUE_BUFFER_SIZE 16
-
 struct __attribute__((packed)) ParameterRequest : public BaseRequest {
   ParameterRequest(ClientId client, ParameterId id, const char* value, bool append)
       : BaseRequest(client, RequestType::PARAMETER) {
-    strlcpy(this->id, id, PARAM_BUFFER_SIZE);
-    strlcpy(this->value, value, DISPLAY_PARAM_VALUE_BUFFER_SIZE);
+    strlcpy(this->id, id, PARAM_NAME_BUFFER_SIZE);
+    strlcpy(this->value, value, PARAM_VALUE_BUFFER_SIZE);
     this->append = append;
   }
-  char id[PARAM_BUFFER_SIZE];
+  char id[PARAM_NAME_BUFFER_SIZE];
   byte append;
-  char value[DISPLAY_PARAM_VALUE_BUFFER_SIZE];
+  char value[PARAM_VALUE_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) DisplayMessageRequest : public BaseRequest {
@@ -69,7 +100,8 @@ struct __attribute__((packed)) DisplayBitmapRequest : public BaseRequest {
 
 struct __attribute__((packed)) DisplayMenuRequest : public BaseRequest {
   DisplayMenuRequest(ClientId client, MenuId id, uint8_t selectedIndex)
-      : BaseRequest(client, RequestType::DISPLAY_MENU), selectedIndex(selectedIndex) {
+      : BaseRequest(client, RequestType::DISPLAY_MENU),
+        selectedIndex(selectedIndex) {
     strlcpy(menuId, id, ID_BUFFER_SIZE);
   }
   char menuId[ID_BUFFER_SIZE];
@@ -77,10 +109,10 @@ struct __attribute__((packed)) DisplayMenuRequest : public BaseRequest {
 };
 
 struct __attribute__((packed)) PlaySoundRequest : public BaseRequest {
-	PlaySoundRequest(ClientId client, TrackFolder folder, TrackId track)
+  PlaySoundRequest(ClientId client, TrackFolder folder, TrackId track)
       : BaseRequest(client, RequestType::PLAY_SOUND),
-	  folder(folder),
-	  track(track) {
+        folder(folder),
+        track(track) {
   }
   TrackFolder folder;
   TrackId track;
@@ -96,52 +128,15 @@ struct __attribute__((packed)) StopSoundRequest : public BaseRequest {
 /*                                                               core status */
 /* ========================================================================= */
 
-enum class PlayerState : uint16_t {
-  UNKNOWN = 0,
-  IDLE = 1,
-  PLAYING = 2
+enum class PlayerState : uint8_t {
+  UNKNOWN = 0x00,
+  IDLE = 0x01,
+  PLAYING = 0x02
 };
 
 struct __attribute__((packed)) CoreStatus : public BaseStatus {
-  CoreStatus()
-      : BaseStatus(StatusType::CORE_STATUS) {
+  CoreStatus(uint8_t serial=0)
+      : BaseStatus(serial, StatusType::CORE_STATUS) {
   }
   PlayerState playerState;
-};
-
-/* ========================================================================= */
-/*                                                           core client api */
-/* ========================================================================= */
-
-#define STATUS_POLLING_DELAY 200
-#define STATUS_POLLING_TIMEOUT 500
-
-class CoreStatusHandler {
- public:
-  virtual bool handleCoreStatus(CoreStatus status) = 0;
-};
-
-class ActivityCoreClient : public PeriphericalClient {
- public:
-  ActivityCoreClient(ClientId clientId, Scheduler& scheduler);
-
-  void setup();
-  void init(BitmapId startupBitmap);
- 
-  void putParam(const char* name, uint16_t value);
-  void putParam(const char* name, const char* value);
-
-  void playSound(TrackId track);
-  void playSound(TrackFolder folder, TrackId track);
-  void stopSound();
-  
-  void clearDisplay();
-  void displayMessage(MessageId messageId);
-  void displayBitmap(BitmapId bitmapId);
-  void displayMenu(MenuId menuId, uint8_t selectedIndex);
-
-  void pauseStatus();
-  bool isStatusPaused();
-  void resumeStatus(unsigned long pollingDelay = STATUS_POLLING_DELAY);
-  void setStatusHandler(CoreStatusHandler* handler, unsigned long pollingDelay = STATUS_POLLING_DELAY, unsigned long pollingTimeout = STATUS_POLLING_TIMEOUT);
 };

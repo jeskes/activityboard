@@ -2,8 +2,8 @@
 
 #include <Adafruit_ILI9341.h>
 
+#include "base/base.h"
 #include "clientcontext.h"
-#include "core/core.h"
 #include "ledring.h"
 #include "rotaryencoder/rotaryencoder.h"
 #include "storage/storage.h"

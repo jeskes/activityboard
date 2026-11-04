@@ -1,12 +1,10 @@
 #include "requestqueue.h"
 
-#include "modules.h"
-
 #ifdef ARDUINO_ARCH_ESP32
 static portMUX_TYPE queueMutex = portMUX_INITIALIZER_UNLOCKED;
 #endif
 
-void RequestQueue::setHandler(RequestQueueHandler handler) {
+void RequestQueue::setHandler(RequestHandler* handler) {
   this->handler = handler;
 }
 
@@ -27,10 +25,8 @@ void RequestQueue::push(int length) {
     Wire.read();
   }
 
-  if (handler) {
-    if (handler((BaseRequest*)&buffer)) {
-      return;
-    }
+  if (handler && handler->handleRequest((BaseRequest*)&buffer)) {
+    return;
   }
 
   uint8_t nextHead = (queueHead + 1) & (REQUEST_QUEUE_SIZE - 1); /* queue size must be 2^n */
@@ -45,7 +41,19 @@ void RequestQueue::push(int length) {
     entry->data[idx] = buffer[idx];
   }
 
+#ifdef ARDUINO_ARCH_ESP32
+  portENTER_CRITICAL(&queueMutex);
+#else
+  noInterrupts();  // arduino nano (AVR)
+#endif
+
   queueHead = nextHead;
+
+#ifdef ARDUINO_ARCH_ESP32
+  portEXIT_CRITICAL(&queueMutex);
+#else
+  interrupts();  // arduino nano (AVR)
+#endif
 }
 
 bool RequestQueue::pull(uint8_t* request) {

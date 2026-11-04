@@ -37,7 +37,6 @@ void DiceGadget::setup() {
   core.playSound(STARTUP_TRACK);
   activityControls.blink(indicators, countIndicators, 2, 200);
   core.setStatusHandler(this);
-  core.pauseStatus();
 
   LOG("Dice Gadget started.");
 }

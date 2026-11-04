@@ -24,7 +24,8 @@ const int WIRE_SCL = A5;
 #endif
 
 #define ID_BUFFER_SIZE 26
-#define PARAM_BUFFER_SIZE 10
+#define PARAM_NAME_BUFFER_SIZE 10
+#define PARAM_VALUE_BUFFER_SIZE 16
 #define PRINT_BUFFER_SIZE 128
 #define PRINT_LINE_SIZE 3
 #define PRINT_FILE_SIZE 20
@@ -39,11 +40,26 @@ const int WIRE_SCL = A5;
 #define DEFAULT_BUZZER_FREQUENCY 150
 #define DEFAULT_BUZZER_TIMEOUT 250
 
+
 /* ========================================================================= */
-/*                                                     global activity board */
+/*                                                             general types */
 /* ========================================================================= */
 
 using ModuleId = uint8_t;
+
+using ClientId = uint8_t;
+const ClientId SYSTEM_CLIENT_ID = 10;
+
+using ParameterId = const char*;
+using TrackId = uint8_t;
+using TrackFolder = uint8_t;
+using MessageId = const char*;
+using BitmapId = const char*;
+using MenuId = const char*;
+
+/* ========================================================================= */
+/*                                                     global activity board */
+/* ========================================================================= */
 
 class ActivityBoard {
  public:
