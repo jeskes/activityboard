@@ -6,7 +6,9 @@ PeriphericalClient::PeriphericalClient(ClientId client, Scheduler& scheduler)
 }
 
 bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint8_t length) {
-  DUMP(request, length);
+  if (request->type != RequestType::STATUS) {
+    DUMP(request, length);
+  }
 
   Wire.beginTransmission(module);
   Wire.write((uint8_t*)request, length);
@@ -18,7 +20,6 @@ bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint
 }
 
 bool PeriphericalClient::requestStatus(ModuleId module, ClientId client, StatusType statusType, BaseStatus* status, uint8_t length) {
-  LOG("request status: 0x%02X", statusType);
   StatusRequest request(client, statusType);
   sendRequest(module, &request, sizeof(StatusRequest));
 
