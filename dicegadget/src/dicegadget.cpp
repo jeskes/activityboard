@@ -72,15 +72,15 @@ void DiceGadget::stateMachine() {
       break;
     case Status::JINGLE_SOUND_ENDED:
       status = Status::NUMBER_SOUND_PLAYING;
-      playNumber(currentNumber);
       core.displayMessage(NUMBER_MESSAGE);
+      playNumber(currentNumber);
       break;
     case Status::NUMBER_SOUND_ENDED:
       status = Status::NUMBER_INDICATING;
       indicatingTime = millis();
       if (currentGuess) {
-        core.playSound(200 + (currentGuess == currentNumber ? 1 : 2));
         core.displayMessage(currentGuess == currentNumber ? MATCH_MESSAGE : SORRY_MESSAGE);
+        core.playSound(200 + (currentGuess == currentNumber ? 1 : 2));
       }
       break;
     case Status::NUMBER_INDICATING:
@@ -220,24 +220,6 @@ void DiceGadget::playJingle() {
   core.playSound(JINGLE_START + currentJingle);
 }
 
-bool DiceGadget::handleCoreStatus(CoreStatus coreStatus) {
-  PlayerState playerState = coreStatus.playerState;
-  // LOG("dice-status=%d, player-state=%d", status, playerState);
-  if (/*playerMonitor == PlayerMonitor::PENDING && */ playerState == PlayerState::IDLE) {
-    switch (status) {
-      case Status::JINGLE_SOUND_PLAYING:
-        status = Status::JINGLE_SOUND_ENDED;
-        return true;
-      case Status::NUMBER_SOUND_PLAYING:
-        status = Status::NUMBER_SOUND_ENDED;
-        return true;
-      default:
-        return true;
-    }
-  }
-  return false;
-}
-
 void DiceGadget::checkDisplayReset() {
   if (displayResetPending && (millis() > displayResetPending)) {
     displayResetPending = 0;
@@ -251,4 +233,25 @@ void DiceGadget::scheduleDisplayReset() {
 
 void DiceGadget::cancelDisplayReset() {
   displayResetPending = 0;
+}
+
+bool DiceGadget::handleCoreStatus(CoreStatus coreStatus) {
+  PlayerState playerState = coreStatus.playerState;
+  switch (status) {
+    case Status::JINGLE_SOUND_PLAYING:
+      if (playerState != PlayerState::IDLE) {
+        return false;
+      }
+      status = Status::JINGLE_SOUND_ENDED;
+      break;
+    case Status::NUMBER_SOUND_PLAYING:
+      if (playerState != PlayerState::IDLE) {
+        return false;
+      }
+      status = Status::NUMBER_SOUND_ENDED;
+      break;
+    default:
+      break;
+  }
+  return true;
 }
