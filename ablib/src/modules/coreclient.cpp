@@ -80,6 +80,14 @@ void ActivityCoreClient::displayMenu(MenuId id, uint8_t selectedIndex) {
   sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayMenuRequest), DEFAULT_STATUS_POLLING_DELAY);
 }
 
+DataStream ActivityCoreClient::readData(DataId id) {
+  LOG("send read data request : id=%s.", id);
+  ReadDataRequest request(client, id);
+  sendRequest(CORE_MODULE_ID, &request, sizeof(ReadDataRequest), false);
+  delay(200);
+  return DataStream();
+}
+
 void ActivityCoreClient::snoozeStatus(unsigned long delay) {
   statusPollingTask.disable();
   statusPollingTask.enableDelayed(delay);
@@ -93,6 +101,29 @@ bool ActivityCoreClient::sendRequest(ModuleId module, BaseRequest* request, uint
   snoozeStatus(snoozeStatusDelay);
   return PeriphericalClient::sendRequest(module, request, length);
 }
+
+DataStream::DataStream() {
+  bufferIndex = REQUEST_BUFFER_SIZE;
+}
+
+int DataStream::read() {
+  if (bufferIndex >= REQUEST_BUFFER_SIZE) {
+    memset(buffer, 0, REQUEST_BUFFER_SIZE);
+    PeriphericalClient::requestStatus(CORE_MODULE_ID, client, StatusType::CORE_DATA, (BaseStatus*)buffer, REQUEST_BUFFER_SIZE);
+    bufferIndex = 0;
+  }
+
+  return !buffer[bufferIndex] ? 1 : buffer[bufferIndex++];
+}
+
+void DataStream::close() {
+  while (read() != -1)
+    ;
+}
+
+/* ========================================================================= */
+/*                                                       core status polling */
+/* ========================================================================= */
 
 static void pollStatus() {
   if (statusHandler) {

@@ -2,7 +2,6 @@
 
 #include <map>
 
-#include "clientcontext.h"
 #include "base/base.h"
 #include "storage/storage.h"
 
@@ -19,6 +18,10 @@ struct BitmapDef {
   uint16_t height = DEFAULT_BITMAP_HEIGHT;
 };
 
+struct DataDef {
+  char path[PATH_BUFFER_SIZE];
+};
+
 class ClientContext {
  public:
   void clearParams();
@@ -29,15 +32,16 @@ class ClientContext {
   String formatMessage(MessageId id);
   MenuDef getMenuDef(MenuId id);
   BitmapDef getBitmapDef(BitmapId id);
+  DataDef getDataDef(DataId id);
 
   String utf8ToExtendedAscii(const String& utf8);
 
  private:
+  void init(Storage& storage, ClientId client);
+
   ClientId client;
+  JsonDocument config;
   std::map<String, String> params;
-  JsonDocument messages;
-  JsonDocument menus;
-  JsonDocument bitmaps;
 
   friend class ClientContexts;
 };
@@ -50,5 +54,4 @@ class ClientContexts {
  private:
   Storage& storage;
   std::map<ClientId, ClientContext> contexts;
-  void init(ClientId client, ClientContext& context);
 };

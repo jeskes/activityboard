@@ -18,12 +18,14 @@ enum class RequestType : uint8_t {
   DISPLAY_MESSAGE = 0x21,
   DISPLAY_BITMAP = 0x22,
   DISPLAY_MENU = 0x23,
+  READ_DATA = 0x24,
   STATUS = 0xA0
 };
 
 enum class StatusType : uint8_t {
   UNKNOWN = 0,
   CORE_STATUS = 0x01,
+  CORE_DATA = 0x02
 };
 
 struct __attribute__((packed)) BaseRequest {
@@ -122,6 +124,14 @@ struct __attribute__((packed)) StopSoundRequest : public BaseRequest {
   StopSoundRequest(ClientId client)
       : BaseRequest(client, RequestType::STOP_SOUND) {
   }
+};
+
+struct __attribute__((packed)) ReadDataRequest : public BaseRequest {
+  ReadDataRequest(ClientId client, DataId id)
+      : BaseRequest(client, RequestType::READ_DATA) {
+    strlcpy(dataId, id, ID_BUFFER_SIZE);
+  }
+  char dataId[ID_BUFFER_SIZE];
 };
 
 /* ========================================================================= */

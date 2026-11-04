@@ -13,5 +13,5 @@ class PeriphericalService : public RequestHandler {
 
   virtual void processRequest(BaseRequest* request) = 0;
 
-  static bool sendStatus(BaseStatus* status, uint8_t length);
+  static bool writeStatus(BaseStatus* status, uint8_t length);
 };

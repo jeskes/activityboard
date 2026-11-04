@@ -5,10 +5,10 @@
 
 #include "clientcontext.h"
 #include "display.h"
+#include "ledring.h"
 #include "player.h"
 #include "storage/storage.h"
 #include "taskrunner.h"
-#include "ledring.h"
 
 class CoreService : public PeriphericalService {
  public:
@@ -23,10 +23,10 @@ class CoreService : public PeriphericalService {
   TaskRunner runner;
 
   void setup(uint8_t module) override;
-   void loop() override ;
+  void loop() override;
 
+  /* queued request processing */
   void processRequest(BaseRequest* request) override;
-
   void processRequest(InitCoreRequest* request);
   void processRequest(ParameterRequest* request);
   void processRequest(PlaySoundRequest* request);
@@ -36,6 +36,10 @@ class CoreService : public PeriphericalService {
   void processRequest(DisplayMenuRequest* request);
   void processRequest(DisplayBitmapRequest* request);
 
- private:
+  /* direct request handling */
   bool handleRequest(BaseRequest* request) override;
+  bool handleRequest(StatusRequest* request);
+  bool handleRequest(ReadDataRequest* request);
+
+  bool writeCoreStatus();
 };

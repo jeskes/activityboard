@@ -7,6 +7,18 @@ class CoreStatusHandler {
   virtual bool handleCoreStatus(CoreStatus status) = 0;
 };
 
+class DataStream {
+ public:
+  DataStream();
+
+  int read();
+  void close();
+
+ private:
+  int bufferIndex;
+  uint8_t buffer[REQUEST_BUFFER_SIZE];
+};
+
 class ActivityCoreClient : public PeriphericalClient {
  public:
   ActivityCoreClient(ClientId clientId, Scheduler& scheduler);
@@ -25,6 +37,8 @@ class ActivityCoreClient : public PeriphericalClient {
   void displayMessage(MessageId messageId);
   void displayBitmap(BitmapId bitmapId);
   void displayMenu(MenuId menuId, uint8_t selectedIndex);
+
+  DataStream readData(DataId id);
 
   void snoozeStatus(unsigned long delay);
   void setStatusHandler(CoreStatusHandler* handler);

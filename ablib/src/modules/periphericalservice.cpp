@@ -20,7 +20,7 @@ void PeriphericalService::loop() {
   }
 }
 
-bool PeriphericalService::sendStatus(BaseStatus* status, uint8_t length) {
+bool PeriphericalService::writeStatus(BaseStatus* status, uint8_t length) {
 #ifdef ARDUINO_ARCH_ESP32
   size_t written = Wire.slaveWrite((uint8_t*)status, length);
 #else

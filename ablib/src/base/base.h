@@ -56,6 +56,7 @@ using TrackFolder = uint8_t;
 using MessageId = const char*;
 using BitmapId = const char*;
 using MenuId = const char*;
+using DataId = const char*;
 
 /* ========================================================================= */
 /*                                                     global activity board */

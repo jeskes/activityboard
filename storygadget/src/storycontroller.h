@@ -2,14 +2,14 @@
 
 #include <modules/coreclient.h>
 #include <numpad/numpad.h>
-#include <storage/storage.h>
 
 #include "const.h"
+#include "definition.h"
 #include "inputcontroller.h"
 
 class StoryController : CoreStatusHandler {
  public:
-  StoryController(Storage& storage, ActivityCoreClient& core, InputController& input);
+  StoryController(Definition& definition, ActivityCoreClient& core, InputController& input);
 
   void setup();
   bool run(StoryId story);
@@ -18,15 +18,14 @@ class StoryController : CoreStatusHandler {
   bool inMenu();
 
  private:
-  Storage& storage;
+  Definition& definition;
   ActivityCoreClient& core;
   InputController& input;
 
-  JsonDocument definition;
-  bool loadDefinition();
+  StoryId activeStory;
+  JsonVariant storyDefinition;
   TrackFolder tracks;
 
-  StoryId activeStory;
   bool stop();
 
   ChapterId currentChapter;

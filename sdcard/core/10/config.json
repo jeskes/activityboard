@@ -1,0 +1,8 @@
+{
+	"bitmaps": {
+		"STARTUP": "startup.raw"
+	},
+	"messages": {
+		"WELCOME": "Willkommen bei Fizz Bizz"
+	}
+}

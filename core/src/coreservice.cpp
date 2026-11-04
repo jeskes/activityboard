@@ -1,6 +1,9 @@
 #include "coreservice.h"
 
 #include "const.h"
+#include "dataprovider.h"
+
+static uint8_t statusSerial = 0;
 
 CoreService::CoreService()
     : player(ledRing),
@@ -106,14 +109,39 @@ void CoreService::processRequest(StopSoundRequest* request) {
   player.stop();
 }
 
-static uint8_t statusSerial = 0;
-
 bool CoreService::handleRequest(BaseRequest* request) {
-  if (request->type == RequestType::STATUS) {
-    CoreStatus status(statusSerial++);
-    status.playerState = Player::playerState;
-    sendStatus(&status, sizeof(CoreStatus));
-    return true;
+  switch (request->type) {
+    case RequestType::STATUS:
+      return handleRequest((StatusRequest*)request);
+    case RequestType::READ_DATA:
+      return handleRequest((ReadDataRequest*)request);
+    default:
+      break;
   }
   return false;
+}
+
+bool CoreService::handleRequest(StatusRequest* request) {
+  switch (request->statusType) {
+    case StatusType::CORE_STATUS:
+      return writeCoreStatus();
+    case StatusType::CORE_DATA:
+      return DataProvider::writeBlock();
+    default:
+      LOG("invalid status requested: 0x%02X", request->statusType);
+      break;
+  }
+  return false;
+}
+
+bool CoreService::handleRequest(ReadDataRequest* request) {
+ DataDef def = contexts.get(request->client).getDataDef(request->dataId);
+  LOG("read data: id=%s, path=%s", request->dataId, def.path);
+  return DataProvider::init(storage.open(def.path));
+}
+
+bool CoreService::writeCoreStatus() {
+  CoreStatus status(statusSerial++);
+  status.playerState = Player::playerState;
+  return writeStatus(&status, sizeof(CoreStatus));
 }
