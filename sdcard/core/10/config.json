@@ -1,8 +1,11 @@
 {
 	"bitmaps": {
-		"STARTUP": "startup.raw"
+		"startup": "startup.raw"
 	},
 	"messages": {
-		"WELCOME": "Willkommen bei Fizz Bizz"
+		"welcome": "Willkommen bei Fizz Bizz"
+	},
+	"tracks": {
+		"startup": "startup.mp3"
 	}
 }

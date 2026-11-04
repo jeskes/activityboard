@@ -4,18 +4,17 @@
 #include "dataprovider.h"
 
 static uint8_t statusSerial = 0;
+static unsigned long nextplayback = 0;
+static bool nextBitmap = false;
 
 CoreService::CoreService()
-    : player(ledRing),
+    : player(storage, ledRing),
       contexts(storage),
       display(storage, ledRing) {
 }
 
 void CoreService::setup(uint8_t module) {
   PeriphericalService::setup(module);
-  // delay(1500); /* wait a while to get power for storage */
-
-  pinMode(PLAYER_BUSY, INPUT_PULLUP);
 
   ledRing.setup();
   storage.setup();
@@ -23,13 +22,23 @@ void CoreService::setup(uint8_t module) {
   runner.setup();
   player.setup();
 
-  LOG("Display Service started.");
+  nextplayback = millis() + 20000;
+
+  LOG("Core Service started");
 }
+
 
 void CoreService::loop() {
   PeriphericalService::loop();
   player.loop();
   display.loop();
+
+  if (millis() > nextplayback) {
+    player.play(STARTUP_TRACK);
+	display.drawBitmap(nextBitmap ? STARTUP_BITMAP : "/10/bitmaps/fallback.raw", 0, 0);
+    nextplayback = millis() + 20000;
+	nextBitmap = !nextBitmap;
+  }
 }
 
 void CoreService::processRequest(BaseRequest* request) {
@@ -102,7 +111,8 @@ void CoreService::processRequest(DisplayBitmapRequest* request) {
 }
 
 void CoreService::processRequest(PlaySoundRequest* request) {
-  player.play(request->folder, request->track);
+  TrackDef def = contexts.get(request->client).getTrackDef(request->trackId);
+  LOG("play track: id=%s, path=%s.", request->trackId, def.path);
 }
 
 void CoreService::processRequest(StopSoundRequest* request) {
@@ -142,6 +152,6 @@ bool CoreService::handleRequest(ReadDataRequest* request) {
 
 bool CoreService::writeCoreStatus() {
   CoreStatus status(statusSerial++);
-  status.playerState = Player::playerState;
+  status.playerState = AudioPlayer::playerState;
   return writeStatus(&status, sizeof(CoreStatus));
 }

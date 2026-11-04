@@ -30,7 +30,6 @@ class ActivityCoreClient : public PeriphericalClient {
   void putParam(const char* name, const char* value);
 
   void playSound(TrackId track);
-  void playSound(TrackFolder folder, TrackId track);
   void stopSound();
 
   void clearDisplay();

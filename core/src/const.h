@@ -24,15 +24,15 @@ const unsigned int DISPLAY_BUFFER_SIZE = 320 * 8 * 2;
 
 /* dfplayer (RX must be protected by 1k resistence) */
 
-#define PLAYER_TX 25
-#define PLAYER_RX 26
-#define PLAYER_BUSY 27
+#define PLAYER_LRC  25
+#define PLAYER_BCLK 26
+#define PLAYER_DIN  27
 
 #define VOLUME_CLK 36
 #define VOLUME_DT 39
 #define VOLUME_SW 32
 
-#define INITIAL_VOLUME 1
+#define INITIAL_VOLUME 10
 #define MINIMUM_VOLUME 0
 #define MAXIMUM_VOLUME 25
 
@@ -52,5 +52,5 @@ const unsigned int DISPLAY_BUFFER_SIZE = 320 * 8 * 2;
 
 /* startup */
 
-#define STARTUP_TRACK_ID 100
-#define STARTUP_BITMAP "/10/bitmaps/startup.raw"
+constexpr const char* STARTUP_TRACK = "/10/tracks/startup.mp3";
+constexpr const char* STARTUP_BITMAP = "/10/bitmaps/startup.raw";

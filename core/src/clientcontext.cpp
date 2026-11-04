@@ -29,7 +29,8 @@ void ClientContext::init(Storage& storage, ClientId client) {
   char path[PATH_BUFFER_SIZE];
   sprintf(path, "/%02d/config.json", client);
 
-  if (!storage.loadJson(path, config)) {
+  bool loaded = storage.sdAccess([&]() { return storage.loadJson(path, config); });
+  if (!loaded) {
     LOG("no config file found: client=%d, path=%s.", client, path);
     return;
   }
@@ -52,6 +53,7 @@ void ClientContext::init(Storage& storage, ClientId client) {
   LOG("messages: client=%d, count=%d", client, config["messages"].is<JsonObject>() ? config["messages"].as<JsonObject>().size() : 0);
   LOG("menus: client=%d, count=%d", client, config["menus"].is<JsonObject>() ? config["menus"].as<JsonObject>().size() : 0);
   LOG("bitmaps: client=%d, count=%d", client, config["bitmaps"].is<JsonObject>() ? config["bitmaps"].as<JsonObject>().size() : 0);
+  LOG("tracks: client=%d, count=%d", client, config["tracks"].is<JsonObject>() ? config["tracks"].as<JsonObject>().size() : 0);
   LOG("data: client=%d, count=%d", client, config["data"].is<JsonObject>() ? config["data"].as<JsonObject>().size() : 0);
 }
 
@@ -137,7 +139,7 @@ BitmapDef ClientContext::getBitmapDef(BitmapId id) {
     }
   }
   else {
-    LOG("bitmap id %s not found.", id);
+    LOG("bitmap id %s not found", id);
     strcpy(def.path, "/10/bitmaps/fallback.raw");
   }
   return def;
@@ -149,8 +151,20 @@ DataDef ClientContext::getDataDef(DataId id) {
     sprintf(def.path, "/%02d/data/%s", client, config["data"][id].as<const char*>());
   }
   else {
-    LOG("data id %s not found.", id);
+    LOG("data id %s not found", id);
     strcpy(def.path, "/10/data/fallback.txt");
+  }
+  return def;
+}
+
+TrackDef ClientContext::getTrackDef(TrackId id) {
+  TrackDef def;
+  if (config["tracks"][id].is<const char*>()) {
+    sprintf(def.path, "/%02d/tracks/%s", client, config["tracks"][id].as<const char*>());
+  }
+  else {
+    LOG("track id %s not found", id);
+    strcpy(def.path, "/10/tracks/startup.mp3");
   }
   return def;
 }

@@ -6,7 +6,7 @@
 #include "clientcontext.h"
 #include "display.h"
 #include "ledring.h"
-#include "player.h"
+#include "audioplayer.h"
 #include "storage/storage.h"
 #include "taskrunner.h"
 
@@ -15,7 +15,7 @@ class CoreService : public PeriphericalService {
   CoreService();
 
   LedRing ledRing;
-  Player player;
+  AudioPlayer player;
   Storage storage;
   Display display;
   ClientContexts contexts;

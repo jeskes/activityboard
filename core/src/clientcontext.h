@@ -22,6 +22,10 @@ struct DataDef {
   char path[PATH_BUFFER_SIZE];
 };
 
+struct TrackDef {
+  char path[PATH_BUFFER_SIZE];
+};
+
 class ClientContext {
  public:
   void clearParams();
@@ -33,6 +37,7 @@ class ClientContext {
   MenuDef getMenuDef(MenuId id);
   BitmapDef getBitmapDef(BitmapId id);
   DataDef getDataDef(DataId id);
+  TrackDef getTrackDef(TrackId id);
 
   String utf8ToExtendedAscii(const String& utf8);
 

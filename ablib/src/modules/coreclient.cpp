@@ -47,12 +47,8 @@ void ActivityCoreClient::putParam(ParameterId id, const char* value) {
 }
 
 void ActivityCoreClient::playSound(TrackId track) {
-  playSound(client, track);
-}
-
-void ActivityCoreClient::playSound(TrackFolder folder, TrackId track) {
-  LOG("send play sound request : folder=%d, track=%d.", folder, track);
-  PlaySoundRequest request(client, folder, track);
+  LOG("send play sound request : track=%s.", track);
+  PlaySoundRequest request(client, track);
   sendRequest(CORE_MODULE_ID, &request, sizeof(PlaySoundRequest), PLAYER_STATUS_POLLING_DELAY);
 }
 
