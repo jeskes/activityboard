@@ -4,10 +4,11 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-static void resetSDCardSPI(uint8_t csPin, uint8_t mosiPin, uint8_t sckPin);
+static void resetSDCardSPI(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t clk);
 
 Storage::Storage()
     : sd(SD) {
+  sdMutex = xSemaphoreCreateMutex();
 }
 
 void Storage::setup(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t cs) {
@@ -29,10 +30,10 @@ void Storage::setup(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t cs) {
   // delay(1000);
   // pinMode(SD_MISO, INPUT_PULLUP);
 
-  resetSDCardSPI(cs, mosi, clk);
+  resetSDCardSPI(cs, mosi, miso, clk);
 
-  SPI.begin(clk, miso, mosi, cs);
-  if (!sd.begin(cs, SPI, 4000000)) {
+  SPI.begin(clk, miso, mosi, -1);
+  if (!sd.begin(cs, SPI)) {
     LOG("SD card not available.");
     return;
   }
@@ -98,21 +99,40 @@ void Storage::list(const char* folder) {
   }
 }
 
-static void resetSDCardSPI(uint8_t cs, uint8_t mosi, uint8_t clk) {
+static void resetSDCardSPI(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t clk) {
+  // 1. Pins komplett als normale GPIOs isolieren
   pinMode(cs, OUTPUT);
   pinMode(mosi, OUTPUT);
   pinMode(clk, OUTPUT);
+  pinMode(miso, INPUT_PULLUP); // Zwingt die hängende MISO-Leitung auf HIGH
 
+  // 2. Zustand einfrieren (Karte abwählen)
   digitalWrite(cs, HIGH);
   digitalWrite(mosi, HIGH);
+  digitalWrite(clk, LOW);
+  delay(10);
 
-  for (int i = 0; i < 80; i++) {
+  // 3. 100 aggressive Taktzyklen senden (Das wirft den SD-Controller aus jedem Freeze)
+  for (int i = 0; i < 100; i++) {
     digitalWrite(clk, HIGH);
-    delayMicroseconds(10);
+    delayMicroseconds(5);
     digitalWrite(clk, LOW);
-    delayMicroseconds(10);
+    delayMicroseconds(5);
   }
 
-  digitalWrite(cs, LOW);
+  // 4. Den Bus kurz komplett "totstellen", damit Restspannungen im SD-Modul abfallen
+  digitalWrite(cs, HIGH);
+  digitalWrite(mosi, LOW);
+  digitalWrite(clk, LOW);
+  pinMode(miso, OUTPUT);
+  digitalWrite(miso, LOW); 
+  delay(50); // 50ms künstlicher "Mini-Stromausfall" auf den Datenleitungen
+
+  // 5. Pins wieder in den korrekten IDLE-Zustand versetzen vor SPI.begin
+  pinMode(miso, INPUT_PULLUP);
+  digitalWrite(cs, HIGH);
+  digitalWrite(mosi, HIGH);
+  delay(20);
 }
+
 #endif

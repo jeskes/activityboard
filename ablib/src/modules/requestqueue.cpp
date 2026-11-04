@@ -75,7 +75,7 @@ bool RequestQueue::pull(uint8_t* request) {
   interrupts();  // arduino nano (AVR)
 #endif
 
-  for (int idx = 0; idx < length; idx++) {
+  for (size_t idx = 0; idx < length; idx++) {
     uint8_t b = queue[queueTail].data[idx];
     request[idx] = b;
   }

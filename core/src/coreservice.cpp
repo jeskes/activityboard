@@ -135,9 +135,9 @@ bool CoreService::handleRequest(StatusRequest* request) {
 }
 
 bool CoreService::handleRequest(ReadDataRequest* request) {
- DataDef def = contexts.get(request->client).getDataDef(request->dataId);
+  DataDef def = contexts.get(request->client).getDataDef(request->dataId);
   LOG("read data: id=%s, path=%s", request->dataId, def.path);
-  return DataProvider::init(storage.open(def.path));
+  return storage.sdAccess([&]() { return DataProvider::init(storage.open(def.path)); });
 }
 
 bool CoreService::writeCoreStatus() {

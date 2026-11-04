@@ -19,6 +19,9 @@
 #define MINIMUM_BRIGHTNESS 0
 #define MAXIMUM_BRIGHTNESS 255
 
+/* chunk for bitmaps : 320 cols, 8 rows, 16 bit (2 byte) color rgb565be */
+const unsigned int DISPLAY_BUFFER_SIZE = 320 * 8 * 2;
+
 /* dfplayer (RX must be protected by 1k resistence) */
 
 #define PLAYER_TX 25

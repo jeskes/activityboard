@@ -30,4 +30,6 @@ class Display {
   ActivityRotaryEncoder brightnessEncoder;
   LedRing& ledRing;
   int brightness;
+
+  uint16_t* buffer;
 };
