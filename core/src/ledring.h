@@ -9,7 +9,7 @@ class LedRing {
   void setup();
 
   void updateVolume(int volume, bool mute);
-  void updateBacklight(int brightness);
+  void updateBrightness(int brightness, bool off);
 
  private:
   Adafruit_NeoPixel rings;

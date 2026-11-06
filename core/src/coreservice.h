@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SPI.h>
+#include <TaskSchedulerDeclarations.h>
 #include <modules/periphericalservice.h>
 
 #include "clientcontext.h"
@@ -9,18 +10,26 @@
 #include "player.h"
 #include "storage/storage.h"
 #include "taskrunner.h"
+#include "rotaryexpansion.h"
+#include "extrasexpansion.h"
+#include "wificontroller.h"
 
 class CoreService : public PeriphericalService {
  public:
   CoreService();
 
+  RotaryExpansion rotary;
+  ExtrasExpansion extras;
+
   LedRing ledRing;
   Player player;
   Storage storage;
   Display display;
+  WifiController wifi;
   ClientContexts contexts;
 
   TaskRunner runner;
+  Scheduler scheduler;
 
   void setup(uint8_t module) override;
   void loop() override;

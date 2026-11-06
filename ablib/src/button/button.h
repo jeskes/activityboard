@@ -4,8 +4,6 @@
 
 #include "../base/base.h"
 
-#define BUTTON_PRESSED_TIMEOUT 100
-
 class ActivityButton {
  public:
   ActivityButton(unsigned long pressedTimeout = BUTTON_PRESSED_TIMEOUT);

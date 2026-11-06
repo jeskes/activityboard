@@ -43,8 +43,8 @@ void LedRing::updateVolume(int volume, bool mute) {
   rings.show();
 }
 
-void LedRing::updateBacklight(int brightness) {
-  int ledsToLight = map(brightness, MINIMUM_BRIGHTNESS, MAXIMUM_BRIGHTNESS, 0, 8);
+void LedRing::updateBrightness(int brightness, bool off) {
+  int ledsToLight = map(off ? 0 : brightness, MINIMUM_BRIGHTNESS, MAXIMUM_BRIGHTNESS, 0, 8);
   LOG("update brightness: brightness=%d, leds=%d", brightness, ledsToLight);
   for (int i = 0; i < (LEDRING_LED_COUNT / LEDRING_RING_COUNT); i++) {
     int ledIndex = i + (LEDRING_LED_COUNT / LEDRING_RING_COUNT);

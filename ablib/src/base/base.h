@@ -40,6 +40,7 @@ const int WIRE_SCL = A5;
 #define DEFAULT_BUZZER_FREQUENCY 150
 #define DEFAULT_BUZZER_TIMEOUT 250
 
+#define BUTTON_PRESSED_TIMEOUT 200
 
 /* ========================================================================= */
 /*                                                             general types */

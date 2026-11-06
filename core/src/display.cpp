@@ -1,18 +1,16 @@
 #include "display.h"
 
-#include <ESP32Encoder.h>
-
 #include "const.h"
 
 static SPIClass spi(HSPI);
-static ESP32Encoder encoder;
 
-Display::Display(Storage& storage, LedRing& ledRing)
+Display::Display(Storage& storage, LedRing& ledRing, RotaryExpansion& rotary)
     : tft(&spi, TFT_DC, TFT_CS, TFT_RST),
       storage(storage),
-      brightnessEncoder(INITIAL_BRIGHTNESS, MINIMUM_BRIGHTNESS, MAXIMUM_BRIGHTNESS, BRIGHTNESS_STEP),
+      brightnessAdapter(INITIAL_BRIGHTNESS, MINIMUM_BRIGHTNESS, MAXIMUM_BRIGHTNESS, BRIGHTNESS_STEP),
       ledRing(ledRing),
       brightness(INITIAL_BRIGHTNESS) {
+  rotary.setAdapterRight(brightnessAdapter);
 }
 
 void Display::setup() {
@@ -23,20 +21,13 @@ void Display::setup() {
 
   tft.setRotation(1);
 
-  setBrightness(brightness, false);
-  brightnessEncoder.setup(BRIGHTNESS_CLK, BRIGHTNESS_DT, BRIGHTNESS_SW);
-  brightnessEncoder.setHandler([this](long brightness) { this->setBrightness(brightness, false); });
+  setBrightness(brightness);
+  brightnessAdapter.onPressed([&]() { toggleOff(); });
+  brightnessAdapter.onValueChanged([&](long brightness) { setBrightness(brightness); });
 
   buffer = (uint16_t*)malloc(DISPLAY_BUFFER_SIZE);
 
   LOG("display initialized.");
-}
-
-void Display::loop() {
-  brightnessEncoder.loop();
-  if (brightnessEncoder.pressed()) {
-    toggleBrightness();
-  }
 }
 
 void Display::clear() {
@@ -114,7 +105,7 @@ void Display::drawBitmap(const char* path, int16_t x, int16_t y, uint16_t width,
 
     // storage.sdAccess([&]() { file.read((uint8_t*)buffer, chunkSize); });
     storage.sdAccess([file, chunkSize, this]() mutable { file.read((uint8_t*)buffer, chunkSize); });
-	
+
     tft.drawRGBBitmap(x, y + row, buffer, width, rows);
     row += rows;
     vTaskDelay(1);
@@ -123,25 +114,17 @@ void Display::drawBitmap(const char* path, int16_t x, int16_t y, uint16_t width,
   storage.sdAccess([&]() { file.close(); });
 }
 
-void Display::setBrightness(int value, bool updateEncoder) {
+void Display::setBrightness(int value) {
+  off = false;
   brightness = max(0, min(value, 255));
   LOG("set brightness: %d", brightness);
   analogWrite(TFT_BL, brightness);
-  ledRing.updateBacklight(brightness);
-  if (updateEncoder) {
-    brightnessEncoder.setValue(value);
-  }
+  ledRing.updateBrightness(brightness, off);
 }
 
-void Display::toggleBrightness() {
-  LOG("toggle brightness");
-  if (brightness >= MAXIMUM_BRIGHTNESS) {
-    setBrightness(MINIMUM_BRIGHTNESS, true);
-  }
-  else if (brightness <= MINIMUM_BRIGHTNESS) {
-    setBrightness(MAXIMUM_BRIGHTNESS, true);
-  }
-  else {
-    setBrightness(MINIMUM_BRIGHTNESS, true);
-  }
+void Display::toggleOff() {
+  off = !off;
+  LOG("toggle off: off=%d", off);
+  analogWrite(TFT_BL, off ? 0 : brightness);
+  ledRing.updateBrightness(brightness, off);
 }

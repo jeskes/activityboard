@@ -6,22 +6,30 @@
 static uint8_t statusSerial = 0;
 
 CoreService::CoreService()
-    : player(ledRing),
+    : player(ledRing, rotary),
       contexts(storage),
-      display(storage, ledRing) {
+      display(storage, ledRing, rotary),
+      wifi(scheduler, extras) {
 }
 
 void CoreService::setup(uint8_t module) {
   PeriphericalService::setup(module);
-  // delay(1500); /* wait a while to get power for storage */
 
-  pinMode(PLAYER_BUSY, INPUT_PULLUP);
+  if (Wire1.begin(WIRE1_SDA, WIRE1_SCL, 400000)) {
+    LOG("Wire1 initialized");
+  }
+  else {
+    LOG("Wire1 initialization failed");
+  }
 
+  rotary.setup();
+  extras.setup();
   ledRing.setup();
   storage.setup();
   display.setup();
   runner.setup();
   player.setup();
+  wifi.setup();
 
   LOG("Display Service started.");
 }
@@ -29,7 +37,9 @@ void CoreService::setup(uint8_t module) {
 void CoreService::loop() {
   PeriphericalService::loop();
   player.loop();
-  display.loop();
+  rotary.loop();
+  extras.loop();
+  scheduler.execute();
 }
 
 void CoreService::processRequest(BaseRequest* request) {

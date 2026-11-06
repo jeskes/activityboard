@@ -10,20 +10,23 @@ static unsigned long volumeEncoderDebounceTime = 0;
 
 PlayerState Player::playerState = PlayerState::UNKNOWN;
 
-Player::Player(LedRing& ledRing)
+Player::Player(LedRing& ledRing, RotaryExpansion& rotary)
     : ledRing(ledRing),
+      volumeAdapter(INITIAL_VOLUME, MINIMUM_VOLUME, MAXIMUM_VOLUME, VOLUMNE_STEP),
       playerSerial(2),
       mute(false),
-      volumeEncoder(INITIAL_VOLUME, MINIMUM_VOLUME, MAXIMUM_VOLUME),
       volume(INITIAL_VOLUME) {
+  rotary.setAdapterLeft(volumeAdapter);
 }
 
 void Player::setup() {
-  LOG("Initialize player: rx=%d, tx=%d, busy=%d, vol-clk=%d, vol-dt=%d, vol-sw=%d...", PLAYER_RX, PLAYER_TX, PLAYER_BUSY, VOLUME_CLK, VOLUME_DT, VOLUME_SW);
+  LOG("Initialize player: rx=%d, tx=%d, busy=%d", PLAYER_RX, PLAYER_TX, PLAYER_BUSY);
   pinMode(PLAYER_BUSY, INPUT_PULLUP);
 
-  volumeEncoder.setup(VOLUME_CLK, VOLUME_DT, VOLUME_SW);
-  volumeEncoder.setHandler([this](long volume) { this->setVolume(volume); });
+  pinMode(PLAYER_BUSY, INPUT_PULLUP);
+
+  volumeAdapter.onPressed([&]() { toggleMute(); });
+  volumeAdapter.onValueChanged([&](long volume) { setVolume(volume); });
 
   delay(100);
 
@@ -43,10 +46,6 @@ void Player::setup() {
 }
 
 void Player::loop() {
-  volumeEncoder.loop();
-  if (volumeEncoder.pressed()) {
-    toggleMute();
-  }
   playerState = checkPlaying() ? PlayerState::PLAYING : PlayerState::IDLE;
 }
 
@@ -71,11 +70,11 @@ void Player::stop() {
   awaitBusy(false);
 }
 
-void Player::setVolume(int volume) {
-  LOG("set volume: vol=%d", volume);
+void Player::setVolume(int value) {
   mute = false;
+  volume = value;
+  LOG("set volume: vol=%d", volume);
   player.volume(volume);
-  this->volume = volume;
   ledRing.updateVolume(volume, mute);
 }
 

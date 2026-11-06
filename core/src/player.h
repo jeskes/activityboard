@@ -1,16 +1,14 @@
 #pragma once
 
-#include <ESP32Encoder.h>
-
 #include "DFRobotDFPlayerMini.h"
 #include "base/base.h"
 #include "modules/requests.h"
-#include "rotaryencoder/rotaryencoder.h"
 #include "ledring.h"
+#include "rotaryexpansion.h"
 
 class Player {
  public:
-  Player(LedRing& ledRing);
+  Player(LedRing& ledRing, RotaryExpansion& rotary);
 
   void setup();
   void loop();
@@ -25,9 +23,9 @@ class Player {
   int volume;
 
   LedRing& ledRing;
+  RotaryAdapter volumeAdapter;
   HardwareSerial playerSerial;
   DFRobotDFPlayerMini player;
-  ActivityRotaryEncoder volumeEncoder;
 
   bool checkPlaying();
   void awaitBusy(bool playing);
