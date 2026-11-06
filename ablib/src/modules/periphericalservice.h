@@ -4,7 +4,7 @@
 
 class BaseStatus;
 
-class PeriphericalService : public RequestHandler {
+class PeriphericalService : public BaseRequestHandler {
  public:
   PeriphericalService();
 

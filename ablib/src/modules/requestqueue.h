@@ -9,7 +9,7 @@ struct Request {
   uint8_t data[REQUEST_BUFFER_SIZE];
 };
 
-class RequestHandler {
+class BaseRequestHandler {
  public:
   virtual bool handleRequest(BaseRequest* request) = 0;
 };
@@ -23,8 +23,8 @@ class RequestQueue {
   void push(int length);
   bool pull(uint8_t* request);
 
-  void setHandler(RequestHandler* handler);
+  void setHandler(BaseRequestHandler* handler);
 
  private:
-  RequestHandler* handler;
+  BaseRequestHandler* handler;
 };

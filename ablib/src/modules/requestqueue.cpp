@@ -4,7 +4,7 @@
 static portMUX_TYPE queueMutex = portMUX_INITIALIZER_UNLOCKED;
 #endif
 
-void RequestQueue::setHandler(RequestHandler* handler) {
+void RequestQueue::setHandler(BaseRequestHandler* handler) {
   this->handler = handler;
 }
 
