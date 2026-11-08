@@ -1,18 +1,16 @@
 #include "coreclient.h"
 
-#define STATUS_POLLING_TIMEOUT 500
-#define DEFAULT_STATUS_POLLING_DELAY 50
-#define PLAYER_STATUS_POLLING_DELAY 1200
+inline constexpr unsigned long STATUS_POLLING_TIMEOUT = 500;
+inline constexpr unsigned long DEFAULT_STATUS_POLLING_DELAY = 50;
+inline constexpr unsigned long PLAYER_STATUS_POLLING_DELAY = 1200;
 
-static ClientId client;
-static void pollStatus();
-static CoreStatusHandler* statusHandler = nullptr;
-static Task statusPollingTask(STATUS_POLLING_TIMEOUT, TASK_FOREVER, &pollStatus);
+ClientId ActivityCoreClient::client = 0;
+CoreStatusHandler* ActivityCoreClient::statusHandler = nullptr;
+Task ActivityCoreClient::statusPollingTask(STATUS_POLLING_TIMEOUT, TASK_FOREVER, &ActivityCoreClient::pollStatus);
 
 ActivityCoreClient::ActivityCoreClient(ClientId client, Scheduler& scheduler)
     : PeriphericalClient(client, scheduler) {
-  ::client = client;
-  statusPollingTask.disable();
+  ActivityCoreClient::client = client;
   scheduler.addTask(statusPollingTask);
 }
 
@@ -85,7 +83,7 @@ DataStream ActivityCoreClient::readData(DataId id) {
   ReadDataRequest request(client, id);
   sendRequest(CORE_MODULE_ID, &request, sizeof(ReadDataRequest), false);
   delay(200);
-  return DataStream();
+  return DataStream(client);
 }
 
 void ActivityCoreClient::snoozeStatus(unsigned long delay) {
@@ -102,7 +100,26 @@ bool ActivityCoreClient::sendRequest(ModuleId module, BaseRequest* request, uint
   return PeriphericalClient::sendRequest(module, request, length);
 }
 
-DataStream::DataStream() {
+void ActivityCoreClient::requestCoreStatus(CoreStatus& status) {
+  requestStatus(CORE_MODULE_ID, StatusType::CORE_STATUS, &status, sizeof(CoreStatus));
+}
+
+void ActivityCoreClient::pollStatus() {
+  if (statusHandler) {
+    CoreStatus status;
+    PeriphericalClient::requestStatus(CORE_MODULE_ID, client, StatusType::CORE_STATUS, &status, sizeof(CoreStatus));
+    bool cancelHandler = statusHandler->handleCoreStatus(status);
+    if (cancelHandler) {
+      statusPollingTask.disable();
+    }
+  }
+  else {
+    statusPollingTask.disable();
+  }
+}
+
+DataStream::DataStream(ClientId client)
+    : client(client) {
   bufferIndex = REQUEST_BUFFER_SIZE;
 }
 
@@ -119,22 +136,4 @@ int DataStream::read() {
 void DataStream::close() {
   while (read() != -1)
     ;
-}
-
-/* ========================================================================= */
-/*                                                       core status polling */
-/* ========================================================================= */
-
-static void pollStatus() {
-  if (statusHandler) {
-    CoreStatus status;
-    PeriphericalClient::requestStatus(CORE_MODULE_ID, ::client, StatusType::CORE_STATUS, &status, sizeof(CoreStatus));
-    bool cancelHandler = statusHandler->handleCoreStatus(status);
-    if (cancelHandler) {
-      statusPollingTask.disable();
-    }
-  }
-  else {
-    statusPollingTask.disable();
-  }
 }

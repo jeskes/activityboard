@@ -6,37 +6,34 @@ void InputController::setup() {
   startButton.setup(START_BUTTON);
   repeatButton.setup(REPEAT_BUTTON);
   nextButton.setup(NEXT_BUTTON);
-  cancelButton.setup(CANCEL_BUTTON);
+  stopButton.setup(STOP_BUTTON);
   numpad.setup();
 }
 
 Input InputController::get() {
   if (startButton.pressed()) {
-    return Input::START;
-  }
-  if (startButton.pressed()) {
-    return Input::START;
+    return StdInput::START;
   }
   if (repeatButton.pressed()) {
-    return Input::REPEAT;
+    return StdInput::REPEAT;
   }
   if (nextButton.pressed()) {
-    return Input::NEXT;
+    return StdInput::NEXT;
   }
-  if (cancelButton.pressed()) {
-    return Input::CANCEL;
+  if (stopButton.pressed()) {
+    return StdInput::STOP;
   }
 
   char ch = numpad.getChar();
   switch (ch) {
     case 'A':
-      return Input::START;
+      return StdInput::START;
     case 'B':
-      return Input::REPEAT;
+      return StdInput::REPEAT;
     case 'C':
-      return Input::NEXT;
+      return StdInput::NEXT;
     case 'D':
-      return Input::CANCEL;
+      return StdInput::STOP;
     default:
       break;
   }
@@ -46,5 +43,5 @@ Input InputController::get() {
     return (Input)num;
   }
 
-  return Input::NONE;
+  return StdInput::NONE;
 }

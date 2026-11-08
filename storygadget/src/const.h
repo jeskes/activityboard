@@ -10,7 +10,7 @@ const ClientId STORYGADGET_ID = 12;
 #define START_BUTTON   26
 #define REPEAT_BUTTON  25
 #define NEXT_BUTTON    33
-#define CANCEL_BUTTON  32
+#define STOP_BUTTON    32
 
 #define SELECTING_LED 13
 #define READING_LED   14

@@ -1,0 +1,9 @@
+{
+  "title": "Lingo Bingo Dashboard",
+  "image": "/11/bitmaps/startup.bmp", 
+  "buttons": [
+    {"id": 1, "label": "Start", "color": "#28a745", "input": 16},
+    {"id": 3, "label": "Next Jingle", "color": "#dc3545", "input": 33},
+    {"id": 4, "label": "Next Guess", "color": "#ffc107", "input": 34}
+  ]
+}

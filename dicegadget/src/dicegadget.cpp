@@ -5,9 +5,7 @@ const uint8_t countIndicators = sizeof(indicators) / sizeof(uint8_t);
 
 DiceGadget::DiceGadget()
     : core(DICEGADGET_ID, scheduler),
-      startButton(),
-      guessButton(),
-      jingleButton(),
+      input(core),
       status(Status::IDLE),
       currentGuess(0),
       currentNumber(0),
@@ -18,9 +16,7 @@ DiceGadget::DiceGadget()
 }
 
 void DiceGadget::setup() {
-  startButton.setup(START_BUTTON);
-  guessButton.setup(GUESS_BUTTON);
-  jingleButton.setup(JINGLE_BUTTON);
+  GadgetBase::setup();
 
   for (int idx = 0; idx < countIndicators; idx++) {
     pinMode(indicators[idx], OUTPUT);
@@ -28,10 +24,8 @@ void DiceGadget::setup() {
 
   randomSeed(analogRead(NOISE_PIN));
 
-  GadgetBase::setup();
-
   core.setup();
-  numpad.setup();
+  input.setup();
 
   core.init(STARTUP_BITMAP);
   core.playSound(STARTUP_TRACK);
@@ -48,7 +42,8 @@ void DiceGadget::loop() {
 }
 
 void DiceGadget::stateMachine() {
-  if (numpad.getChar() == 'D') {
+  Input in = input.get();
+  if (in == StdInput::STOP) {
     reset();
     core.displayBitmap(STARTUP_BITMAP);
   }
@@ -56,13 +51,7 @@ void DiceGadget::stateMachine() {
   switch (status) {
     case Status::IDLE:
       checkDisplayReset();
-      if (checkNumpad() || checkStartButton()) {
-        status = Status::START_REQUESTED;
-      }
-      else {
-        checkGuessButton();
-        checkJingleButton();
-      }
+      handleIdleInput(in);
       break;
     case Status::START_REQUESTED:
       throwDice();
@@ -105,56 +94,30 @@ void DiceGadget::stateMachine() {
   }
 }
 
-bool DiceGadget::checkNumpad() {
-  char ch = numpad.getChar();
-  if (ch) {
-    LOG("numpad key: %c", ch);
-    int guess = ch - (int)'0';
-    if (guess > 0 && guess <= 6) {
-      setGuess(guess);
-      return false;
-    }
-    else if (ch == 'A' || ch == '#') {
-      return true;
-    }
-    else if (ch == 'B') {
-      setJingle(currentJingle);
-    }
-    else if (ch == 'C' || ch == 'C') {
-      setJingle((currentJingle + 1) % JINGLES_COUNT);
-    }
-    else if (ch == 'D') {
-      reset();
-    }
+void DiceGadget::handleIdleInput(Input in) {
+  if (1 <= in && in <= 9) {
+    setGuess(in);
+    return;
   }
-  return false;
-}
-
-bool DiceGadget::checkStartButton() {
-  bool pressed = startButton.pressed();
-  if (pressed) {
+  if (in == StdInput::START) {
     LOG("start button pressed.");
+    status = Status::START_REQUESTED;
+    return;
   }
-  return pressed;
-}
-
-bool DiceGadget::checkGuessButton() {
-  bool pressed = guessButton.pressed();
-  if (pressed) {
+  if (in == DiceInput::JINGLE) {
+    setJingle(currentJingle);
+    return;
+  }
+  if (in == DiceInput::NEXT_JINGLE) {
+    setJingle((currentJingle + 1) % JINGLES_COUNT);
+    return;
+  }
+  if (in == DiceInput::NEXT_GUESS) {
     LOG("guess button pressed");
     int guess = currentGuess + 1;
     setGuess(guess > 6 ? 1 : guess);
+    return;
   }
-  return pressed;
-}
-
-bool DiceGadget::checkJingleButton() {
-  bool pressed = jingleButton.pressed();
-  if (pressed) {
-    LOG("jingle button pressed");
-    setJingle((currentJingle + 1) % JINGLES_COUNT);
-  }
-  return pressed;
 }
 
 void DiceGadget::setGuess(int guess) {
@@ -242,12 +205,14 @@ bool DiceGadget::handleCoreStatus(CoreStatus coreStatus) {
       if (playerState != PlayerState::IDLE) {
         return false;
       }
+	  LOG("jingle sound ended");
       status = Status::JINGLE_SOUND_ENDED;
       break;
     case Status::NUMBER_SOUND_PLAYING:
       if (playerState != PlayerState::IDLE) {
         return false;
       }
+	  LOG("number sound ended");
       status = Status::NUMBER_SOUND_ENDED;
       break;
     default:

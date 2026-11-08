@@ -9,7 +9,7 @@ CoreService::CoreService()
     : player(ledRing, rotary),
       contexts(storage),
       display(storage, ledRing, rotary),
-      wifi(scheduler, extras) {
+      wifi(scheduler, extras, contexts) {
 }
 
 void CoreService::setup(uint8_t module) {
@@ -79,6 +79,7 @@ void CoreService::processRequest(InitCoreRequest* request) {
   LOG("draw startup bitmap: id=%s, path=%s.", request->startupBitmap, def.path);
   auto& dsp = display;
   runner.schedule([&dsp, def]() { dsp.drawBitmap(def, 0, 0); });
+  wifi.configureClient(request->client);
 }
 
 void CoreService::processRequest(ClearDisplayRequest* request) {
@@ -153,5 +154,6 @@ bool CoreService::handleRequest(ReadDataRequest* request) {
 bool CoreService::writeCoreStatus() {
   CoreStatus status(statusSerial++);
   status.playerState = Player::playerState;
+  status.webState = wifi.fetchState();
   return writeStatus(&status, sizeof(CoreStatus));
 }

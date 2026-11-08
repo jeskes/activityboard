@@ -15,32 +15,32 @@
 #define NUMPAD_MODULE_ID 0x20
 
 #ifdef ARDUINO_ARCH_ESP32
-const int WIRE_SDA = 21;
-const int WIRE_SCL = 22;
-const uint8_t LED_BUILTIN = 14;
+inline constexpr int WIRE_SDA = 21;
+inline constexpr int WIRE_SCL = 22;
+inline constexpr uint8_t LED_BUILTIN = 14;
 #else
-const int WIRE_SDA = A4;
-const int WIRE_SCL = A5;
+inline constexpr uint8_t WIRE_SDA = A4;
+inline constexpr uint8_t WIRE_SCL = A5;
 #endif
 
-#define ID_BUFFER_SIZE 26
-#define PARAM_NAME_BUFFER_SIZE 10
-#define PARAM_VALUE_BUFFER_SIZE 16
-#define PRINT_BUFFER_SIZE 128
-#define PRINT_LINE_SIZE 3
-#define PRINT_FILE_SIZE 20
-#define REQUEST_BUFFER_SIZE 32
-#define PATH_BUFFER_SIZE 64
-#define REQUEST_QUEUE_SIZE 16
+inline constexpr uint8_t ID_BUFFER_SIZE = 26;
+inline constexpr uint8_t PARAM_NAME_BUFFER_SIZE = 10;
+inline constexpr uint8_t PARAM_VALUE_BUFFER_SIZE = 16;
+inline constexpr uint8_t PRINT_BUFFER_SIZE = 128;
+inline constexpr uint8_t PRINT_LINE_SIZE = 3;
+inline constexpr uint8_t PRINT_FILE_SIZE = 20;
+inline constexpr uint8_t REQUEST_BUFFER_SIZE = 32;
+inline constexpr uint8_t PATH_BUFFER_SIZE = 64;
+inline constexpr uint8_t REQUEST_QUEUE_SIZE = 16;
 
-#define DEFAULT_BITMAP_WIDTH 320
-#define DEFAULT_BITMAP_HEIGHT 240
+inline constexpr uint16_t DEFAULT_BITMAP_WIDTH = 320;
+inline constexpr uint16_t DEFAULT_BITMAP_HEIGHT = 240;
 
-#define DEFAULT_BUZZER 12
-#define DEFAULT_BUZZER_FREQUENCY 150
-#define DEFAULT_BUZZER_TIMEOUT 250
+inline constexpr uint8_t DEFAULT_BUZZER = 12;
+inline constexpr int DEFAULT_BUZZER_FREQUENCY = 150;
+inline constexpr unsigned long DEFAULT_BUZZER_TIMEOUT = 250;
 
-#define BUTTON_PRESSED_TIMEOUT 200
+constexpr unsigned long BUTTON_PRESSED_TIMEOUT = 200;
 
 /* ========================================================================= */
 /*                                                             general types */
@@ -49,7 +49,7 @@ const int WIRE_SCL = A5;
 using ModuleId = uint8_t;
 
 using ClientId = uint8_t;
-const ClientId SYSTEM_CLIENT_ID = 10;
+inline constexpr ClientId SYSTEM_CLIENT_ID = 10;
 
 using ParameterId = const char*;
 using TrackId = uint8_t;
@@ -58,6 +58,33 @@ using MessageId = const char*;
 using BitmapId = const char*;
 using MenuId = const char*;
 using DataId = const char*;
+
+using Input = uint8_t;
+/* predefined input values */
+
+namespace StdInput {
+inline constexpr Input NONE = 0xff;
+inline constexpr Input NUM_0 = 0x00;
+inline constexpr Input NUM_1 = 0x01;
+inline constexpr Input NUM_2 = 0x02;
+inline constexpr Input NUM_3 = 0x03;
+inline constexpr Input NUM_4 = 0x04;
+inline constexpr Input NUM_5 = 0x05;
+inline constexpr Input NUM_6 = 0x06;
+inline constexpr Input NUM_7 = 0x07;
+inline constexpr Input NUM_8 = 0x08;
+inline constexpr Input NUM_9 = 0x09;
+inline constexpr Input ASTERISK = 0x0A;
+inline constexpr Input HASH = 0x0B;
+inline constexpr Input START = 0x10;
+inline constexpr Input STOP = 0x11;
+inline constexpr Input NEXT = 0x12;
+inline constexpr Input PREV = 0x13;
+inline constexpr Input REPEAT = 0x14;
+inline constexpr Input PAUSE = 0x15;
+inline constexpr Input RESUME = 0x16;
+inline constexpr Input CUSTOM = 0x20; /* start ax 0x20 */
+};  // namespace StdInput
 
 /* ========================================================================= */
 /*                                                     global activity board */

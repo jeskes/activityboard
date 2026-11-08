@@ -9,12 +9,13 @@ class CoreStatusHandler {
 
 class DataStream {
  public:
-  DataStream();
+  DataStream(ClientId client);
 
   int read();
   void close();
 
  private:
+  ClientId client;
   int bufferIndex;
   uint8_t buffer[REQUEST_BUFFER_SIZE];
 };
@@ -42,6 +43,12 @@ class ActivityCoreClient : public PeriphericalClient {
 
   void snoozeStatus(unsigned long delay);
   void setStatusHandler(CoreStatusHandler* handler);
+  void requestCoreStatus(CoreStatus& status);
 
   bool sendRequest(ModuleId module, BaseRequest* request, uint8_t length, unsigned long snoozeStatusDelay);
+
+  static ClientId client;
+  static void pollStatus();
+  static Task statusPollingTask;
+  static CoreStatusHandler* statusHandler;
 };

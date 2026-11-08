@@ -17,8 +17,6 @@ RotaryExpansion::RotaryExpansion()
 }
 
 void RotaryExpansion::setup() {
-  attachInterrupt(digitalPinToInterrupt(ROTARY_EXPANSION_INT), isrRotary, FALLING);
-
   decoder.begin(2);
   decoder.setValue(0, 0);
   decoder.setClicks(0, 0);
@@ -28,14 +26,17 @@ void RotaryExpansion::setup() {
   decoder.setStepsPerClick(1, 1);
   delay(10);
 
+  attachInterrupt(digitalPinToInterrupt(ROTARY_EXPANSION_INT), isrRotary, FALLING);
+
   uint8_t initial = decoder.readInitialState();
   LOG("rotary expansion initialized: decoder connected=%d, state=0x%02X", decoder.isConnected(), initial);
 }
 
 void RotaryExpansion::loop() {
-  if (rotaryInterrupt || digitalRead(ROTARY_EXPANSION_INT) == LOW) {
+  bool intPinLow = digitalRead(ROTARY_EXPANSION_INT) == LOW;
+  if (rotaryInterrupt || intPinLow) {
+    // LOG("rotary interrupt: interrupted=%d, pinlow=%d", rotaryInterrupt, intPinLow);
     rotaryInterrupt = false;
-    LOG("interrupt rotary");
 
     if (decoder.update()) {
       if (adapterLeft) {

@@ -3,7 +3,7 @@
 #include <button/button.h>
 #include <modules/gadget.h>
 #include <modules/coreclient.h>
-#include <numpad/numpad.h>
+#include "inputcontroller.h"
 
 #include "const.h"
 
@@ -17,24 +17,16 @@ class DiceGadget : public GadgetBase, public CoreStatusHandler {
 
  private:
   ActivityCoreClient core;
-  ActivityNumpadClient numpad;
-
-  ActivityButton startButton;
-  ActivityButton guessButton;
-  ActivityButton jingleButton;
+  InputController input;
 
   void stateMachine();
   void showIndicators();
   void throwDice();
   void reset();
 
+  void handleIdleInput(Input in);
   void setGuess(int guess);
   void setJingle(int jingle);
-
-  bool checkNumpad();
-  bool checkStartButton();
-  bool checkGuessButton();
-  bool checkJingleButton();
 
   enum class Status : int {
     IDLE = 0,

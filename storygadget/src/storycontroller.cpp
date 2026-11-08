@@ -44,22 +44,22 @@ void StoryController::loop() {
 
   Input in = input.get();
 
-  if (in == Input::CANCEL) {
-    LOG("cancel pressed");
+  if (in == StdInput::STOP) {
+    LOG("stop pressed");
     stop();
   }
   else if (currentMenu) {
-    if (in >= Input::NUM_1 && (int)in <= currentMenuSize) {
+    if (in >= StdInput::NUM_1 && (int)in <= currentMenuSize) {
       LOG("menu option %d selected at numpad.", in);
       onMenuOptionSelected(((int)in - 1));
     }
-    else if (in == Input::START) {
+    else if (in == StdInput::START) {
       onMenuOptionSelected(currentMenuSelection);
     }
-    else if (in == Input::REPEAT) {
+    else if (in == StdInput::REPEAT) {
       startMenu(currentMenu);
     }
-    else if (in == Input::NEXT) {
+    else if (in == StdInput::NEXT) {
       menuSelectionTimeout = 0;
       startMenuOption((currentMenuSelection + 1) % currentMenuSize);
     }
@@ -68,11 +68,11 @@ void StoryController::loop() {
       startMenuOption((currentMenuSelection + 1) % currentMenuSize);
     }
   }
-  else if (in == Input::REPEAT) {
+  else if (in == StdInput::REPEAT) {
     LOG("repeat pressed");
     startChapter(currentChapter);
   }
-  else if (in == Input::NEXT) {
+  else if (in == StdInput::NEXT) {
     LOG("next pressed");
     core.stopSound();
   }

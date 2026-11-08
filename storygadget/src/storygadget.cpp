@@ -48,12 +48,12 @@ void StoryGadget::loop() {
       core.displayBitmap(STARTUP_BITMAP);
     }
     Input in = input.get();
-    if (in == Input::START) {
+    if (in == StdInput::START) {
       LOG("started");
       selection.run();
       resetPending = true;
     }
-    else if (in >= Input::NUM_1 && (int)in <= definition.storiesCount ) {
+    else if (in >= StdInput::NUM_1 && (int)in <= definition.storiesCount) {
       LOG("story %d selected", in);
       resetPending = true;
       story.run(definition.getStoryId((int)in - 1));

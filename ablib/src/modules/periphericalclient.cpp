@@ -19,6 +19,10 @@ bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint
   return true;
 }
 
+bool PeriphericalClient::requestStatus(ModuleId module, StatusType statusType, BaseStatus* status, uint8_t length) {
+	return requestStatus(module, client, statusType, status, length);
+}
+
 bool PeriphericalClient::requestStatus(ModuleId module, ClientId client, StatusType statusType, BaseStatus* status, uint8_t length) {
   StatusRequest request(client, statusType);
   sendRequest(module, &request, sizeof(StatusRequest));

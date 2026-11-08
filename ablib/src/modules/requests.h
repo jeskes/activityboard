@@ -144,9 +144,18 @@ enum class PlayerState : uint8_t {
   PLAYING = 0x02
 };
 
+struct __attribute__((packed)) WebState {
+  bool active;
+  uint16_t age;
+  Input input;
+};
+
 struct __attribute__((packed)) CoreStatus : public BaseStatus {
-  CoreStatus(uint8_t serial=0)
-      : BaseStatus(serial, StatusType::CORE_STATUS) {
+  CoreStatus(uint8_t serial = 0)
+      : BaseStatus(serial, StatusType::CORE_STATUS),
+        playerState(PlayerState::UNKNOWN),
+        webState{false} {
   }
   PlayerState playerState;
+  WebState webState;
 };
