@@ -34,8 +34,13 @@ void CoreService::setup(uint8_t module) {
   player.setup();
   wifi.setup();
 
-  player.onStateChange([&](PlayerState oldState, PlayerState newState) {
-    LOG("player state changed: %d ==> %d", oldState, newState);
+  player.onStateChange([&]() {
+    LOG("player state changed");
+    fireCoreStatusUpdate();
+  });
+
+  wifi.onStateChange([&]() {
+    LOG("wifi state changed");
     fireCoreStatusUpdate();
   });
 

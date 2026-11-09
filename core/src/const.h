@@ -23,7 +23,8 @@ inline constexpr uint8_t EXTRAS_WIFI_LED = 1;
 
 /* wifi */
 
-inline constexpr unsigned long WIFI_ACTIVATION_POLLING = 100;
+inline constexpr unsigned long WIFI_ACTIVATION_POLLING = 20;
+inline constexpr unsigned long WIFI_ACTIVE_POLLING = 5;
 
 /* tft display */
 

@@ -9,7 +9,7 @@
 #include "ledring.h"
 #include "rotaryexpansion.h"
 
-using PlayerStateChangeHandler = std::function<void(PlayerState oldState, PlayerState newState)>;
+using PlayerStateChangeHandler = std::function<void()>;
 
 class Player {
  public:

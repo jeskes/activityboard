@@ -16,6 +16,8 @@ enum WifiState {
   WIFI_SERVER_RUNNING
 };
 
+using WifiStateChangeHandler = std::function<void()>;
+
 class WifiController {
  public:
   WifiController(Scheduler& scheduler, ExtrasExpansion& extras, ClientContexts contexts);
@@ -25,8 +27,11 @@ class WifiController {
   void configureClient(ClientId client);
   WebState fetchState();
 
+  void onStateChange(WifiStateChangeHandler handler);
+
  private:
   WifiState currentState;
+  WifiStateChangeHandler handler;
 
   WebServer server;
   WebSocketsServer webSocket;

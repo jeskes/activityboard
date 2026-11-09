@@ -217,4 +217,8 @@ void DiceGadget::handleCoreStatus(CoreStatus coreStatus) {
     default:
       break;
   }
+
+  if (status == Status::IDLE) {
+    handleIdleInput(coreStatus.webState.input);
+  }
 }

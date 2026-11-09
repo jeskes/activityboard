@@ -47,25 +47,5 @@ Input InputController::get() {
     return (Input)num;
   }
 
-  /*
-  if (millis() > lastCoreStatusCheck + WEBINPUT_INTERVAL) {
-    lastCoreStatusCheck = millis();
-    CoreStatus coreStatus;
-    core.requestCoreStatus(coreStatus);
-    if (coreStatus.webState.active) {
-      switch (coreStatus.webState.input) {
-        case StdInput::START:
-        case StdInput::STOP:
-        case DiceInput::JINGLE:
-        case DiceInput::NEXT_JINGLE:
-        case DiceInput::NEXT_GUESS:
-          return coreStatus.webState.input;
-        default:
-          break;
-      }
-    }
-  }
-  */
-
   return StdInput::NONE;
 }

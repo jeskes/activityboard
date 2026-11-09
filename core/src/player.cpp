@@ -60,7 +60,7 @@ void Player::loop() {
     PlayerState oldState = playerState;
     playerState = playing ? PlayerState::PLAYING : PlayerState::IDLE;
     if (handler && oldState != playerState) {
-      handler(oldState, playerState);
+      handler();
     }
   }
 }

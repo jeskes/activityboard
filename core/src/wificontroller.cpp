@@ -37,6 +37,10 @@ void WifiController::setup() {
   webSocket.onEvent([&](uint8_t num, WStype_t type, uint8_t* payload, size_t length) { webSocketEvent(num, type, payload, length); });
 }
 
+void WifiController::onStateChange(WifiStateChangeHandler handler) {
+  this->handler = handler;
+}
+
 WebState WifiController::fetchState() {
   WebState state;
   state.active = currentState == WifiState::WIFI_SERVER_RUNNING;
@@ -58,10 +62,11 @@ void WifiController::startStop() {
   if (currentState == WIFI_IDLE) {
     LOG("start wifi...");
     currentState = WIFI_START_AP;
-	webSocketNumber = 0xff;
+    webSocketNumber = 0xff;
     webSocketConnected = false;
     webInput = StdInput::NONE;
     wifiTask.enable();
+      wifiTask.setInterval(WIFI_ACTIVATION_POLLING);
   }
   else {
     LOG("shutdown wifi");
@@ -105,7 +110,7 @@ void WifiController::processWifiState() {
       server.handleClient();
       webSocket.loop();
       extras.showLed(EXTRAS_WIFI_LED, true);
-      wifiTask.setInterval(5);
+      wifiTask.setInterval(WIFI_ACTIVE_POLLING);
       break;
 
     default:
@@ -157,7 +162,7 @@ void WifiController::webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload
   DUMP(payload, length);
   if (type == WStype_CONNECTED) {
     webSocketNumber = num;
-	webSocketConnected = true;
+    webSocketConnected = true;
     LOG("websocket connected: socket=%d", webSocketNumber);
     if (client) {
       sendWebConfig();
@@ -165,7 +170,7 @@ void WifiController::webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload
   }
   else if (type == WStype_DISCONNECTED) {
     webSocketNumber = 0xff;
-	webSocketConnected = false;
+    webSocketConnected = false;
   }
   else if (type == WStype_TEXT) {
     processWebMessage(payload, length);
@@ -204,5 +209,8 @@ void WifiController::processWebMessage(uint8_t* payload, size_t length) {
   if (msg.startsWith("INPUT:")) {
     webInput = msg.substring(6).toInt();
     webInputTimestamp = millis();
+    if (handler) {
+      handler();
+    }
   }
 }

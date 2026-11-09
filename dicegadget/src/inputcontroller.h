@@ -10,6 +10,7 @@ class InputController {
   void setup();
 
   Input get();
+  void setWebInput(unsigned long timestamp, Input in );
 
  private:
   ActivityCoreClient& core;
@@ -18,5 +19,6 @@ class InputController {
   ActivityButton jingleButton;
   ActivityNumpadClient numpad;
 
-  unsigned long lastCoreStatusCheck;
+  Input webInput;
+  unsigned long webInputTimestamp;
 };
