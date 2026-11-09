@@ -1,13 +1,12 @@
 #include "periphericalclient.h"
 
-PeriphericalClient::PeriphericalClient(ClientId client, Scheduler& scheduler)
+PeriphericalClient::PeriphericalClient(ClientId client)
     : client(client) {
-  /* scheduler not used yet */
 }
 
 bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint8_t length) {
   if (request->type != RequestType::STATUS) {
-    DUMP(request, length);
+    // DUMP(request, length);
   }
 
   Wire.beginTransmission(module);
@@ -33,7 +32,7 @@ bool PeriphericalClient::requestStatus(ModuleId module, ClientId client, StatusT
     for (int idx = 0; idx < length; idx++) {
       buffer[idx] = Wire.read();
     }
-    DUMP(status, length);
+    // DUMP(status, length);
   }
   while (Wire.available()) {
     Wire.read();

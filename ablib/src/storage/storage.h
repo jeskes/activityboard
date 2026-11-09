@@ -8,12 +8,11 @@
 
 #include <type_traits>
 
-#define DEFAULT_SD_CLK 18
-#define DEFAULT_SD_MISO 19
-#define DEFAULT_SD_MOSI 23
-#define DEFAULT_SD_CS 5
-
-#define USE_DEFAULT_PIN 255
+inline constexpr uint8_t DEFAULT_SD_CLK = 18;
+inline constexpr uint8_t DEFAULT_SD_MISO = 19;
+inline constexpr uint8_t DEFAULT_SD_MOSI = 23;
+inline constexpr uint8_t DEFAULT_SD_CS = 5;
+inline constexpr uint8_t DEFAULT_SD_PIN = 0xFF;
 
 class Storage {
  public:
@@ -21,7 +20,7 @@ class Storage {
 
   fs::SDFS& sd;
 
-  void setup(uint8_t clk = USE_DEFAULT_PIN, uint8_t miso = USE_DEFAULT_PIN, uint8_t mosi = USE_DEFAULT_PIN, uint8_t cs = USE_DEFAULT_PIN);
+  void setup(uint8_t clk = DEFAULT_SD_PIN, uint8_t miso = DEFAULT_SD_PIN, uint8_t mosi = DEFAULT_SD_PIN, uint8_t cs = DEFAULT_SD_PIN);
   void diagnostics();
 
   File open(const char* path);

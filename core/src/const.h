@@ -2,6 +2,10 @@
 
 #include "base/base.h"
 
+/* core status irq */
+
+inline constexpr uint8_t CORE_STATUS_IRQ = 19;
+
 /* wire1 */
 
 inline constexpr uint8_t WIRE1_SDA = 32;
@@ -23,7 +27,7 @@ inline constexpr unsigned long WIFI_ACTIVATION_POLLING = 100;
 
 /* tft display */
 
-inline constexpr int8_t TFT_SCK = 16;
+inline constexpr int8_t TFT_CLK = 16;
 inline constexpr int8_t TFT_MISO = (-1);
 inline constexpr int8_t TFT_MOSI = 13;
 inline constexpr int8_t TFT_CS = 15;
@@ -52,8 +56,8 @@ inline constexpr long MAXIMUM_VOLUME = 30;
 
 /* sd card */
 
-inline constexpr uint8_t SD_SCK = 18;
-inline constexpr uint8_t SD_MISO = 19;
+inline constexpr uint8_t SD_CLK = 18;
+inline constexpr uint8_t SD_MISO = 34;
 inline constexpr uint8_t SD_MOSI = 23;
 inline constexpr uint8_t SD_CS = 5;
 

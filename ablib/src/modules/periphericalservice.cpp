@@ -26,7 +26,7 @@ bool PeriphericalService::writeStatus(BaseStatus* status, uint8_t length) {
 #else
   size_t written = Wire.write((uint8_t*)status, length);
 #endif
-  DUMP(status, length);
+  // DUMP(status, length);
   return written == length;
 }
 

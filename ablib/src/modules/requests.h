@@ -43,6 +43,7 @@ struct __attribute__((packed)) StatusRequest : public BaseRequest {
         statusType(statusType) {
   }
   StatusType statusType;
+  bool interrupted;
 };
 
 struct __attribute__((packed)) BaseStatus {

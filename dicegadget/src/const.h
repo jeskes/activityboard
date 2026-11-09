@@ -8,13 +8,13 @@ inline constexpr ClientId DICEGADGET_ID = 11;
 /* startup blinking rate */
 inline constexpr uint16_t BLINK_RATE = 50;
 
-/* noise pine for randim */
-inline constexpr uint8_t NOISE_PIN = A0;
+/* core status irq */
+inline constexpr uint8_t CORE_STATUS_IRQ = 2;
 
 /* button pins */
-inline constexpr uint8_t START_BUTTON = 2;
-inline constexpr uint8_t GUESS_BUTTON = 3;
-inline constexpr uint8_t JINGLE_BUTTON = 4;
+inline constexpr uint8_t START_BUTTON = 3;
+inline constexpr uint8_t GUESS_BUTTON = 4;
+inline constexpr uint8_t JINGLE_BUTTON = 5;
 
 /* indicator pins for 1..6 */
 inline constexpr uint8_t INDICATOR_LED_1 = 7;
@@ -23,6 +23,9 @@ inline constexpr uint8_t INDICATOR_LED_3 = 9;
 inline constexpr uint8_t INDICATOR_LED_4 = 10;
 inline constexpr uint8_t INDICATOR_LED_5 = 11;
 inline constexpr uint8_t INDICATOR_LED_6 = 12;
+
+/* noise pin for random */
+inline constexpr uint8_t NOISE_PIN = A0;
 
 /* timeouts */
 inline constexpr unsigned long INDICATING_TIMEOUT = 5000;

@@ -19,6 +19,7 @@ inline constexpr int WIRE_SDA = 21;
 inline constexpr int WIRE_SCL = 22;
 inline constexpr uint8_t LED_BUILTIN = 14;
 #else
+#define IRAM_ATTR /* blank */
 inline constexpr uint8_t WIRE_SDA = A4;
 inline constexpr uint8_t WIRE_SCL = A5;
 #endif

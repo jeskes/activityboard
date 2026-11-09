@@ -12,16 +12,16 @@ Storage::Storage()
 }
 
 void Storage::setup(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t cs) {
-  if (clk == USE_DEFAULT_PIN) {
+  if (clk == DEFAULT_SD_PIN) {
     clk = DEFAULT_SD_CLK;
   }
-  if (miso == USE_DEFAULT_PIN) {
+  if (miso == DEFAULT_SD_PIN) {
     miso = DEFAULT_SD_MISO;
   }
-  if (mosi == USE_DEFAULT_PIN) {
+  if (mosi == DEFAULT_SD_PIN) {
     mosi = DEFAULT_SD_MOSI;
   }
-  if (cs == USE_DEFAULT_PIN) {
+  if (cs == DEFAULT_SD_PIN) {
     cs = DEFAULT_SD_CS;
   }
 

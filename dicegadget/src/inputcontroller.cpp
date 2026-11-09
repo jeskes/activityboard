@@ -47,6 +47,7 @@ Input InputController::get() {
     return (Input)num;
   }
 
+  /*
   if (millis() > lastCoreStatusCheck + WEBINPUT_INTERVAL) {
     lastCoreStatusCheck = millis();
     CoreStatus coreStatus;
@@ -64,6 +65,7 @@ Input InputController::get() {
       }
     }
   }
+  */
 
   return StdInput::NONE;
 }

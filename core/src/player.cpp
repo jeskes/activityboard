@@ -8,21 +8,18 @@
 static long volumeEncoderPosition = -999;
 static unsigned long volumeEncoderDebounceTime = 0;
 
-PlayerState Player::playerState = PlayerState::UNKNOWN;
-
 Player::Player(LedRing& ledRing, RotaryExpansion& rotary)
     : ledRing(ledRing),
       volumeAdapter(INITIAL_VOLUME, MINIMUM_VOLUME, MAXIMUM_VOLUME, VOLUMNE_STEP),
       playerSerial(2),
       mute(false),
-      volume(INITIAL_VOLUME) {
+      volume(INITIAL_VOLUME),
+      playerState(PlayerState::UNKNOWN) {
   rotary.setAdapterLeft(volumeAdapter);
 }
 
 void Player::setup() {
   LOG("Initialize player: rx=%d, tx=%d, busy=%d", PLAYER_RX, PLAYER_TX, PLAYER_BUSY);
-  pinMode(PLAYER_BUSY, INPUT_PULLUP);
-
   pinMode(PLAYER_BUSY, INPUT_PULLUP);
 
   volumeAdapter.onPressed([&]() { toggleMute(); });
@@ -45,8 +42,27 @@ void Player::setup() {
   }
 }
 
+void Player::onStateChange(PlayerStateChangeHandler handler) {
+  this->handler = handler;
+}
+
+bool tempPlaying = false;
+unsigned long tempTimestamp = 0;
+const unsigned long DEBOUNCE_DELAY = 200;
+
 void Player::loop() {
-  playerState = checkPlaying() ? PlayerState::PLAYING : PlayerState::IDLE;
+  bool playing = checkPlaying();
+  if (playing != tempPlaying || !tempTimestamp) {
+    tempPlaying = playing;
+    tempTimestamp = millis();
+  }
+  else if (millis() > tempTimestamp + DEBOUNCE_DELAY) {
+    PlayerState oldState = playerState;
+    playerState = playing ? PlayerState::PLAYING : PlayerState::IDLE;
+    if (handler && oldState != playerState) {
+      handler(oldState, playerState);
+    }
+  }
 }
 
 bool Player::checkPlaying() {
@@ -59,13 +75,12 @@ bool Player::checkPlaying() {
 
 void Player::play(TrackFolder folder, TrackId track) {
   LOG("play sound: folder=%d, track=%d", folder, track);
-  playerState = PlayerState::UNKNOWN;
+  stop();
   player.playFolder(folder, track);
   awaitBusy(true);
 }
 
 void Player::stop() {
-  playerState = PlayerState::UNKNOWN;
   player.stop();
   awaitBusy(false);
 }
@@ -86,12 +101,12 @@ void Player::toggleMute() {
 }
 
 void Player::awaitBusy(bool busy) {
-  for (int idx = 0; idx < WAIT_FOR_BUSY_COUNT; idx++) {
-    bool playing = checkPlaying();
-    if ((busy && playing) || (!busy && !playing)) {
-      break;
-    }
+  int loop = 0;
+  bool playing = checkPlaying();
+  while (loop < WAIT_FOR_BUSY_COUNT && busy != playing) {
     delay(WAIT_FOR_BUSY_TIMEOUT);
+    loop++;
+    playing = checkPlaying();
   }
-  playerState = busy ? PlayerState::PLAYING : PlayerState::IDLE;
+  LOG("player waited for=%d, playing=%d, loops=%d", busy, playing, loop);
 }

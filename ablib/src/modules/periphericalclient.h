@@ -4,7 +4,7 @@
 
 class PeriphericalClient {
  protected:
-  PeriphericalClient(ClientId client, Scheduler& scheduler);
+  PeriphericalClient(ClientId client);
 
   ClientId client;
   bool requestStatus(ModuleId module, StatusType statusType, BaseStatus* status, uint8_t length);

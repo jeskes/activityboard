@@ -62,7 +62,7 @@ void ClientContext::putParam(const char* name, const char* value, byte append) {
   else {
     params[name] = value;
   }
-  LOG("put parameter: %s => %s", name, params[name].c_str());
+  // LOG("put parameter: %s => %s", name, params[name].c_str());
 }
 
 const char* ClientContext::getMessage(const char* id) {
@@ -77,7 +77,7 @@ String ClientContext::formatMessage(MessageId id) {
   String output = String(getMessage(id));
   output.reserve(VALUE_BUFFER_SIZE);
 
-  LOG("format: %s", output.c_str());
+  // LOG("format: %s", output.c_str());
 
   for (const auto& pair : params) {
     String placeholder = "";
@@ -88,10 +88,7 @@ String ClientContext::formatMessage(MessageId id) {
 
     if (output.indexOf(placeholder) != -1) {
       output.replace(placeholder, pair.second);
-      LOG("placeholder replaced: %s [%s] => %s", placeholder.c_str(), pair.second.c_str(), output.c_str());
-    }
-    else {
-      LOG("placeholder not found: %s", placeholder.c_str());
+      // LOG("placeholder replaced: %s [%s] => %s", placeholder.c_str(), pair.second.c_str(), output.c_str());
     }
   }
 

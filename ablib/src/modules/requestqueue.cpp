@@ -80,8 +80,8 @@ bool RequestQueue::pull(uint8_t* request) {
     request[idx] = b;
   }
 
-  LOG("pulled request");
-  DUMP(request, length);
+  // LOG("pulled request");
+  // DUMP(request, length);
 
 #ifdef ARDUINO_ARCH_ESP32
   portENTER_CRITICAL(&queueMutex);

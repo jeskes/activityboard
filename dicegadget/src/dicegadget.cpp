@@ -4,7 +4,7 @@ const uint8_t indicators[] = {INDICATOR_LED_1, INDICATOR_LED_2, INDICATOR_LED_3,
 const uint8_t countIndicators = sizeof(indicators) / sizeof(uint8_t);
 
 DiceGadget::DiceGadget()
-    : core(DICEGADGET_ID, scheduler),
+    : core(DICEGADGET_ID),
       input(core),
       status(Status::IDLE),
       currentGuess(0),
@@ -24,7 +24,7 @@ void DiceGadget::setup() {
 
   randomSeed(analogRead(NOISE_PIN));
 
-  core.setup();
+  core.setup(CORE_STATUS_IRQ);
   input.setup();
 
   core.init(STARTUP_BITMAP);
@@ -37,6 +37,7 @@ void DiceGadget::setup() {
 
 void DiceGadget::loop() {
   GadgetBase::loop();
+  core.loop();
   stateMachine();
   showIndicators();
 }
@@ -158,7 +159,6 @@ void DiceGadget::reset() {
   currentNumber = 0;
   startedTime = 0;
   indicatingTime = 0;
-  core.stopSound();
   scheduleDisplayReset();
   status = Status::IDLE;
 }
@@ -198,25 +198,23 @@ void DiceGadget::cancelDisplayReset() {
   displayResetPending = 0;
 }
 
-bool DiceGadget::handleCoreStatus(CoreStatus coreStatus) {
+void DiceGadget::handleCoreStatus(CoreStatus coreStatus) {
   PlayerState playerState = coreStatus.playerState;
+  LOG("player state: %d", playerState);
   switch (status) {
     case Status::JINGLE_SOUND_PLAYING:
-      if (playerState != PlayerState::IDLE) {
-        return false;
+      if (playerState == PlayerState::IDLE) {
+        LOG("jingle sound ended");
+        status = Status::JINGLE_SOUND_ENDED;
       }
-	  LOG("jingle sound ended");
-      status = Status::JINGLE_SOUND_ENDED;
       break;
     case Status::NUMBER_SOUND_PLAYING:
-      if (playerState != PlayerState::IDLE) {
-        return false;
+      if (playerState == PlayerState::IDLE) {
+        LOG("number sound ended");
+        status = Status::NUMBER_SOUND_ENDED;
       }
-	  LOG("number sound ended");
-      status = Status::NUMBER_SOUND_ENDED;
       break;
     default:
       break;
   }
-  return true;
 }

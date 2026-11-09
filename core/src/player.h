@@ -1,10 +1,15 @@
 #pragma once
 
-#include "DFRobotDFPlayerMini.h"
-#include "base/base.h"
-#include "modules/requests.h"
+#include <DFRobotDFPlayerMini.h>
+#include <base/base.h>
+#include <modules/requests.h>
+
+#include <functional>
+
 #include "ledring.h"
 #include "rotaryexpansion.h"
+
+using PlayerStateChangeHandler = std::function<void(PlayerState oldState, PlayerState newState)>;
 
 class Player {
  public:
@@ -16,7 +21,8 @@ class Player {
   void play(TrackFolder folder, TrackId track);
   void stop();
 
-  static PlayerState playerState;
+  PlayerState playerState;
+  void onStateChange(PlayerStateChangeHandler handler);
 
  private:
   bool mute;
@@ -31,4 +37,6 @@ class Player {
   void awaitBusy(bool playing);
   void setVolume(int volume);
   void toggleMute();
+
+  PlayerStateChangeHandler handler;
 };

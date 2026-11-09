@@ -51,4 +51,5 @@ class CoreService : public PeriphericalService {
   bool handleRequest(ReadDataRequest* request);
 
   bool writeCoreStatus();
+  void fireCoreStatusUpdate();
 };

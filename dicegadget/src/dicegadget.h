@@ -13,7 +13,7 @@ class DiceGadget : public GadgetBase, public CoreStatusHandler {
 
   void setup();
   void loop();
-  bool handleCoreStatus(CoreStatus status) override;
+  void handleCoreStatus(CoreStatus status) override;
 
  private:
   ActivityCoreClient core;

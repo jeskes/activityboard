@@ -4,7 +4,7 @@
 
 class CoreStatusHandler {
  public:
-  virtual bool handleCoreStatus(CoreStatus status) = 0;
+  virtual void handleCoreStatus(CoreStatus status) = 0;
 };
 
 class DataStream {
@@ -22,33 +22,35 @@ class DataStream {
 
 class ActivityCoreClient : public PeriphericalClient {
  public:
-  ActivityCoreClient(ClientId clientId, Scheduler& scheduler);
+  ActivityCoreClient(ClientId clientId);
 
-  void setup();
+  void setup(uint8_t irq);
+  void loop();
+
   void init(BitmapId startupBitmap);
 
-  void putParam(const char* name, uint16_t value);
-  void putParam(const char* name, const char* value);
+  void putParam(ParameterId id, uint16_t value);
+  void putParam(ParameterId id, const char* value);
 
-  void playSound(TrackId track);
-  void playSound(TrackFolder folder, TrackId track);
+  void playSound(TrackId id);
+  void playSound(TrackFolder folder, TrackId id);
   void stopSound();
 
   void clearDisplay();
-  void displayMessage(MessageId messageId);
-  void displayBitmap(BitmapId bitmapId);
-  void displayMenu(MenuId menuId, uint8_t selectedIndex);
+  void displayMessage(MessageId id);
+  void displayBitmap(BitmapId id);
+  void displayMenu(MenuId id, uint8_t selectedIndex);
 
   DataStream readData(DataId id);
 
-  void snoozeStatus(unsigned long delay);
   void setStatusHandler(CoreStatusHandler* handler);
+
+ private:
   void requestCoreStatus(CoreStatus& status);
 
-  bool sendRequest(ModuleId module, BaseRequest* request, uint8_t length, unsigned long snoozeStatusDelay);
+  void processAvailableStatus();
+  CoreStatusHandler* statusHandler;
 
-  static ClientId client;
-  static void pollStatus();
-  static Task statusPollingTask;
-  static CoreStatusHandler* statusHandler;
+  static bool statusAvailable;
+  static void IRAM_ATTR statusInterrupt();
 };

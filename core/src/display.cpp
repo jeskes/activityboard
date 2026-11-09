@@ -16,7 +16,7 @@ Display::Display(Storage& storage, LedRing& ledRing, RotaryExpansion& rotary)
 void Display::setup() {
   LOG("setup TFT display...");
 
-  spi.begin(TFT_SCK, TFT_MISO, TFT_MOSI, -1);
+  spi.begin(TFT_CLK, TFT_MISO, TFT_MOSI, -1);
   tft.begin();
 
   tft.setRotation(1);
