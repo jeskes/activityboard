@@ -64,6 +64,9 @@ void CoreService::processRequest(BaseRequest* request) {
     case RequestType::PARAMETER:
       processRequest((ParameterRequest*)request);
       break;
+    case RequestType::PLAY_MUSIC:
+      processRequest((PlayMusicRequest*)request);
+      break;
     case RequestType::PLAY_SOUND:
       processRequest((PlaySoundRequest*)request);
       break;
@@ -123,6 +126,12 @@ void CoreService::processRequest(DisplayBitmapRequest* request) {
   // LOG("draw bitmap: id=%s, path=%s.", request->bitmapId, def.path);
   auto& dsp = display;
   runner.schedule([&dsp, def]() { dsp.drawBitmap(def, 0, 0); });
+}
+
+void CoreService::processRequest(PlayMusicRequest* request) {
+  MusicDef def = contexts.get(request->client).getMusicDef(request->musicId);
+  // LOG("play music: id=%s, folder=%d, track=%d", request->musicId, def.folder, def.track);
+  player.play(def.folder, def.track);
 }
 
 void CoreService::processRequest(PlaySoundRequest* request) {

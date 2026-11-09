@@ -22,17 +22,23 @@ struct DataDef {
   char path[PATH_BUFFER_SIZE];
 };
 
+struct MusicDef {
+  TrackFolder folder;
+  TrackId track;
+};
+
 class ClientContext {
  public:
   void clearParams();
-  void clearParam(const char* name);
-  void putParam(const char* name, const char* value, byte append);
+  void clearParam(ParameterId id);
+  void putParam(ParameterId id, const char* value, byte append);
 
   const char* getMessage(MessageId id);
   String formatMessage(MessageId id);
   MenuDef getMenuDef(MenuId id);
   BitmapDef getBitmapDef(BitmapId id);
   DataDef getDataDef(DataId id);
+  MusicDef getMusicDef(MusicId id);
 
   String utf8ToExtendedAscii(const String& utf8);
 

@@ -48,6 +48,12 @@ void ActivityCoreClient::putParam(ParameterId id, const char* value) {
   sendRequest(CORE_MODULE_ID, &request, sizeof(ParameterRequest));
 }
 
+void ActivityCoreClient::playMusic(MusicId id) {
+  // LOG("send display message request : id=%s.", id);
+  PlayMusicRequest request(client, id);
+  sendRequest(CORE_MODULE_ID, &request, sizeof(PlayMusicRequest));
+}
+
 void ActivityCoreClient::playSound(TrackId track) {
   playSound(client, track);
 }

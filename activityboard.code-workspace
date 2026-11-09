@@ -15,6 +15,10 @@
 		},
 		{
 			"path": "core"
+		},
+		{
+			"name": "musicbox",
+			"path": "musicbox"
 		}
 	],
 	"settings": {}

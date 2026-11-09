@@ -152,6 +152,19 @@ DataDef ClientContext::getDataDef(DataId id) {
   return def;
 }
 
+MusicDef ClientContext::getMusicDef(MusicId id) {
+  MusicDef def;
+  if (config["music"][id].is<JsonObject>()) {
+    JsonObject object = config["music"][id].as<JsonObject>();
+    def.track = object["track"].as<TrackId>();
+    def.folder = object["folder"].is<TrackFolder>() ? object["folder"].as<TrackFolder>() : client;
+  }
+  else {
+    LOG("music id %s not found", id);
+  }
+  return def;
+}
+
 String ClientContext::utf8ToExtendedAscii(const String& utf8Str) {
   String result = "";
   result.reserve(utf8Str.length());

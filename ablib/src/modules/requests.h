@@ -14,6 +14,7 @@ enum class RequestType : uint8_t {
   PARAMETER = 0x02,
   PLAY_SOUND = 0x10,
   STOP_SOUND = 0x11,
+  PLAY_MUSIC = 0x12,
   CLEAR_DISPLAY = 0x20,
   DISPLAY_MESSAGE = 0x21,
   DISPLAY_BITMAP = 0x22,
@@ -119,6 +120,14 @@ struct __attribute__((packed)) PlaySoundRequest : public BaseRequest {
   }
   TrackFolder folder;
   TrackId track;
+};
+
+struct __attribute__((packed)) PlayMusicRequest : public BaseRequest {
+  PlayMusicRequest(ClientId client, MusicId id)
+      : BaseRequest(client, RequestType::PLAY_MUSIC) {
+    strlcpy(musicId, id, ID_BUFFER_SIZE);
+  }
+  char musicId[ID_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) StopSoundRequest : public BaseRequest {

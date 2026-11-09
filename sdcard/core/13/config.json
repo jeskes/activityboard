@@ -1,0 +1,14 @@
+{
+	"bitmaps": {
+		"STARTUP": "startup.raw"
+	},
+	"messages": {
+		"WELCOME": "Willkommen bei Musicbox"
+	},
+	"music": {
+		"04A2B3C4D5E6F7": {
+			"folder": null,
+			"track": 1
+		}
+	}
+}

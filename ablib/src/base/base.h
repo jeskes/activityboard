@@ -55,6 +55,7 @@ inline constexpr ClientId SYSTEM_CLIENT_ID = 10;
 using ParameterId = const char*;
 using TrackId = uint8_t;
 using TrackFolder = uint8_t;
+using MusicId = const char*;
 using MessageId = const char*;
 using BitmapId = const char*;
 using MenuId = const char*;
