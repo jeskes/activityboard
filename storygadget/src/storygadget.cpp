@@ -32,6 +32,8 @@ void StoryGadget::setup() {
 void StoryGadget::loop() {
   GadgetBase::loop();
 
+  core.loop();
+
   if (selection.isBusy()) {
     StoryId selectedStory = selection.loop();
     if (selectedStory) {
