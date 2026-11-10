@@ -89,11 +89,11 @@ void Storage::list(const char* folder) {
   File file = root.openNextFile();
   while (file) {
     if (file.isDirectory()) {
-      LOG("  dir : %s", file.name());
+      LOG("  dir : %s", file.path());
       list(file.path());
     }
     else {
-      LOG("  file: %s [%d bytes]", file.name(), file.size());
+      LOG("  file: %s [%d bytes]", file.path(), file.size());
     }
     file = root.openNextFile();
   }

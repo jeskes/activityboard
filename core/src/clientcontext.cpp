@@ -124,8 +124,8 @@ ImageDef ClientContext::getImageDef(ImageId id) {
     sprintf(def.path, "/%02d/images/%s", client, config["images"][id].as<const char*>());
   }
   else if (config["images"][id].is<JsonObject>()) {
-    JsonObject object = config["imgages"][id].as<JsonObject>();
-    sprintf(def.path, "/%02d/imgages/%s", client, object["path"].as<const char*>());
+    JsonObject object = config["images"][id].as<JsonObject>();
+    sprintf(def.path, "/%02d/images/%s", client, object["path"].as<const char*>());
     if (object["width"].is<int>()) {
       def.width = object["width"].as<int>();
     }
@@ -135,7 +135,7 @@ ImageDef ClientContext::getImageDef(ImageId id) {
   }
   else {
     LOG("image id %s not found.", id);
-    strcpy(def.path, "/10/imgages/fallback.raw");
+    strcpy(def.path, "/10/images/fallback.raw");
   }
   return def;
 }
