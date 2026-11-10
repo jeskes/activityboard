@@ -1,7 +1,7 @@
 #include "gadget.h"
 
 void GadgetBase::setup() {
-  delay(1000);
+  delay(2000);
   activityBoard.setup();
   LOG("gadget setup done.");
 }
