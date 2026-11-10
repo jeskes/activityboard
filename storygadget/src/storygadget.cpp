@@ -1,7 +1,7 @@
 #include "storygadget.h"
 
 StoryGadget::StoryGadget()
-    : core(STORYGADGET_ID, scheduler),
+    : core(STORYGADGET_ID),
       definition(core),
       selection(definition, core, input),
       story(definition, core, input) {
@@ -17,13 +17,13 @@ void StoryGadget::setup() {
 
   GadgetBase::setup();
 
-  core.setup();
+  core.setup(CORE_STATUS_IRQ);
   definition.setup();
   input.setup();
   selection.setup();
   story.setup();
 
-  core.init(STARTUP_BITMAP);
+  core.init(STARTUP_IMAGE);
   core.playSound(STARTUP_TRACK);
 
   LOG("Story Gadget started.");
@@ -45,7 +45,7 @@ void StoryGadget::loop() {
   else {
     if (resetPending) {
       resetPending = false;
-      core.displayBitmap(STARTUP_BITMAP);
+      core.displayImage(STARTUP_IMAGE);
     }
     Input in = input.get();
     if (in == StdInput::START) {

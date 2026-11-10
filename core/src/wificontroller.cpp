@@ -26,10 +26,10 @@ void WifiController::setup() {
 
   server.on("/", [&]() { handleRoot(); });
 
-  server.on(UriBraces("/{}/bitmaps/{}"), [&]() {
+  server.on(UriBraces("/{}/imgages/{}"), [&]() {
     String s = "/";
     s.concat(server.pathArg(0));
-    s.concat("/bitmaps/");
+    s.concat("/imgages/");
     s.concat(server.pathArg(1));
     handleImage(s.c_str());
   });

@@ -48,5 +48,5 @@ class StoryController : CoreStatusHandler {
     ENDED
   };
   PlayerMonitor playerMonitor;
-  bool handleCoreStatus(CoreStatus status) override;
+  void handleCoreStatus(CoreStatus status) override;
 };

@@ -1,5 +1,5 @@
 {
-	"bitmaps": {
+	"images": {
 		"STARTUP": "startup.raw",
 		"romanCover": "roman/cover.raw",
 		"romanLangweilig": "roman/langweilig.raw",

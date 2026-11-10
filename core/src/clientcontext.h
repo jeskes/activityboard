@@ -12,10 +12,10 @@ struct MenuDef {
   const char* options[MAX_MENU_OPTIONS];
 };
 
-struct BitmapDef {
+struct ImageDef {
   char path[PATH_BUFFER_SIZE];
-  uint16_t width = DEFAULT_BITMAP_WIDTH;
-  uint16_t height = DEFAULT_BITMAP_HEIGHT;
+  uint16_t width = DEFAULT_IMAGE_WIDTH;
+  uint16_t height = DEFAULT_IMAGE_HEIGHT;
 };
 
 struct DataDef {
@@ -36,7 +36,7 @@ class ClientContext {
   const char* getMessage(MessageId id);
   String formatMessage(MessageId id);
   MenuDef getMenuDef(MenuId id);
-  BitmapDef getBitmapDef(BitmapId id);
+  ImageDef getImageDef(ImageId id);
   DataDef getDataDef(DataId id);
   MusicDef getMusicDef(MusicId id);
 

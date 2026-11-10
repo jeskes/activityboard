@@ -61,7 +61,7 @@ void SelectionController::initCurrentSelection() {
   currentTimeout = millis() + SELECTION_TIMEOUT;
   JsonObject storyInfo = definition.getStoryInfo(currentIndex);
   core.playSound(storyInfo["track"].as<TrackId>());
-  core.displayBitmap(storyInfo["bitmap"].as<BitmapId>());
+  core.displayImage(storyInfo["image"].as<ImageId>());
 }
 
 StoryId SelectionController::onStorySelected(int index) {

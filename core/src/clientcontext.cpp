@@ -51,7 +51,7 @@ void ClientContext::init(Storage& storage, ClientId client) {
 
   LOG("messages: client=%d, count=%d", client, config["messages"].is<JsonObject>() ? config["messages"].as<JsonObject>().size() : 0);
   LOG("menus: client=%d, count=%d", client, config["menus"].is<JsonObject>() ? config["menus"].as<JsonObject>().size() : 0);
-  LOG("bitmaps: client=%d, count=%d", client, config["bitmaps"].is<JsonObject>() ? config["bitmaps"].as<JsonObject>().size() : 0);
+  LOG("images: client=%d, count=%d", client, config["images"].is<JsonObject>() ? config["images"].as<JsonObject>().size() : 0);
   LOG("data: client=%d, count=%d", client, config["data"].is<JsonObject>() ? config["data"].as<JsonObject>().size() : 0);
 }
 
@@ -118,14 +118,14 @@ MenuDef ClientContext::getMenuDef(MenuId id) {
   return def;
 }
 
-BitmapDef ClientContext::getBitmapDef(BitmapId id) {
-  BitmapDef def;
-  if (config["bitmaps"][id].is<const char*>()) {
-    sprintf(def.path, "/%02d/bitmaps/%s", client, config["bitmaps"][id].as<const char*>());
+ImageDef ClientContext::getImageDef(ImageId id) {
+  ImageDef def;
+  if (config["images"][id].is<const char*>()) {
+    sprintf(def.path, "/%02d/images/%s", client, config["images"][id].as<const char*>());
   }
-  else if (config["bitmaps"][id].is<JsonObject>()) {
-    JsonObject object = config["bitmaps"][id].as<JsonObject>();
-    sprintf(def.path, "/%02d/bitmaps/%s", client, object["path"].as<const char*>());
+  else if (config["images"][id].is<JsonObject>()) {
+    JsonObject object = config["imgages"][id].as<JsonObject>();
+    sprintf(def.path, "/%02d/imgages/%s", client, object["path"].as<const char*>());
     if (object["width"].is<int>()) {
       def.width = object["width"].as<int>();
     }
@@ -134,8 +134,8 @@ BitmapDef ClientContext::getBitmapDef(BitmapId id) {
     }
   }
   else {
-    LOG("bitmap id %s not found.", id);
-    strcpy(def.path, "/10/bitmaps/fallback.raw");
+    LOG("image id %s not found.", id);
+    strcpy(def.path, "/10/imgages/fallback.raw");
   }
   return def;
 }

@@ -21,9 +21,9 @@ void ActivityCoreClient::loop() {
   }
 }
 
-void ActivityCoreClient::init(BitmapId startupBitmap) {
-  // LOG("send display init request : startup.bitmap=%s.", startupBitmap);
-  InitCoreRequest request(client, startupBitmap);
+void ActivityCoreClient::init(ImageId startupImage) {
+  // LOG("send display init request : startup.image=%s.", startupImage);
+  InitCoreRequest request(client, startupImage);
   sendRequest(CORE_MODULE_ID, &request, sizeof(InitCoreRequest));
 }
 
@@ -76,10 +76,10 @@ void ActivityCoreClient::displayMessage(MessageId id) {
   sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayMessageRequest));
 }
 
-void ActivityCoreClient::displayBitmap(BitmapId id) {
-  // LOG("send display bitmap request : id=%s.", id);
-  DisplayBitmapRequest request(client, id);
-  sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayBitmapRequest));
+void ActivityCoreClient::displayImage(ImageId id) {
+  // LOG("send display image request : id=%s.", id);
+  DisplayImageRequest request(client, id);
+  sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayImageRequest));
 }
 
 void ActivityCoreClient::displayMenu(MenuId id, uint8_t selectedIndex) {

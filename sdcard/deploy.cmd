@@ -38,11 +38,11 @@ if "%confirm%"=="format" (
     echo continue without formatting sd card.
 )
 
-echo converting bitmaps...
+echo converting images...
 cd /d "%SOURCE_DIR%core"
-call convert-bitmaps.cmd
+call convert-images.cmd
 if %errorlevel% neq 0 (
-    echo failed to convert bitmaps. continue?
+    echo failed to convert images. continue?
     pause
 )
 

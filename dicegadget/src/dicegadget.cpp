@@ -27,7 +27,7 @@ void DiceGadget::setup() {
   core.setup(CORE_STATUS_IRQ);
   input.setup();
 
-  core.init(STARTUP_BITMAP);
+  core.init(STARTUP_IMAGE);
   core.playSound(STARTUP_TRACK);
   activityControls.blink(indicators, countIndicators, 2, 200);
   core.setStatusHandler(this);
@@ -46,7 +46,7 @@ void DiceGadget::stateMachine() {
   Input in = input.get();
   if (in == StdInput::STOP) {
     reset();
-    core.displayBitmap(STARTUP_BITMAP);
+    core.displayImage(STARTUP_IMAGE);
   }
 
   switch (status) {
@@ -186,7 +186,7 @@ void DiceGadget::playJingle() {
 void DiceGadget::checkDisplayReset() {
   if (displayResetPending && (millis() > displayResetPending)) {
     displayResetPending = 0;
-    core.displayBitmap(STARTUP_BITMAP);
+    core.displayImage(STARTUP_IMAGE);
   }
 }
 

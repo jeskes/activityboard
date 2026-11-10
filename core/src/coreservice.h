@@ -44,7 +44,7 @@ class CoreService : public PeriphericalService {
   void processRequest(ClearDisplayRequest* request);
   void processRequest(DisplayMessageRequest* request);
   void processRequest(DisplayMenuRequest* request);
-  void processRequest(DisplayBitmapRequest* request);
+  void processRequest(DisplayImageRequest* request);
 
   /* direct request handling */
   bool handleRequest(BaseRequest* request) override;

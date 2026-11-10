@@ -81,19 +81,19 @@ void Display::drawMenu(MenuDef def, uint8_t selectedIndex) {
 
 /* always convert images with ffmpeg -i myimage.bmp -f rawvideo -pix_fmt rgb565be myimage.raw */
 
-void Display::drawBitmap(BitmapDef def, int16_t x, int16_t y) {
-  drawBitmap(def.path, x, y, def.width, def.height);
+void Display::drawImage(ImageDef def, int16_t x, int16_t y) {
+  drawImage(def.path, x, y, def.width, def.height);
 }
 
-void Display::drawBitmap(const char* path, int16_t x, int16_t y, uint16_t width, uint16_t height) {
+void Display::drawImage(const char* path, int16_t x, int16_t y, uint16_t width, uint16_t height) {
   if (!path || !*path) {
-    LOG("bitmap file path is undefined.");
+    LOG("image file path is undefined.");
     return;
   }
 
   File file = storage.sdAccess([&]() { return storage.open(path); });
   if (!file) {
-    LOG("bitmap file not found: file=%s", path);
+    LOG("image file not found: file=%s", path);
     return;
   }
 

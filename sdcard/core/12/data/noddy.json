@@ -4,52 +4,52 @@
 	"chapters": {
 		"sunnyday": {
 			"track": 1,
-			"bitmap": "noddySunnyday",
+			"image": "noddySunnyday",
 			"next": "ducks"
 		},
 		"ducks": {
 			"track": 2,
-			"bitmap": "noddyDucks",
+			"image": "noddyDucks",
 			"next": "farmerstraw"
 		},
 		"farmerstraw": {
 			"track": 3,
-			"bitmap": "noddyFarmerstraw",
+			"image": "noddyFarmerstraw",
 			"menu": "noddyFarmerstraw"
 		},
 		"pig": {
 			"track": 4,
-			"bitmap": "noddyPig",
+			"image": "noddyPig",
 			"next": "sheep"
 		},
 		"sheep": {
 			"track": 5,
-			"bitmap": "noddySheep",
+			"image": "noddySheep",
 			"next": "dog"
 		},
 		"dog": {
 			"track": 6,
-			"bitmap": "noddyDog",
+			"image": "noddyDog",
 			"next": "goat"
 		},
 		"goat": {
 			"track": 7,
-			"bitmap": "noddyGoat",
+			"image": "noddyGoat",
 			"next": "pooroldnoddy"
 		},
 		"pooroldnoddy": {
 			"track": 8,
-			"bitmap": "noddyPooroldnoddy",
+			"image": "noddyPooroldnoddy",
 			"next": "milk"
 		},
 		"milk": {
 			"track": 9,
-			"bitmap": "noddyMilk",
+			"image": "noddyMilk",
 			"next": "goodbye"
 		},
 		"goodbye": {
 			"track": 10,
-			"bitmap": "noddyGoodbye"
+			"image": "noddyGoodbye"
 		}
 	},
 	"menus": {

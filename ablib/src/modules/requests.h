@@ -17,7 +17,7 @@ enum class RequestType : uint8_t {
   PLAY_MUSIC = 0x12,
   CLEAR_DISPLAY = 0x20,
   DISPLAY_MESSAGE = 0x21,
-  DISPLAY_BITMAP = 0x22,
+  DISPLAY_IMAGE = 0x22,
   DISPLAY_MENU = 0x23,
   READ_DATA = 0x24,
   STATUS = 0xA0
@@ -61,11 +61,11 @@ struct __attribute__((packed)) BaseStatus {
 /* ========================================================================= */
 
 struct __attribute__((packed)) InitCoreRequest : public BaseRequest {
-  InitCoreRequest(ClientId client, BitmapId id)
+  InitCoreRequest(ClientId client, ImageId id)
       : BaseRequest(client, RequestType::INIT) {
-    strlcpy(startupBitmap, id, ID_BUFFER_SIZE);
+    strlcpy(startupImage, id, ID_BUFFER_SIZE);
   }
-  char startupBitmap[ID_BUFFER_SIZE];
+  char startupImage[ID_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) ClearDisplayRequest : public BaseRequest {
@@ -94,12 +94,12 @@ struct __attribute__((packed)) DisplayMessageRequest : public BaseRequest {
   char messageId[ID_BUFFER_SIZE];
 };
 
-struct __attribute__((packed)) DisplayBitmapRequest : public BaseRequest {
-  DisplayBitmapRequest(ClientId client, BitmapId id)
-      : BaseRequest(client, RequestType::DISPLAY_BITMAP) {
-    strlcpy(bitmapId, id, ID_BUFFER_SIZE);
+struct __attribute__((packed)) DisplayImageRequest : public BaseRequest {
+  DisplayImageRequest(ClientId client, ImageId id)
+      : BaseRequest(client, RequestType::DISPLAY_IMAGE) {
+    strlcpy(imageId, id, ID_BUFFER_SIZE);
   }
-  char bitmapId[ID_BUFFER_SIZE];
+  char imageId[ID_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) DisplayMenuRequest : public BaseRequest {

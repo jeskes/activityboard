@@ -82,8 +82,8 @@ void CoreService::processRequest(BaseRequest* request) {
     case RequestType::DISPLAY_MENU:
       processRequest((DisplayMenuRequest*)request);
       break;
-    case RequestType::DISPLAY_BITMAP:
-      processRequest((DisplayBitmapRequest*)request);
+    case RequestType::DISPLAY_IMAGE:
+      processRequest((DisplayImageRequest*)request);
       break;
     default:
       break;
@@ -91,10 +91,10 @@ void CoreService::processRequest(BaseRequest* request) {
 }
 
 void CoreService::processRequest(InitCoreRequest* request) {
-  BitmapDef def = contexts.get(request->client).getBitmapDef(request->startupBitmap);
-  // LOG("draw startup bitmap: id=%s, path=%s.", request->startupBitmap, def.path);
+  ImageDef def = contexts.get(request->client).getImageDef(request->startupImage);
+  // LOG("draw startup image: id=%s, path=%s.", request->startupImage, def.path);
   auto& dsp = display;
-  runner.schedule([&dsp, def]() { dsp.drawBitmap(def, 0, 0); });
+  runner.schedule([&dsp, def]() { dsp.drawImage(def, 0, 0); });
   wifi.configureClient(request->client);
 }
 
@@ -121,11 +121,11 @@ void CoreService::processRequest(DisplayMenuRequest* request) {
   runner.schedule([&dsp, def, selectedIndex]() { dsp.drawMenu(def, selectedIndex); });
 }
 
-void CoreService::processRequest(DisplayBitmapRequest* request) {
-  BitmapDef def = contexts.get(request->client).getBitmapDef(request->bitmapId);
-  // LOG("draw bitmap: id=%s, path=%s.", request->bitmapId, def.path);
+void CoreService::processRequest(DisplayImageRequest* request) {
+  ImageDef def = contexts.get(request->client).getImageDef(request->imageId);
+  // LOG("draw image: id=%s, path=%s.", request->imageId, def.path);
   auto& dsp = display;
-  runner.schedule([&dsp, def]() { dsp.drawBitmap(def, 0, 0); });
+  runner.schedule([&dsp, def]() { dsp.drawImage(def, 0, 0); });
 }
 
 void CoreService::processRequest(PlayMusicRequest* request) {

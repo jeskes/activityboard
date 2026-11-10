@@ -91,13 +91,13 @@ void StoryController::startChapter(ChapterId chapter) {
     return;
   }
 
-  BitmapId bitmap = chapterDef["bitmap"].as<BitmapId>();
-  if (!bitmap) {
-    LOG("chapter bitmap not found");
+  ImageId image = chapterDef["image"].as<ImageId>();
+  if (!image) {
+    LOG("chapter image not found");
     return;
   }
 
-  core.displayBitmap(bitmap);
+  core.displayImage(image);
 
   TrackId track = chapterDef["track"].as<TrackId>();
   if (!track) {
@@ -166,7 +166,7 @@ bool StoryController::stop() {
 
   activeStory = nullptr;
   core.stopSound();
-  core.displayBitmap(STARTUP_BITMAP);
+  core.displayImage(STARTUP_IMAGE);
   core.setStatusHandler(nullptr);
 
   return true;
@@ -180,11 +180,9 @@ bool StoryController::inMenu() {
   return currentMenu != nullptr;
 }
 
-bool StoryController::handleCoreStatus(CoreStatus status) {
+void StoryController::handleCoreStatus(CoreStatus status) {
   if (playerMonitor == PlayerMonitor::PENDING && status.playerState == PlayerState::IDLE) {
     LOG("idle");
     playerMonitor = PlayerMonitor::ENDED;
-    return true;
   }
-  return false;
 }

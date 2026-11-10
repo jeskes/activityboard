@@ -34,8 +34,8 @@ inline constexpr uint8_t REQUEST_BUFFER_SIZE = 32;
 inline constexpr uint8_t PATH_BUFFER_SIZE = 64;
 inline constexpr uint8_t REQUEST_QUEUE_SIZE = 16;
 
-inline constexpr uint16_t DEFAULT_BITMAP_WIDTH = 320;
-inline constexpr uint16_t DEFAULT_BITMAP_HEIGHT = 240;
+inline constexpr uint16_t DEFAULT_IMAGE_WIDTH = 320;
+inline constexpr uint16_t DEFAULT_IMAGE_HEIGHT = 240;
 
 inline constexpr uint8_t DEFAULT_BUZZER = 12;
 inline constexpr int DEFAULT_BUZZER_FREQUENCY = 150;
@@ -57,7 +57,7 @@ using TrackId = uint8_t;
 using TrackFolder = uint8_t;
 using MusicId = const char*;
 using MessageId = const char*;
-using BitmapId = const char*;
+using ImageId = const char*;
 using MenuId = const char*;
 using DataId = const char*;
 

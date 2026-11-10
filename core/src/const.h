@@ -41,7 +41,7 @@ inline constexpr long INITIAL_BRIGHTNESS = 180;
 inline constexpr long MINIMUM_BRIGHTNESS = 20;
 inline constexpr long MAXIMUM_BRIGHTNESS = 255;
 
-/* chunk for bitmaps : 320 cols, 8 rows, 16 bit (2 byte) color rgb565be */
+/* chunk for imgages : 320 cols, 8 rows, 16 bit (2 byte) color rgb565be */
 inline constexpr unsigned int DISPLAY_BUFFER_SIZE = 320 * 8 * 2;
 
 /* dfplayer */
@@ -72,4 +72,4 @@ inline constexpr uint8_t LEDRING_BRIGHTNESS = 40;
 /* startup */
 
 inline constexpr TrackId STARTUP_TRACK_ID = 100;
-inline constexpr const char* STARTUP_BITMAP = "/10/bitmaps/startup.raw";
+inline constexpr const char* STARTUP_IMAGE = "/10/imgages/startup.raw";

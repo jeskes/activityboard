@@ -51,8 +51,8 @@ inline constexpr MessageId NUMBER_MESSAGE = "NUMBER";
 inline constexpr MessageId MATCH_MESSAGE = "MATCH";
 inline constexpr MessageId SORRY_MESSAGE = "SORRY";
 
-/* bitmap identifiers */
-inline constexpr BitmapId STARTUP_BITMAP = "STARTUP";
+/* image identifiers */
+inline constexpr ImageId STARTUP_IMAGE = "STARTUP";
 
 /* parameter identifiers */
 inline constexpr ParameterId NUMBER_PARAMETER = "number";
