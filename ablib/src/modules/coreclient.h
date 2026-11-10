@@ -33,7 +33,7 @@ class ActivityCoreClient : public PeriphericalClient {
   void putParam(ParameterId id, const char* value);
 
   void playMusic(MusicId id);
-  
+
   void playSound(TrackId id);
   void playSound(TrackFolder folder, TrackId id);
   void stopSound();
@@ -50,9 +50,10 @@ class ActivityCoreClient : public PeriphericalClient {
  private:
   void requestCoreStatus(CoreStatus& status);
 
+  unsigned long heartbeat;
+  unsigned long statusBlocked;
   void processAvailableStatus();
+  void blockStatusProcessing(unsigned long timeout);
+  
   CoreStatusHandler* statusHandler;
-
-  static bool statusAvailable;
-  static void IRAM_ATTR statusInterrupt();
 };

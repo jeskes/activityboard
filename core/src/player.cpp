@@ -2,7 +2,7 @@
 
 #include "const.h"
 
-#define WAIT_FOR_BUSY_COUNT 10
+#define WAIT_FOR_BUSY_COUNT 20
 #define WAIT_FOR_BUSY_TIMEOUT 100
 
 static long volumeEncoderPosition = -999;
@@ -48,7 +48,7 @@ void Player::onStateChange(PlayerStateChangeHandler handler) {
 
 bool tempPlaying = false;
 unsigned long tempTimestamp = 0;
-const unsigned long DEBOUNCE_DELAY = 200;
+const unsigned long DEBOUNCE_DELAY = 100;
 
 void Player::loop() {
   bool playing = checkPlaying();
@@ -75,8 +75,10 @@ bool Player::checkPlaying() {
 
 void Player::play(TrackFolder folder, TrackId track) {
   LOG("play sound: folder=%d, track=%d", folder, track);
-  stop();
+  noInterrupts();
+  playerState = PlayerState::UNKNOWN;
   player.playFolder(folder, track);
+  interrupts();
   awaitBusy(true);
 }
 
@@ -108,5 +110,7 @@ void Player::awaitBusy(bool busy) {
     loop++;
     playing = checkPlaying();
   }
-  LOG("player waited for=%d, playing=%d, loops=%d", busy, playing, loop);
+  if( busy != playing ) {
+	  LOG("==> player waited for=%d, playing=%d, loops=%d", busy, playing, loop);
+  }
 }

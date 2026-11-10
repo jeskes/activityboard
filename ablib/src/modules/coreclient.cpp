@@ -1,6 +1,10 @@
 #include "coreclient.h"
 
-bool ActivityCoreClient::statusAvailable = false;
+static volatile bool statusAvailable = false;
+
+static void IRAM_ATTR statusInterrupt() {
+  statusAvailable = true;
+}
 
 ActivityCoreClient::ActivityCoreClient(ClientId client)
     : PeriphericalClient(client),
@@ -15,7 +19,8 @@ void ActivityCoreClient::setup(uint8_t irq) {
 }
 
 void ActivityCoreClient::loop() {
-  if (statusAvailable) {
+  if (statusAvailable || millis() > heartbeat + CORECLIENT_HEARTBEAT_TIMEOUT) {
+    heartbeat = millis();
     statusAvailable = false;
     processAvailableStatus();
   }
@@ -52,6 +57,7 @@ void ActivityCoreClient::playMusic(MusicId id) {
   // LOG("send display message request : id=%s.", id);
   PlayMusicRequest request(client, id);
   sendRequest(CORE_MODULE_ID, &request, sizeof(PlayMusicRequest));
+  blockStatusProcessing(500);
 }
 
 void ActivityCoreClient::playSound(TrackId track) {
@@ -62,6 +68,7 @@ void ActivityCoreClient::playSound(TrackFolder folder, TrackId track) {
   LOG("send play sound request : folder=%d, track=%d.", folder, track);
   PlaySoundRequest request(client, folder, track);
   sendRequest(CORE_MODULE_ID, &request, sizeof(PlaySoundRequest));
+  blockStatusProcessing(500);
 }
 
 void ActivityCoreClient::stopSound() {
@@ -101,6 +108,15 @@ void ActivityCoreClient::setStatusHandler(CoreStatusHandler* handler) {
 }
 
 void ActivityCoreClient::processAvailableStatus() {
+  if (statusBlocked) {
+    if (millis() <= statusBlocked) {
+      LOG("status processing blocked");
+      return;
+    }
+    statusBlocked = 0;
+  }
+
+  LOG("fetch and process core status");
   CoreStatus status;
   requestCoreStatus(status);
   if (statusHandler) {
@@ -108,13 +124,12 @@ void ActivityCoreClient::processAvailableStatus() {
   }
 }
 
-void ActivityCoreClient::requestCoreStatus(CoreStatus& status) {
-  requestStatus(CORE_MODULE_ID, StatusType::CORE_STATUS, &status, sizeof(CoreStatus));
+void ActivityCoreClient::blockStatusProcessing(unsigned long timeout) {
+  statusBlocked = millis() + timeout;
 }
 
-void IRAM_ATTR ActivityCoreClient::statusInterrupt() {
-  LOG("interrupted");
-  statusAvailable = true;
+void ActivityCoreClient::requestCoreStatus(CoreStatus& status) {
+  requestStatus(CORE_MODULE_ID, StatusType::CORE_STATUS, &status, sizeof(CoreStatus));
 }
 
 DataStream::DataStream(ClientId client)

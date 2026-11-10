@@ -4,6 +4,7 @@
 #include "const.h"
 #include "coreservice.h"
 
+bool startup = true;
 CoreService coreService;
 
 void setup() {
@@ -12,11 +13,13 @@ void setup() {
   // setCpuFrequencyMhz(80);
 
   coreService.setup(CORE_MODULE_ID);
-
-  coreService.display.drawImage(STARTUP_IMAGE, 0, 0);
-  coreService.player.play(SYSTEM_CLIENT_ID, STARTUP_TRACK_ID);
 }
 
 void loop() {
+  if (startup) {
+    coreService.display.drawImage(STARTUP_IMAGE, 0, 0);
+    coreService.player.play(SYSTEM_CLIENT_ID, STARTUP_TRACK_ID);
+    startup = false;
+  }
   coreService.loop();
 }
