@@ -27,9 +27,6 @@ void Storage::setup(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t cs) {
 
   LOG("setup SD card : clk=%d, miso=%d, mosi=%d, cs=%d...", clk, miso, mosi, cs);
 
-  // delay(1000);
-  // pinMode(SD_MISO, INPUT_PULLUP);
-
   resetSDCardSPI(cs, mosi, miso, clk);
 
   SPI.begin(clk, miso, mosi, -1);
@@ -124,8 +121,8 @@ static void resetSDCardSPI(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t clk) 
   digitalWrite(cs, HIGH);
   digitalWrite(mosi, LOW);
   digitalWrite(clk, LOW);
-  pinMode(miso, OUTPUT);
-  digitalWrite(miso, LOW); 
+  // pinMode(miso, OUTPUT);
+  // digitalWrite(miso, LOW); 
   delay(50); // 50ms künstlicher "Mini-Stromausfall" auf den Datenleitungen
 
   // 5. Pins wieder in den korrekten IDLE-Zustand versetzen vor SPI.begin
