@@ -14,9 +14,8 @@ bool DataProvider::init(File file) {
   bytesRead = file.read(buffer, size);
   buffer[bytesRead] = 0; /* eof */
   bytesRead++;
-  file.close();
   bytesWritten = 0;
-  // LOG("buffer read: len=%d", bytesRead);
+  LOG("data file read: path=%s, len=%d", file.path(), bytesRead);
   return true;
 }
 
@@ -29,7 +28,7 @@ bool DataProvider::writeBlock() {
   if (bytesRead > bytesWritten) {
     // DUMP(buffer + bytesWritten, blockSize);
     size_t written = Wire.slaveWrite(buffer + bytesWritten, blockSize);
-    // LOG("bytes written: %d", written);
+    LOG("data file bytes written: len=%d", written);
     bytesWritten += written;
   }
   if (bytesRead <= bytesWritten) {
@@ -41,7 +40,7 @@ bool DataProvider::writeBlock() {
 
 void DataProvider::close() {
   if (buffer) {
-    // LOG("free data buffer");
+    LOG("free data buffer");
     free(buffer);
     buffer = nullptr;
   }

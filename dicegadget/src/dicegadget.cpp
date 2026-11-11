@@ -200,7 +200,6 @@ void DiceGadget::cancelDisplayReset() {
 
 void DiceGadget::handleCoreStatus(CoreStatus coreStatus) {
   PlayerState playerState = coreStatus.playerState;
-  LOG("player state: %d", playerState);
   switch (status) {
     case Status::JINGLE_SOUND_PLAYING:
       if (playerState == PlayerState::IDLE) {

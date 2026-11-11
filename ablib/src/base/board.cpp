@@ -41,29 +41,30 @@ void ActivityBoard::setup() {
 /* ========================================================================= */
 
 void ActivityBoard::setup(uint8_t module) {
-  LOG("initialize wire as peripherical service (module=%d).", module);
   Serial.begin(SERIAL_BAUD);
   while (!Serial) {
     delay(50);
   }
+  LOG("initialize wire as peripherical service (module=%d).", module);
 #if defined(ARDUINO_ARCH_ESP32)
   int trials = 40;
   bool success = false;
+  LOG("initialize wire using sda=%d, scl=%d", WIRE_SDA, WIRE_SCL);
   while (trials && !(success = Wire.begin(module, WIRE_SDA, WIRE_SCL, 100000))) {
     delay(50);
     trials--;
   }
   if (success) {
-    LOG("Wire initialized for peripherical slave %d.", module);
+    LOG("wire initialized for peripherical slave %d.", module);
   }
   else {
-    LOG("Wire initialization failed.");
+    LOG("wire initialization failed.");
   }
   i2c_set_timeout(I2C_NUM_0, 400000);
 #else
   Wire.begin(module);
   Wire.setTimeout(50);
-  LOG("Wire initialized for peripherical slave %d.", module);
+  LOG("wire initialized for peripherical slave %d.", module);
 #endif
 }
 

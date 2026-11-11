@@ -10,6 +10,7 @@ void SelectionController::setup() {
 }
 
 void SelectionController::run() {
+  LOG("run selection");
   currentIndex = -1;
   currentTimeout = 0;
   loop();
