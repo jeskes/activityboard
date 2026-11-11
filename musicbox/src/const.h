@@ -25,3 +25,6 @@ inline constexpr ImageId STARTUP_IMAGE = "STARTUP";
 /* rc522 module pins */
 inline constexpr uint8_t RC522_RST = 9;
 inline constexpr uint8_t RC522_SS = 10;
+inline constexpr uint8_t RC522_MOSI = 11;
+inline constexpr uint8_t RC522_MISO = 12;
+inline constexpr uint8_t RC522_SCK = 13;

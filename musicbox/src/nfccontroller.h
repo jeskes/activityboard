@@ -12,12 +12,13 @@ class NfcController {
   void loop();
 
  private:
-  MFRC522 mfrc522;
   ActivityCoreClient& core;
+  MFRC522 mfrc522;
 
-  byte lastUID[20] = {0};
-  byte lastLength = 0;
-  unsigned long lastCheckTime;
+  byte currentUID[20] = {0};
+  byte currentUIDLength = 0;
 
   void checkCard();
+  uint8_t missingCount;
+  unsigned long lastCheckTime;
 };

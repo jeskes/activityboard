@@ -1,5 +1,7 @@
 #include "nfccontroller.h"
 
+#include <base/base.h>
+
 #include "const.h"
 
 NfcController::NfcController(ActivityCoreClient& core)
@@ -8,7 +10,10 @@ NfcController::NfcController(ActivityCoreClient& core)
 }
 
 void NfcController::setup() {
+  LOG("initialize mfrc522...");
   mfrc522.PCD_Init();
+  delay(4);
+  LOG("nfc reader initialized");
 }
 
 void NfcController::loop() {
@@ -16,41 +21,40 @@ void NfcController::loop() {
 }
 
 void NfcController::checkCard() {
-  // Alle 150ms prüfen, um den Bus nicht zu überlasten
-  if (millis() - lastCheckTime > 15000) {
+  if (millis() - lastCheckTime > 250) {
     lastCheckTime = millis();
-    core.playMusic("04A2B3C4D5E6F7");
-	
-    /*
-    // Versuchen, eine Karte zu lesen
-    bool success = mfrc522.PICC_IsNewCardPresent() && mfrc522.PICC_ReadCardSerial();
 
-    if (success) {
-      // Überprüfen, ob es eine neue Karte ist (verhindert Dauerschleife beim Senden)
-      if (mfrc522.uid.size != lastLength || memcmp(mfrc522.uid.uidByte, lastUID, mfrc522.uid.size) != 0) {
-        memcpy(lastUID, mfrc522.uid.uidByte, mfrc522.uid.size);
-        lastLength = mfrc522.uid.size;
-        cardPresent = true;
+    // checking twice : a card might just respond to second call
+    bool cardPresent = mfrc522.PICC_IsNewCardPresent() || mfrc522.PICC_IsNewCardPresent();
 
-        Serial.print("Neue Karte erkannt! Sende an ESP32... ID: ");
-        sendIDToESP32(mfrc522.uid.uidByte, mfrc522.uid.size);
+    if (cardPresent && mfrc522.PICC_ReadCardSerial()) {
+      missingCount = 0;
+
+      if (mfrc522.uid.size != currentUIDLength || memcmp(mfrc522.uid.uidByte, currentUID, mfrc522.uid.size) != 0) {
+        currentUIDLength = mfrc522.uid.size;
+        memcpy(currentUID, mfrc522.uid.uidByte, mfrc522.uid.size);
+
+        char uid[2 * currentUIDLength + 1] = {0};
+        activityLogger.tohex(currentUID, currentUIDLength, uid);
+        LOG("found new card: uid=%s", uid);
+
+        core.playMusic(uid);
+        digitalWrite(INDICATOR_PLAYING, HIGH);
       }
 
-      // Karte nach dem Lesen in den Haltemodus versetzen
-      mfrc522.PICC_HaltA();
+      mfrc522.PCD_StopCrypto1();
     }
     else {
-      // Wenn vorher eine Karte da war und jetzt weg ist -> Stopp-Signal senden (0xFF)
-      if (cardPresent) {
-        Serial.println("Karte entfernt! Sende STOPP an ESP32.");
-        byte stopSignal[] = {0xFF};
-        sendIDToESP32(stopSignal, 1);
-
-        cardPresent = false;
-        lastLength = 0;
-        memset(lastUID, 0, sizeof(lastUID));
+      if (currentUIDLength > 0) {
+        missingCount++;
+        if (missingCount >= 3) {
+          LOG("card removed");
+          core.stopSound();
+          currentUIDLength = 0;
+          memset(currentUID, 0, sizeof(currentUID));
+          missingCount = 0;
+        }
       }
     }
-    */
   }
 }
