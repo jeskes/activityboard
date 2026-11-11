@@ -120,7 +120,7 @@ void ActivityCoreClient::processAvailableStatus() {
 
   CoreStatus status;
   requestCoreStatus(status);
-  LOG("fetched core status: playerState=%d, webInput=0x%02X", status.playerState, status.webState.input);
+  LOG("fetched core status: playerState=%d, webInput=0x%02X", (uint8_t) status.playerState, (uint8_t) status.webState.input);
   if (statusHandler) {
     statusHandler->handleCoreStatus(status);
   }
