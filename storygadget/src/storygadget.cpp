@@ -12,9 +12,6 @@ void StoryGadget::setup() {
   pinMode(READING_LED, OUTPUT);
   pinMode(MENU_LED, OUTPUT);
 
-  const uint8_t blinks[] = {SELECTING_LED, READING_LED, MENU_LED};
-  activityControls.blink(blinks, 3, 5, 200);
-
   GadgetBase::setup();
 
   core.setup(CORE_STATUS_IRQ);
@@ -25,6 +22,9 @@ void StoryGadget::setup() {
 
   core.init(STARTUP_IMAGE);
   core.playSound(STARTUP_TRACK);
+
+  const uint8_t blinks[] = {SELECTING_LED, READING_LED, MENU_LED};
+  activityControls.blink(blinks, 3, 5, 200);
 
   LOG("Story Gadget started.");
 }
