@@ -68,20 +68,23 @@ void ActivityLogger::printLocation(const char* file, unsigned int line) {
   print("%20s:%3d | ", formatted, line);
 }
 
-void ActivityLogger::dump(const unsigned char* bytes, uint8_t length) {
+void ActivityLogger::tohex(const unsigned char* bytes, uint8_t length, char* buffer) {
   static const char hex_chars[] = "0123456789abcdef";
+  for (uint8_t i = 0; i < length; i++) {
+    buffer[i * 2] = hex_chars[(bytes[i] >> 4) & 0x0F];
+    buffer[i * 2 + 1] = hex_chars[bytes[i] & 0x0F];
+  }
+  buffer[length * 2] = '\0';
+}
 
+void ActivityLogger::dump(const unsigned char* bytes, uint8_t length) {
   char buffer[PRINT_BUFFER_SIZE + 1];
 
   if (length > PRINT_BUFFER_SIZE / 2) {
     length = PRINT_BUFFER_SIZE / 2;
   }
 
-  for (uint8_t i = 0; i < length; i++) {
-    buffer[i * 2] = hex_chars[(bytes[i] >> 4) & 0x0F];
-    buffer[i * 2 + 1] = hex_chars[bytes[i] & 0x0F];
-  }
-  buffer[length * 2] = '\0';
+  tohex(bytes, length, buffer);
 
   Serial.print(F("dump["));
   Serial.print(length);

@@ -121,7 +121,8 @@ class ActivityLogger {
   void println(const char* fmt, bool isFlash, va_list args);
 #endif
   void printLocation(const char* file, unsigned int line);
-  void dump(const unsigned char* buffer, uint8_t length);
+  void dump(const unsigned char* bytes, uint8_t length);
+  void tohex(const unsigned char* bytes, uint8_t length, char* buffer);
 };
 
 extern ActivityLogger activityLogger;
