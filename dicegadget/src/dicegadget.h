@@ -1,11 +1,8 @@
 #pragma once
 
-#include <button/button.h>
 #include <modules/gadget.h>
 #include <modules/coreclient.h>
 #include "inputcontroller.h"
-
-#include "const.h"
 
 class DiceGadget : public GadgetBase, public CoreStatusHandler {
  public:

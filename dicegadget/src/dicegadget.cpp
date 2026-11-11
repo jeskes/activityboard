@@ -1,4 +1,5 @@
 #include "dicegadget.h"
+#include "const.h"
 
 const uint8_t indicators[] = {INDICATOR_LED_1, INDICATOR_LED_2, INDICATOR_LED_3, INDICATOR_LED_4, INDICATOR_LED_5, INDICATOR_LED_6};
 const uint8_t countIndicators = sizeof(indicators) / sizeof(uint8_t);
