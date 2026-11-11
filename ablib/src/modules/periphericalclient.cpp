@@ -6,7 +6,7 @@ PeriphericalClient::PeriphericalClient(ClientId client)
 
 bool PeriphericalClient::sendRequest(ModuleId module, BaseRequest* request, uint8_t length) {
   if (request->type == RequestType::STATUS && ((StatusRequest*)request)->statusType == StatusType::CORE_DATA) {
-    DUMP(request, length);
+    // DUMP(request, length);
   }
 
   Wire.beginTransmission(module);
@@ -32,7 +32,7 @@ bool PeriphericalClient::requestStatus(ModuleId module, ClientId client, StatusT
     for (int idx = 0; idx < length; idx++) {
       buffer[idx] = Wire.read();
     }
-    DUMP(status, length);
+    // DUMP(status, length);
   }
   while (Wire.available()) {
     Wire.read();
