@@ -4,6 +4,7 @@ static volatile bool statusAvailable = false;
 
 static void IRAM_ATTR statusInterrupt() {
   statusAvailable = true;
+  LOG("interrupted");
 }
 
 ActivityCoreClient::ActivityCoreClient(ClientId client)
@@ -54,7 +55,7 @@ void ActivityCoreClient::putParam(ParameterId id, const char* value) {
 }
 
 void ActivityCoreClient::playMusic(MusicId id) {
-  LOG("send display message request : id=%s.", id);
+  LOG("send play music request : id=%s.", id);
   PlayMusicRequest request(client, id);
   sendRequest(CORE_MODULE_ID, &request, sizeof(PlayMusicRequest));
   blockCoreStatusProcessing(500);
