@@ -13,18 +13,14 @@ CoreService::CoreService()
 }
 
 void CoreService::setup(uint8_t module) {
-  pinMode(CORE_STATUS_IRQ, OUTPUT);
-  digitalWrite(CORE_STATUS_IRQ, HIGH);
-
   PeriphericalService::setup(module);
-
+  
   if (Wire1.begin(WIRE1_SDA, WIRE1_SCL, 400000)) {
     LOG("Wire1 initialized");
   }
   else {
     LOG("Wire1 initialization failed");
   }
-
   rotary.setup();
   extras.setup();
   ledRing.setup();
@@ -43,6 +39,9 @@ void CoreService::setup(uint8_t module) {
     LOG("wifi state changed");
     fireCoreStatusUpdate();
   });
+
+  pinMode(CORE_STATUS_IRQ, OUTPUT);
+  digitalWrite(CORE_STATUS_IRQ, HIGH);
 
   LOG("Display Service started.");
 }
@@ -92,7 +91,7 @@ void CoreService::processRequest(BaseRequest* request) {
 
 void CoreService::processRequest(InitCoreRequest* request) {
   ImageDef def = contexts.get(request->client).getImageDef(request->startupImage);
-  // LOG("draw startup image: id=%s, path=%s.", request->startupImage, def.path);
+  LOG("draw startup image: id=%s, path=%s.", request->startupImage, def.path);
   auto& dsp = display;
   runner.schedule([&dsp, def]() { dsp.drawImage(def, 0, 0); });
   wifi.configureClient(request->client);
@@ -103,19 +102,19 @@ void CoreService::processRequest(ClearDisplayRequest* request) {
 }
 
 void CoreService::processRequest(ParameterRequest* request) {
-  // LOG("put param: client=%d, id=%s, value=%s.", request->client, request->id, request->value);
+  LOG("put param: client=%d, id=%s, value=%s.", request->client, request->id, request->value);
   contexts.get(request->client).putParam(request->id, request->value, request->append);
 }
 
 void CoreService::processRequest(DisplayMessageRequest* request) {
   String message = contexts.get(request->client).formatMessage(request->messageId);
-  // LOG("draw message: id=%s, message=%s.", request->messageId, message.c_str());
+  LOG("draw message: id=%s, message=%s.", request->messageId, message.c_str());
   display.drawText(message.c_str());
 }
 
 void CoreService::processRequest(DisplayMenuRequest* request) {
   MenuDef def = contexts.get(request->client).getMenuDef(request->menuId);
-  // LOG("open menu: id=%s.", request->menuId);
+  LOG("open menu: id=%s.", request->menuId);
   auto& dsp = display;
   auto selectedIndex = request->selectedIndex;
   runner.schedule([&dsp, def, selectedIndex]() { dsp.drawMenu(def, selectedIndex); });
@@ -123,14 +122,14 @@ void CoreService::processRequest(DisplayMenuRequest* request) {
 
 void CoreService::processRequest(DisplayImageRequest* request) {
   ImageDef def = contexts.get(request->client).getImageDef(request->imageId);
-  // LOG("draw image: id=%s, path=%s.", request->imageId, def.path);
+  LOG("draw image: id=%s, path=%s.", request->imageId, def.path);
   auto& dsp = display;
   runner.schedule([&dsp, def]() { dsp.drawImage(def, 0, 0); });
 }
 
 void CoreService::processRequest(PlayMusicRequest* request) {
   MusicDef def = contexts.get(request->client).getMusicDef(request->musicId);
-  // LOG("play music: id=%s, folder=%d, track=%d", request->musicId, def.folder, def.track);
+  LOG("play music: id=%s, folder=%d, track=%d", request->musicId, def.folder, def.track);
   player.play(def.folder, def.track);
 }
 
@@ -169,8 +168,12 @@ bool CoreService::handleRequest(StatusRequest* request) {
 
 bool CoreService::handleRequest(ReadDataRequest* request) {
   DataDef def = contexts.get(request->client).getDataDef(request->dataId);
-  // LOG("read data: id=%s, path=%s", request->dataId, def.path);
-  return storage.sdAccess([&]() { return DataProvider::init(storage.open(def.path)); });
+  LOG("read data: id=%s, path=%s", request->dataId, def.path);
+  return storage.sdAccess([&]() {
+    File file = storage.open(def.path);
+    return DataProvider::init(file);
+    file.close();
+  });
 }
 
 void CoreService::fireCoreStatusUpdate() {
@@ -179,10 +182,10 @@ void CoreService::fireCoreStatusUpdate() {
 }
 
 bool CoreService::writeCoreStatus() {
-  LOG("write core status: player=%d", player.playerState);
   digitalWrite(CORE_STATUS_IRQ, HIGH);
   CoreStatus status(statusSerial++);
   status.playerState = player.playerState;
   status.webState = wifi.fetchState();
+  LOG("write core status: playerState=%d, webInput=0x%02X", status.playerState, status.webState.input);
   return writeStatus(&status, sizeof(CoreStatus));
 }
