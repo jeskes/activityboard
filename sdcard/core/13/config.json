@@ -6,9 +6,16 @@
 		"WELCOME": "Willkommen bei Musicbox"
 	},
 	"music": {
-		"04A2B3C4D5E6F7": {
+		"8a5b8e4f": {
 			"folder": null,
 			"track": 1
+		},
+		"17bf224d": {
+			"track": 2
+		},
+		"049e979ce42a81": {
+			"track": 3
 		}
+
 	}
 }
