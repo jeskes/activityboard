@@ -51,9 +51,10 @@ class ActivityCoreClient : public PeriphericalClient {
   void requestCoreStatus(CoreStatus& status);
 
   unsigned long heartbeat;
-  unsigned long statusBlocked;
   void processAvailableStatus();
-  void blockStatusProcessing(unsigned long timeout);
+  
+  unsigned long coreStatusBlocked;
+  void blockCoreStatusProcessing(unsigned long timeout);
   
   CoreStatusHandler* statusHandler;
 };
