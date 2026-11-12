@@ -1,10 +1,13 @@
 #include "storygadget.h"
 
+#include "const.h"
+
 StoryGadget::StoryGadget()
     : core(STORYGADGET_ID),
+      nfc(core),
       definition(core),
-      selection(definition, core, input),
-      story(definition, core, input) {
+      selectionController(definition, core, inputController),
+      storyController(definition, core, inputController) {
 }
 
 void StoryGadget::setup() {
@@ -12,19 +15,21 @@ void StoryGadget::setup() {
   pinMode(READING_LED, OUTPUT);
   pinMode(MENU_LED, OUTPUT);
 
-  GadgetBase::setup();
+  GadgetBase::setup(READING_LED);
+  SPI.begin();
 
   core.setup(CORE_STATUS_IRQ);
+  nfc.setup();
   definition.setup();
-  input.setup();
-  selection.setup();
-  story.setup();
+  inputController.setup();
+  selectionController.setup();
+  storyController.setup();
+
+  nfc.setHandler(this);
 
   core.init(STARTUP_IMAGE);
   core.playSound(STARTUP_TRACK);
-
-  const uint8_t blinks[] = {SELECTING_LED, READING_LED, MENU_LED};
-  activityControls.blink(blinks, 3, 5, 200);
+  core.setStatusHandler(this);
 
   LOG("Story Gadget started.");
 }
@@ -33,36 +38,62 @@ void StoryGadget::loop() {
   GadgetBase::loop();
 
   core.loop();
+  nfc.loop();
 
-  if (selection.isBusy()) {
-    StoryId selectedStory = selection.loop();
+  if (selectionController.isBusy()) {
+    StoryId selectedStory = selectionController.loop();
     if (selectedStory) {
       resetPending = true;
-      story.run(selectedStory);
+      storyController.run(selectedStory);
     }
   }
-  else if (story.isBusy()) {
-    story.loop();
+  else if (storyController.isBusy()) {
+    storyController.loop();
   }
   else {
     if (resetPending) {
       resetPending = false;
       core.displayImage(STARTUP_IMAGE);
     }
-    Input in = input.get();
-    if (in == StdInput::START) {
+    Input input = inputController.get();
+    if (input == StdInput::START) {
       LOG("started");
-      selection.run();
+      selectionController.run();
       resetPending = true;
     }
-    else if (in >= StdInput::NUM_1 && (int)in <= definition.storiesCount) {
-      LOG("story %d selected", in);
+    else if (input >= StdInput::NUM_1 && (int)input <= definition.storiesCount) {
+      LOG("story %d selected", input);
       resetPending = true;
-      story.run(definition.getStoryId((int)in - 1));
+      storyController.run(definition.getStoryId((int)input - 1));
     }
   }
 
-  digitalWrite(SELECTING_LED, selection.isBusy() ? HIGH : LOW);
-  digitalWrite(READING_LED, (story.isBusy() && !story.inMenu()) ? HIGH : LOW);
-  digitalWrite(MENU_LED, (story.isBusy() && story.inMenu()) ? HIGH : LOW);
+  digitalWrite(SELECTING_LED, selectionController.isBusy() ? HIGH : LOW);
+  digitalWrite(READING_LED, (storyController.isBusy() && !storyController.inMenu()) ? HIGH : LOW);
+  digitalWrite(MENU_LED, (storyController.isBusy() && storyController.inMenu()) ? HIGH : LOW);
+}
+
+void StoryGadget::onNewRfidCard(RfidId rfid) {
+  StoryId story = definition.getStoryIdByRfid(rfid);
+  if (!story) {
+    return;
+  }
+
+  if (selectionController.isBusy()) {
+    selectionController.stop();
+  }
+  else if (!storyController.isBusy()) {
+    storyController.stop();
+  }
+
+  LOG("rfid story %d selected", story);
+  resetPending = true;
+  storyController.run(story);
+}
+
+void StoryGadget::onRfidCardRemoved() {
+  /* ignore card removal */
+}
+
+void StoryGadget::handleCoreStatus(CoreStatus coreStatus) {
 }

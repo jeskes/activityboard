@@ -14,7 +14,7 @@ CoreService::CoreService()
 
 void CoreService::setup(uint8_t module) {
   PeriphericalService::setup(module);
-  
+
   if (Wire1.begin(WIRE1_SDA, WIRE1_SCL, 400000)) {
     LOG("Wire1 initialized");
   }
@@ -179,10 +179,11 @@ bool CoreService::handleRequest(ReadDataRequest* request) {
 void CoreService::fireCoreStatusUpdate() {
   LOG("fire core status change");
   digitalWrite(CORE_STATUS_IRQ, LOW);
+  delayMicroseconds(10);
+  digitalWrite(CORE_STATUS_IRQ, HIGH);
 }
 
 bool CoreService::writeCoreStatus() {
-  digitalWrite(CORE_STATUS_IRQ, HIGH);
   CoreStatus status(statusSerial++);
   status.playerState = player.playerState;
   status.webState = wifi.fetchState();

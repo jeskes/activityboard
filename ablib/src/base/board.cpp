@@ -20,20 +20,21 @@ void ActivityBoard::setup() {
     delay(50);
   }
   LOG("initialize wire as gadget (master).");
-  clearI2CBus();
 #if defined(ARDUINO_ARCH_ESP32)
-  if (!Wire.begin(WIRE_SDA, WIRE_SCL, 100000)) {
+  clearI2CBus(WIRE_SDA, WIRE_SCL);
+  if (!Wire.begin(WIRE_SDA, WIRE_SCL, WIRE_SPEED)) {
     LOG("failed to initialize wire.");
   }
   else {
     LOG("Wire initialized for gadget (master).");
   }
 #else
+  clearI2CBus(WIRE_SDA, WIRE_SCL);
   Wire.begin();
   // Wire.setTimeout(50);
   LOG("Wire initialized for gadget (master).");
 #endif
-  Wire.setClock(100000);
+  Wire.setClock(WIRE_SPEED);
 }
 
 /* ========================================================================= */
@@ -50,7 +51,7 @@ void ActivityBoard::setup(uint8_t module) {
   int trials = 40;
   bool success = false;
   LOG("initialize wire using sda=%d, scl=%d", WIRE_SDA, WIRE_SCL);
-  while (trials && !(success = Wire.begin(module, WIRE_SDA, WIRE_SCL, 100000))) {
+  while (trials && !(success = Wire.begin(module, WIRE_SDA, WIRE_SCL, WIRE_SPEED))) {
     delay(50);
     trials--;
   }
@@ -92,5 +93,5 @@ void ActivityBoard::clearI2CBus(uint8_t sda, uint8_t scl) {
   delayMicroseconds(5);
   pinMode(sda, INPUT_PULLUP);  // Wieder als Input freigeben
 
-  LOG("cleared I2C bus at (%d,%d) with SDA=%d.", sda, scl, digitalRead(sda));
+  LOG("cleared I2C bus at (%d,%d) with levels SDA=%d, SCL=%d", sda, scl, digitalRead(sda), digitalRead(scl));
 }

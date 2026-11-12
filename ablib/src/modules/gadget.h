@@ -5,6 +5,6 @@
 class GadgetBase {
  public:
   Scheduler scheduler;
-  virtual void setup();
+  virtual void setup(uint8_t startupLed);
   virtual void loop();
 };

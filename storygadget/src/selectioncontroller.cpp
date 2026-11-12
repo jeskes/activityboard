@@ -1,9 +1,9 @@
 #include "selectioncontroller.h"
 
-SelectionController::SelectionController(Definition& definition, ActivityCoreClient& core, InputController& input)
+SelectionController::SelectionController(Definition& definition, ActivityCoreClient& core, InputController& inputController)
     : definition(definition),
       core(core),
-      input(input) {
+      inputController(inputController) {
 }
 
 void SelectionController::setup() {
@@ -14,6 +14,11 @@ void SelectionController::run() {
   currentIndex = -1;
   currentTimeout = 0;
   loop();
+}
+
+void SelectionController::stop() {
+  core.stopSound();
+  currentIndex = -1;
 }
 
 bool SelectionController::isBusy() {
@@ -30,29 +35,28 @@ StoryId SelectionController::loop() {
     initCurrentSelection();
   }
 
-  Input in = input.get();
+  Input input = inputController.get();
 
-  if (in == StdInput::START) {
+  if (input == StdInput::START) {
     LOG("story %d selected", currentIndex + 1);
     return onStorySelected(currentIndex);
   }
-  else if (in >= StdInput::NUM_1 && (int)in <= definition.storiesCount) {
-    LOG("story %d selected", in);
-    return onStorySelected((int)in - 1);
+  else if (input >= StdInput::NUM_1 && (int)input <= definition.storiesCount) {
+    LOG("story %d selected", input);
+    return onStorySelected((int)input - 1);
   }
-  else if (in == StdInput::REPEAT) {
+  else if (input == StdInput::REPEAT) {
     LOG("repeat selection");
     initCurrentSelection();
   }
-  else if (in == StdInput::NEXT) {
+  else if (input == StdInput::NEXT) {
     LOG("next selection");
     currentIndex = (currentIndex + 1) % definition.storiesCount;
     initCurrentSelection();
   }
-  else if (in == StdInput::STOP) {
+  else if (input == StdInput::STOP) {
     LOG("selection stopped");
-    core.stopSound();
-    currentIndex = -1;
+    stop();
   }
 
   return nullptr;
@@ -66,7 +70,6 @@ void SelectionController::initCurrentSelection() {
 }
 
 StoryId SelectionController::onStorySelected(int index) {
-  core.stopSound();
-  currentIndex = -1;
+  stop();
   return definition.getStoryId(index);
 }

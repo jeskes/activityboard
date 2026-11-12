@@ -10,7 +10,7 @@ MusicGadget::MusicGadget()
 }
 
 void MusicGadget::setup() {
-  GadgetBase::setup();
+  GadgetBase::setup(INDICATOR_PLAYING);
 
   SPI.begin();
 
@@ -18,10 +18,10 @@ void MusicGadget::setup() {
   core.setup(CORE_STATUS_IRQ);
 
   core.init(STARTUP_IMAGE);
+  core.playSound(STARTUP_TRACK);
   core.setStatusHandler(this);
 
-  pinMode(INDICATOR_PLAYING, OUTPUT);
-  activityControls.blink(INDICATOR_PLAYING, 5, 200);
+  pinMode(STOP_BUTTON, INPUT_PULLUP);
 
   LOG("Music Gadget started.");
 }
@@ -30,9 +30,15 @@ void MusicGadget::loop() {
   GadgetBase::loop();
   nfc.loop();
   core.loop();
+
+  if (playing && activityControls.buttonPressed(STOP_BUTTON)) {
+    core.stopSound();
+    playing = false;
+	digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
+  }
 }
 
 void MusicGadget::handleCoreStatus(CoreStatus coreStatus) {
-  bool playing = coreStatus.playerState == PlayerState::PLAYING;
+  playing = coreStatus.playerState == PlayerState::PLAYING;
   digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
 }

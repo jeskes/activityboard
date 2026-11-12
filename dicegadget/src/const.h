@@ -28,7 +28,7 @@ inline constexpr uint8_t INDICATOR_LED_6 = 12;
 inline constexpr uint8_t NOISE_PIN = A0;
 
 /* timeouts */
-inline constexpr unsigned long INDICATING_TIMEOUT = 5000;
+inline constexpr unsigned long INDICATING_TIMEOUT = 2500;
 inline constexpr unsigned long JINGLE_PLAYING_TIMEOUT = 12000;
 inline constexpr unsigned long NUMBER_PLAYING_TIMEOUT = 15000;
 inline constexpr unsigned long AUTORESET_TIMEOUT = 20000;

@@ -10,6 +10,7 @@ class DiceGadget : public GadgetBase, public CoreStatusHandler {
 
   void setup();
   void loop();
+  
   void handleCoreStatus(CoreStatus status) override;
 
  private:

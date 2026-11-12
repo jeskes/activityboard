@@ -20,7 +20,8 @@ inline constexpr uint8_t INDICATOR_PLAYING = 7;
 /* image identifiers */
 inline constexpr ImageId STARTUP_IMAGE = "STARTUP";
 
-/* nfc pins */
+/* track identifiers */
+inline constexpr TrackId STARTUP_TRACK = 1;
 
 /* rc522 module pins */
 inline constexpr uint8_t RC522_RST = 9;

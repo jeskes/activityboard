@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ArduinoJson.h>
 #include <modules/coreclient.h>
 
 #include "const.h"
@@ -12,14 +11,16 @@ class SelectionController {
   SelectionController(Definition& definiton, ActivityCoreClient& core, InputController& input);
 
   void setup();
-  void run();
   StoryId loop();
+
+  void run();
+  void stop();
   bool isBusy();
 
  private:
   Definition& definition;
   ActivityCoreClient& core;
-  InputController& input;
+  InputController& inputController;
 
   int currentIndex = -1;
   unsigned long currentTimeout = 0;

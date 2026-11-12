@@ -15,14 +15,15 @@
 #define NUMPAD_MODULE_ID 0x20
 
 #ifdef ARDUINO_ARCH_ESP32
-inline constexpr int WIRE_SDA = 21;
-inline constexpr int WIRE_SCL = 22;
+inline constexpr uint8_t WIRE_SDA = 21;
+inline constexpr uint8_t WIRE_SCL = 22;
 inline constexpr uint8_t LED_BUILTIN = 14;
 #else
-#define IRAM_ATTR /* blank */
 inline constexpr uint8_t WIRE_SDA = A4;
 inline constexpr uint8_t WIRE_SCL = A5;
+#define IRAM_ATTR /* blank */
 #endif
+inline constexpr uint32_t WIRE_SPEED = 100000;
 
 inline constexpr uint8_t ID_BUFFER_SIZE = 26;
 inline constexpr uint8_t PARAM_NAME_BUFFER_SIZE = 10;
@@ -62,6 +63,7 @@ using MessageId = const char*;
 using ImageId = const char*;
 using MenuId = const char*;
 using DataId = const char*;
+using RfidId = const char*;
 
 using Input = uint8_t;
 /* predefined input values */
@@ -98,7 +100,7 @@ class ActivityBoard {
  public:
   void setup();
   void setup(ModuleId moduleId);
-  void clearI2CBus(uint8_t sda = WIRE_SDA, uint8_t scl = WIRE_SCL);
+  void clearI2CBus(uint8_t sda, uint8_t scl);
 };
 
 extern ActivityBoard activityBoard;

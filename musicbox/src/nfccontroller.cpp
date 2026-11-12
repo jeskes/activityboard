@@ -13,6 +13,11 @@ void NfcController::setup() {
   LOG("initialize mfrc522...");
   mfrc522.PCD_Init();
   delay(4);
+  mfrc522.PCD_DumpVersionToSerial();
+  bool ok = mfrc522.PCD_PerformSelfTest();
+  Serial.print("Hardware-Selbsttest: ");
+  Serial.println(ok ? "BESTANDEN (OK)" : "FEHLGESCHLAGEN");
+
   LOG("nfc reader initialized");
 }
 
@@ -49,7 +54,7 @@ void NfcController::checkCard() {
         missingCount++;
         if (missingCount >= 3) {
           LOG("card removed");
-          core.stopSound();
+          // core.stopSound();
           currentUIDLength = 0;
           memset(currentUID, 0, sizeof(currentUID));
           missingCount = 0;

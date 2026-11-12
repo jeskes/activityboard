@@ -16,6 +16,7 @@ class Definition {
   StoryId getStoryId(int index);
   JsonObject getStoryInfo(int index);
   JsonObject getStoryInfo(StoryId story);
+  StoryId getStoryIdByRfid(RfidId rfid);
   JsonDocument& getStoryDefinition(StoryId story);
 
  private:
@@ -23,6 +24,7 @@ class Definition {
   JsonDocument storiesDocument;
 
   StoryId stories[MAX_STORIES];
+  JsonObject storyInfos[MAX_STORIES];
   std::map<StoryId, JsonDocument> storyDefinitions;
 
   void loadStories();

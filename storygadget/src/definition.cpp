@@ -25,6 +25,7 @@ void Definition::loadStories() {
   for (JsonPair entry : entries) {
     if (storiesCount < MAX_STORIES) {
       stories[storiesCount] = entry.key().c_str();
+	  storyInfos[storiesCount] = entry.value();
       storiesCount++;
     }
     else {
@@ -45,6 +46,15 @@ JsonObject Definition::getStoryInfo(int index) {
 
 JsonObject Definition::getStoryInfo(StoryId story) {
   return storiesDocument[story].as<JsonObject>();
+}
+
+StoryId Definition::getStoryIdByRfid(RfidId rfid) {
+	for( int idx = 0; idx < storiesCount; idx++) {
+		if( storyInfos[idx]["rfid"].is<const char*>() && !strcmp( storyInfos[idx]["rfid"].as<const char*>(), rfid)) {
+			return stories[idx];
+		}
+	}
+	return nullptr;
 }
 
 JsonDocument& Definition::getStoryDefinition(StoryId story) {

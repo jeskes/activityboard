@@ -12,21 +12,21 @@ class StoryController : CoreStatusHandler {
   StoryController(Definition& definition, ActivityCoreClient& core, InputController& input);
 
   void setup();
-  bool run(StoryId story);
   void loop();
+
+  bool run(StoryId story);
+  bool stop();
   bool isBusy();
   bool inMenu();
 
  private:
   Definition& definition;
   ActivityCoreClient& core;
-  InputController& input;
+  InputController& inputController;
 
   StoryId activeStory;
   JsonVariant storyDefinition;
   TrackFolder tracks;
-
-  bool stop();
 
   ChapterId currentChapter;
   void startChapter(ChapterId chapter);

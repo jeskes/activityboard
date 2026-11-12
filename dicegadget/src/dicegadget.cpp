@@ -17,7 +17,7 @@ DiceGadget::DiceGadget()
 }
 
 void DiceGadget::setup() {
-  GadgetBase::setup();
+  GadgetBase::setup(indicators[5]);
 
   for (int idx = 0; idx < countIndicators; idx++) {
     pinMode(indicators[idx], OUTPUT);
@@ -30,7 +30,6 @@ void DiceGadget::setup() {
 
   core.init(STARTUP_IMAGE);
   core.playSound(STARTUP_TRACK);
-  activityControls.blink(indicators, countIndicators, 2, 200);
   core.setStatusHandler(this);
 
   LOG("Dice Gadget started.");

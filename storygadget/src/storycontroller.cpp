@@ -1,9 +1,9 @@
 #include "storycontroller.h"
 
-StoryController::StoryController(Definition& definition, ActivityCoreClient& core, InputController& input)
+StoryController::StoryController(Definition& definition, ActivityCoreClient& core, InputController& inputController)
     : core(core),
       definition(definition),
-      input(input),
+      inputController(inputController),
       playerMonitor(PlayerMonitor::UNDEFINED) {
 }
 
@@ -42,24 +42,24 @@ void StoryController::loop() {
     }
   }
 
-  Input in = input.get();
+  Input input = inputController.get();
 
-  if (in == StdInput::STOP) {
+  if (input == StdInput::STOP) {
     LOG("stop pressed");
     stop();
   }
   else if (currentMenu) {
-    if (in >= StdInput::NUM_1 && (int)in <= currentMenuSize) {
-      LOG("menu option %d selected at numpad.", in);
-      onMenuOptionSelected(((int)in - 1));
+    if (input >= StdInput::NUM_1 && (int)input <= currentMenuSize) {
+      LOG("menu option %d selected at numpad.", input);
+      onMenuOptionSelected(((int)input - 1));
     }
-    else if (in == StdInput::START) {
+    else if (input == StdInput::START) {
       onMenuOptionSelected(currentMenuSelection);
     }
-    else if (in == StdInput::REPEAT) {
+    else if (input == StdInput::REPEAT) {
       startMenu(currentMenu);
     }
-    else if (in == StdInput::NEXT) {
+    else if (input == StdInput::NEXT) {
       menuSelectionTimeout = 0;
       startMenuOption((currentMenuSelection + 1) % currentMenuSize);
     }
@@ -68,11 +68,11 @@ void StoryController::loop() {
       startMenuOption((currentMenuSelection + 1) % currentMenuSize);
     }
   }
-  else if (in == StdInput::REPEAT) {
+  else if (input == StdInput::REPEAT) {
     LOG("repeat pressed");
     startChapter(currentChapter);
   }
-  else if (in == StdInput::NEXT) {
+  else if (input == StdInput::NEXT) {
     LOG("next pressed");
     core.stopSound();
   }
