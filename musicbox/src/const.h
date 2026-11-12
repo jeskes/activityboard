@@ -12,7 +12,7 @@ inline constexpr uint16_t BLINK_RATE = 50;
 inline constexpr uint8_t CORE_STATUS_IRQ = 2;
 
 /* button pins */
-inline constexpr uint8_t START_BUTTON = 3;
+inline constexpr uint8_t STOP_BUTTON = 6;
 
 /* indicator pins */
 inline constexpr uint8_t INDICATOR_PLAYING = 7;
