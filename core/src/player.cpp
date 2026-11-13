@@ -75,10 +75,8 @@ bool Player::checkPlaying() {
 
 void Player::play(TrackFolder folder, TrackId track) {
   LOG("play sound: folder=%d, track=%d", folder, track);
-  noInterrupts();
   playerState = PlayerState::UNKNOWN;
   player.playFolder(folder, track);
-  interrupts();
   awaitBusy(true);
 }
 
