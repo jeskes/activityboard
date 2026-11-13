@@ -1,2 +1,5 @@
 temp/*
 ~$Activityboard.pptx
+sdcard/nginx/logs/access.log
+sdcard/nginx/logs/error.log
+sdcard/nginx/logs/nginx.pid
