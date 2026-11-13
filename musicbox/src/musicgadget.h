@@ -1,8 +1,8 @@
 #include <modules/coreclient.h>
 #include <modules/gadget.h>
 
-#include "nfccontroller.h"
 #include "inputcontroller.h"
+#include "nfccontroller.h"
 
 class MusicGadget : public GadgetBase, public CoreStatusHandler {
  public:
@@ -11,6 +11,7 @@ class MusicGadget : public GadgetBase, public CoreStatusHandler {
   void setup();
   void loop();
 
+  void handleInput(Input in);
   void handleCoreStatus(CoreStatus status) override;
 
  private:
@@ -19,6 +20,8 @@ class MusicGadget : public GadgetBase, public CoreStatusHandler {
   InputController inputController;
 
   bool playing;
+  bool wasPlaying;
   unsigned long notPlayingSince;
+
   uint8_t musicIndex;
 };

@@ -57,9 +57,10 @@
 		}
 	</style>
 	<script>
+		var connection = undefined;
 		function init() {
 			try {
-				var connection = new WebSocket('ws://' + location.hostname + ':81/');
+				connection = new WebSocket('ws://' + location.hostname + ':81/');
 				connection.onopen = function () {
 					document.getElementById('status').innerHTML = "connected. loading configuration...";
 				};

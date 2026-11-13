@@ -32,6 +32,23 @@ void MusicGadget::loop() {
   core.loop();
 
   Input input = inputController.get();
+  handleInput(input);
+
+  if (!playing) {
+    if (wasPlaying) {
+      notPlayingSince = millis();
+    }
+    else if (notPlayingSince && millis() > notPlayingSince + NOTPLAYING_RESET_TIMEOUT) {
+      core.displayImage(STARTUP_IMAGE);
+      notPlayingSince = 0;
+    }
+  }
+  wasPlaying = playing;
+
+  digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
+}
+
+void MusicGadget::handleInput(Input input) {
   switch (input) {
     case StdInput::START:
       if (!playing) {
@@ -52,23 +69,9 @@ void MusicGadget::loop() {
       playing = false;
       break;
   }
-
-  if (!playing) {
-    if (!notPlayingSince) {
-      notPlayingSince = millis();
-    }
-    else if (millis() > notPlayingSince + NOTPLAYING_RESET_TIMEOUT) {
-      notPlayingSince = 0;
-      core.displayImage(STARTUP_IMAGE);
-    }
-  }
-  else {
-	notPlayingSince = 0;
-  }
-
-  digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
 }
 
 void MusicGadget::handleCoreStatus(CoreStatus coreStatus) {
   playing = coreStatus.playerState == PlayerState::PLAYING;
+  handleInput(coreStatus.webState.input);
 }
