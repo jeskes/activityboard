@@ -144,7 +144,7 @@ void WifiController::handleImage(const char* path) {
   }
 
   server.setContentLength(imgFile.size());
-  server.send(200, "image/bmp", "");
+  server.send(200, "image/jpeg", "");
 
   uint8_t buffer[512];  // 512 Byte Puffer (schont den RAM des ESP32)
   while (imgFile.available()) {
