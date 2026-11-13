@@ -15,6 +15,9 @@ bool StoryController::run(StoryId story) {
   currentChapter = nullptr;
   playerMonitor = PlayerMonitor::UNDEFINED;
 
+  const uint8_t blinks[] = {SELECTING_LED, READING_LED, MENU_LED};
+  activityControls.blink(blinks, 3, 3, 100);
+
   storyDefinition = definition.getStoryDefinition(story);
   tracks = storyDefinition["tracks"].as<TrackFolder>();
   ChapterId start = storyDefinition["start"].as<ChapterId>();
