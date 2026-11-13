@@ -30,7 +30,7 @@ void Storage::setup(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t cs) {
   resetSDCardSPI(cs, mosi, miso, clk);
 
   SPI.begin(clk, miso, mosi, -1);
-  if (!sd.begin(cs, SPI)) {
+  if (!sd.begin(cs, SPI, 20000000)) {
     LOG("SD card not available.");
     return;
   }
