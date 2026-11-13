@@ -45,6 +45,7 @@ inline constexpr unsigned long DEFAULT_BUZZER_TIMEOUT = 250;
 constexpr unsigned long BUTTON_PRESSED_TIMEOUT = 200;
 
 constexpr unsigned long CORECLIENT_HEARTBEAT_TIMEOUT = 2000;
+constexpr unsigned long CORECLIENT_DISCONNECTED_TIMEOUT = 5000;
 
 /* ========================================================================= */
 /*                                                             general types */

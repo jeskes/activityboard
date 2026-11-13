@@ -40,6 +40,7 @@ void CoreService::setup(uint8_t module) {
     fireCoreStatusUpdate();
   });
 
+  extras.addHandler(EXTRAS_STOP_BUTTON, [&]() { stopAll(); });
   pinMode(CORE_STATUS_IRQ, OUTPUT);
   digitalWrite(CORE_STATUS_IRQ, HIGH);
 
@@ -52,6 +53,17 @@ void CoreService::loop() {
   rotary.loop();
   extras.loop();
   scheduler.execute();
+
+  if (lastHeartbeat && millis() > lastHeartbeat + CORECLIENT_DISCONNECTED_TIMEOUT) {
+	stopAll();
+    lastHeartbeat = 0;
+  }
+}
+
+void CoreService::stopAll() {
+	LOG("stop all");
+    display.drawImage(STARTUP_IMAGE);
+	player.stop();
 }
 
 void CoreService::processRequest(BaseRequest* request) {
@@ -143,6 +155,7 @@ void CoreService::processRequest(StopSoundRequest* request) {
 }
 
 bool CoreService::handleRequest(BaseRequest* request) {
+  lastHeartbeat = millis();
   switch (request->type) {
     case RequestType::STATUS:
       return handleRequest((StatusRequest*)request);

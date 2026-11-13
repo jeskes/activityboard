@@ -20,6 +20,7 @@ inline constexpr uint8_t EXTRAS_EXPANSION_ID = 0x21;
 inline constexpr uint8_t EXTRAS_EXPANSION_INT = 39;
 inline constexpr uint8_t EXTRAS_WIFI_BUTTON = 0;
 inline constexpr uint8_t EXTRAS_WIFI_LED = 1;
+inline constexpr uint8_t EXTRAS_STOP_BUTTON = 2;
 
 /* wifi */
 

@@ -33,6 +33,7 @@ class CoreService : public PeriphericalService {
 
   void setup(uint8_t module) override;
   void loop() override;
+  void stopAll();
 
   /* queued request processing */
   void processRequest(BaseRequest* request) override;
@@ -53,4 +54,6 @@ class CoreService : public PeriphericalService {
 
   bool writeCoreStatus();
   void fireCoreStatusUpdate();
+
+  unsigned long lastHeartbeat;
 };
