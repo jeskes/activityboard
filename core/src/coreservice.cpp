@@ -95,6 +95,7 @@ void CoreService::processRequest(InitCoreRequest* request) {
   auto& dsp = display;
   runner.schedule([&dsp, def]() { dsp.drawImage(def, 0, 0); });
   wifi.configureClient(request->client);
+  player.stop();
 }
 
 void CoreService::processRequest(ClearDisplayRequest* request) {
