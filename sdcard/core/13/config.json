@@ -1,6 +1,9 @@
 {
 	"images": {
-		"STARTUP": "startup.raw"
+		"STARTUP": "startup.raw",
+		"8a5b8e4f": "bongobong.raw",
+		"17bf224d": "hamkumst.raw",
+		"049e979ce42a81": "woid.raw"
 	},
 	"messages": {
 		"WELCOME": "Willkommen bei Musicbox"
@@ -16,6 +19,5 @@
 		"049e979ce42a81": {
 			"track": 4
 		}
-
 	}
 }

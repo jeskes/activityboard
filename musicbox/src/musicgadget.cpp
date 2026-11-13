@@ -34,11 +34,14 @@ void MusicGadget::loop() {
   if (playing && activityControls.buttonPressed(STOP_BUTTON)) {
     core.stopSound();
     playing = false;
-	digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
+    digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
   }
 }
 
 void MusicGadget::handleCoreStatus(CoreStatus coreStatus) {
   playing = coreStatus.playerState == PlayerState::PLAYING;
   digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
+  if (!playing) {
+    core.displayImage(STARTUP_IMAGE);
+  }
 }

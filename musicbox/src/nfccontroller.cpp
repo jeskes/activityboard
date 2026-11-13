@@ -44,6 +44,7 @@ void NfcController::checkCard() {
         LOG("found new card: uid=%s", uid);
 
         core.playMusic(uid);
+		core.displayImage(uid);
 		activityControls.blink(INDICATOR_PLAYING, 3, 100);
         digitalWrite(INDICATOR_PLAYING, HIGH);
       }
