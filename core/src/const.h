@@ -42,8 +42,8 @@ inline constexpr long INITIAL_BRIGHTNESS = 180;
 inline constexpr long MINIMUM_BRIGHTNESS = 20;
 inline constexpr long MAXIMUM_BRIGHTNESS = 255;
 
-/* chunk for images : 320 cols, 8 rows, 16 bit (2 byte) color rgb565be */
-inline constexpr unsigned int DISPLAY_BUFFER_SIZE = 320 * 8 * 2;
+/* chunk for images : 320 cols, 12 rows, 16 bit (2 byte) color rgb565be */
+inline constexpr unsigned int DISPLAY_BUFFER_SIZE = 320 * 12 * 2;
 
 /* dfplayer */
 

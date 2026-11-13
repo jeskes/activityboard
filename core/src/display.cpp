@@ -17,7 +17,7 @@ void Display::setup() {
   LOG("setup TFT display...");
 
   spi.begin(TFT_CLK, TFT_MISO, TFT_MOSI, -1);
-  tft.begin();
+  tft.begin(40000000);
 
   tft.setRotation(1);
 
@@ -91,7 +91,7 @@ void Display::drawImage(const char* path, int16_t x, int16_t y, uint16_t width, 
     return;
   }
 
-  File file = storage.sdAccess([&]() { return storage.open(path); });
+  File file = storage.open(path);
   if (!file) {
     LOG("image file not found: file=%s", path);
     return;
@@ -103,12 +103,16 @@ void Display::drawImage(const char* path, int16_t x, int16_t y, uint16_t width, 
     int rows = min(maxRows, height - row);
     int chunkSize = rows * width * 2;
 
-    // storage.sdAccess([&]() { file.read((uint8_t*)buffer, chunkSize); });
-    storage.sdAccess([file, chunkSize, this]() mutable { file.read((uint8_t*)buffer, chunkSize); });
+    file.read((uint8_t*)buffer, chunkSize);
 
-    tft.drawRGBBitmap(x, y + row, buffer, width, rows);
+    // tft.drawRGBBitmap(x, y + row, buffer, width, rows);
+
+    tft.startWrite();
+    tft.setAddrWindow(x, y+row, width, rows);
+    tft.writePixels(buffer, width * rows);
+    tft.endWrite();
+
     row += rows;
-    vTaskDelay(1);
   } while (row < height);
 
   storage.sdAccess([&]() { file.close(); });
