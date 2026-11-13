@@ -55,15 +55,15 @@ void CoreService::loop() {
   scheduler.execute();
 
   if (lastHeartbeat && millis() > lastHeartbeat + CORECLIENT_DISCONNECTED_TIMEOUT) {
-	stopAll();
+    stopAll();
     lastHeartbeat = 0;
   }
 }
 
 void CoreService::stopAll() {
-	LOG("stop all");
-    display.drawImage(STARTUP_IMAGE);
-	player.stop();
+  LOG("stop all");
+  display.drawImage(STARTUP_IMAGE);
+  player.stop();
 }
 
 void CoreService::processRequest(BaseRequest* request) {
@@ -137,13 +137,28 @@ void CoreService::processRequest(DisplayImageRequest* request) {
   ImageDef def = contexts.get(request->client).getImageDef(request->imageId);
   LOG("draw image: id=%s, path=%s.", request->imageId, def.path);
   auto& dsp = display;
-  runner.schedule([&dsp, def]() { dsp.drawImage(def, 0, 0); });
+  runner.schedule([&dsp, def]() { dsp.drawImage(def); });
 }
 
 void CoreService::processRequest(PlayMusicRequest* request) {
-  MusicDef def = contexts.get(request->client).getMusicDef(request->musicId);
-  LOG("play music: id=%s, folder=%d, track=%d", request->musicId, def.folder, def.track);
+  MusicDef def;
+  ClientContext& context = contexts.get(request->client);
+  if (*request->musicId) {
+    def = context.getMusicDef(request->musicId);
+    LOG("play music: id=%s, folder=%d, track=%d", request->musicId, def.folder, def.track);
+  }
+  else {
+    def = context.getMusicDef(request->index);
+    LOG("play music: index=%d, folder=%d, track=%d", request->index, def.folder, def.track);
+  }
   player.play(def.folder, def.track);
+  LOG("music image: %s", def.image ? def.image : "undef");
+  if (request->displayImage && def.image) {
+    ImageDef imageDef = context.getImageDef(def.image);
+    LOG("draw image: id=%s, path=%s.", def.image, imageDef.path);
+    auto& dsp = display;
+    runner.schedule([&dsp, imageDef]() { dsp.drawImage(imageDef.path); });
+  }
 }
 
 void CoreService::processRequest(PlaySoundRequest* request) {

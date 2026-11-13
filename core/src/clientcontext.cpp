@@ -158,9 +158,31 @@ MusicDef ClientContext::getMusicDef(MusicId id) {
     JsonObject object = config["music"][id].as<JsonObject>();
     def.track = object["track"].as<TrackId>();
     def.folder = object["folder"].is<TrackFolder>() ? object["folder"].as<TrackFolder>() : client;
+    def.image = object["image"].is<ImageId>() ? object["image"].as<ImageId>() : nullptr;
   }
   else {
     LOG("music id %s not found", id);
+  }
+  return def;
+}
+
+MusicDef ClientContext::getMusicDef(uint8_t index) {
+  MusicDef def;
+  JsonObject music = config["music"].as<JsonObject>();
+  index = index % music.size();
+  uint8_t idx = 0;
+  for (JsonPair entry : music) {
+    if (idx == index) {
+      JsonObject object = entry.value().as<JsonObject>();
+      def.track = object["track"].as<TrackId>();
+      def.folder = object["folder"].is<TrackFolder>() ? object["folder"].as<TrackFolder>() : client;
+      def.image = object["image"].is<ImageId>() ? object["image"].as<ImageId>() : nullptr;
+      break;
+    }
+    idx++;
+  }
+  if (idx > index) {
+    LOG("music id %s not found", index);
   }
   return def;
 }

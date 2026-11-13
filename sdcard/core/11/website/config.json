@@ -1,9 +1,23 @@
 {
-  "title": "Lingo Bingo Dashboard",
-  "image": "/11/images/startup.bmp", 
-  "buttons": [
-    {"id": 1, "label": "Start", "color": "#28a745", "input": 16},
-    {"id": 3, "label": "Next Jingle", "color": "#dc3545", "input": 33},
-    {"id": 4, "label": "Next Guess", "color": "#ffc107", "input": 34}
-  ]
+	"image": "/11/images/startup.bmp",
+	"buttons": [
+		{
+			"label": "Start",
+			"textcolor": "black",
+			"fillcolor": "#2BE4A1",
+			"input": 16
+		},
+		{
+			"label": "Next Jingle",
+			"textcolor": "black",
+			"fillcolor": "#F2D055",
+			"input": 33
+		},
+		{
+			"label": "Next Guess",
+			"textcolor": "black",
+			"fillcolor": "#E4E4E4",
+			"input": 34
+		}
+	]
 }

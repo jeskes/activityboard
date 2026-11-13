@@ -123,11 +123,21 @@ struct __attribute__((packed)) PlaySoundRequest : public BaseRequest {
 };
 
 struct __attribute__((packed)) PlayMusicRequest : public BaseRequest {
-  PlayMusicRequest(ClientId client, MusicId id)
-      : BaseRequest(client, RequestType::PLAY_MUSIC) {
+  PlayMusicRequest(ClientId client, MusicId id, bool displayImage)
+      : BaseRequest(client, RequestType::PLAY_MUSIC),
+        index(0),
+        displayImage(displayImage) {
     strlcpy(musicId, id, ID_BUFFER_SIZE);
   }
+  PlayMusicRequest(ClientId client, uint8_t index, bool displayImage)
+      : BaseRequest(client, RequestType::PLAY_MUSIC),
+        index(index),
+        displayImage(displayImage) {
+    musicId[0] = 0;
+  }
   char musicId[ID_BUFFER_SIZE];
+  uint8_t index;
+  bool displayImage;
 };
 
 struct __attribute__((packed)) StopSoundRequest : public BaseRequest {

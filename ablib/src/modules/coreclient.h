@@ -32,7 +32,8 @@ class ActivityCoreClient : public PeriphericalClient {
   void putParam(ParameterId id, uint16_t value);
   void putParam(ParameterId id, const char* value);
 
-  void playMusic(MusicId id);
+  void playMusic(MusicId id, bool displayImage = true);
+  void playMusic(uint8_t index, bool displayImage = true);
 
   void playSound(TrackId id);
   void playSound(TrackFolder folder, TrackId id);

@@ -11,13 +11,16 @@
 	"music": {
 		"8a5b8e4f": {
 			"folder": null,
-			"track": 2
+			"track": 2,
+			"image": "8a5b8e4f"
 		},
 		"17bf224d": {
-			"track": 3
+			"track": 3,
+			"image": "17bf224d"
 		},
 		"049e979ce42a81": {
-			"track": 4
+			"track": 4,
+			"image": "049e979ce42a81"
 		}
 	}
 }

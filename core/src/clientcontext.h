@@ -25,6 +25,7 @@ struct DataDef {
 struct MusicDef {
   TrackFolder folder;
   TrackId track;
+  ImageId image;
 };
 
 class ClientContext {
@@ -39,6 +40,7 @@ class ClientContext {
   ImageDef getImageDef(ImageId id);
   DataDef getDataDef(DataId id);
   MusicDef getMusicDef(MusicId id);
+  MusicDef getMusicDef(uint8_t index);
 
   String utf8ToExtendedAscii(const String& utf8);
 

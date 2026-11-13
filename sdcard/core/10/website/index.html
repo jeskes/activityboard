@@ -16,7 +16,7 @@
 		}
 
 		.container {
-			max-width: 500px;
+			max-width: 320px;
 			margin: 0 auto;
 			background: white;
 			padding: 20px;
@@ -25,10 +25,10 @@
 		}
 
 		#main-image {
-			max-width: 100%;
 			height: auto;
-			border-radius: 5px;
-			margin-bottom: 15px;
+			max-width: 100%;
+			border-radius: 1em;
+			margin: 1em auto;
 		}
 
 		.btn {
@@ -37,9 +37,8 @@
 			margin: 10px 0;
 			width: 100%;
 			border: none;
-			color: white;
+			border-radius: 1em;
 			cursor: pointer;
-			border-radius: 5px;
 			font-weight: bold;
 			transition: opacity 0.2s;
 		}
@@ -58,21 +57,33 @@
 		}
 	</style>
 	<script>
-		var connection = new WebSocket('ws://' + location.hostname + ':81/');
-		connection.onopen = function () { document.getElementById('status').innerHTML = "connected. loading configuration..."; };
-		connection.onerror = function (error) { document.getElementById('status').innerHTML = "cannot connect to websocket"; };
-		connection.onmessage = function (e) {
-			var rawData = e.data;
-			if (rawData.startsWith("CONFIG:")) {
-				var config = JSON.parse(rawData.substring(7));
-				buildPage(config);
-				return;
+		function init() {
+			try {
+				var connection = new WebSocket('ws://' + location.hostname + ':81/');
+				connection.onopen = function () {
+					document.getElementById('status').innerHTML = "connected. loading configuration...";
+				};
+				connection.onerror = function (error) {
+					document.getElementById('status').innerHTML = "cannot connect to websocket";
+					fallback();
+				};
+				connection.onmessage = function (e) {
+					var rawData = e.data;
+					if (rawData.startsWith("CONFIG:")) {
+						var config = JSON.parse(rawData.substring(7));
+						buildPage(config);
+						return;
+					}
+				};
 			}
-		};
+			catch (e) {
+				document.getElementById('status').innerHTML = "cannot connect to websocket";
+				fallback();
+			}
+		}
 
 		function buildPage(config) {
-			if (config.title) document.getElementById('main-title').innerText = config.title;
-			
+			console.log('config'.config);
 			if (config.image) {
 				var img = document.getElementById('main-image');
 				img.src = config.image;
@@ -85,20 +96,30 @@
 				var btn = document.createElement('button');
 				btn.className = 'btn';
 				btn.innerText = btnData.label;
-				btn.style.backgroundColor = btnData.color || '#007bff';
-				btn.onclick = function () { connection.send("INPUT:" + btnData.input); };
+				btn.style.color = btnData.textcolor || '#000000';
+				btn.style.backgroundColor = btnData.fillcolor || '#007bff';
+				btn.onclick = function () {
+					connection.send("INPUT:" + btnData.input);
+				};
 				buttonContainer.appendChild(btn);
 			});
 
 			document.getElementById('status').innerHTML = "Ready";
 			document.getElementById('status').style.backgroundColor = "transparent";
 		}
+
+		async function fallback() {
+			console.log("fallback");
+			const response = await fetch("/12/website/config.json");
+			const config = await response.json();
+			buildPage(config);
+
+		}
 	</script>
 </head>
 
-<body>
+<body onload="init()">
 	<div class="container">
-		<h1 id="main-title">Fizz Bizz Dashboard</h1>
 		<img id="main-image" src="/10/images/startup.bmp">
 		<div id="button-container"></div>
 		<div id="status">Waiting for Fizz Bizz Client...</div>

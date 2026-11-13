@@ -1,0 +1,29 @@
+{
+	"image": "/12/images/startup.bmp",
+	"buttons": [
+		{
+			"label": "Start",
+			"textcolor": "black",
+			"fillcolor": "#2BE4A1",
+			"input": 16
+		},
+		{
+			"label": "Repeat",
+			"textcolor": "black",
+			"fillcolor": "#E4E4E4",
+			"input": 20
+		},
+		{
+			"label": "Next",
+			"textcolor": "white",
+			"fillcolor": "#3375C0",
+			"input": 18
+		},
+		{
+			"label": "Stop",
+			"textcolor": "white",
+			"fillcolor": "#DD2D2D",
+			"input": 17
+		}
+	]
+}

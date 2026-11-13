@@ -28,7 +28,7 @@ void ActivityCoreClient::loop() {
 }
 
 void ActivityCoreClient::init(ImageId startupImage) {
-  LOG("send display init request : startup.image=%s.", startupImage);
+  LOG("send display init request : startup.image=%s", startupImage);
   InitCoreRequest request(client, startupImage);
   sendRequest(CORE_MODULE_ID, &request, sizeof(InitCoreRequest));
 }
@@ -40,7 +40,7 @@ void ActivityCoreClient::clearDisplay() {
 }
 
 void ActivityCoreClient::putParam(ParameterId id, uint16_t value) {
-  LOG("send display param request : id=%s, value=%d.", id, value);
+  LOG("send display param request : id=%s, value=%d", id, value);
   char text[10];
   itoa(value, text, 10);
   ParameterRequest request(client, id, text, 0);
@@ -48,15 +48,22 @@ void ActivityCoreClient::putParam(ParameterId id, uint16_t value) {
 }
 
 void ActivityCoreClient::putParam(ParameterId id, const char* value) {
-  LOG("send display param request : id=%s, value=%s.", id, value);
+  LOG("send display param request : id=%s, value=%s", id, value);
   // TODO ---- chunks...
   ParameterRequest request(client, id, value, 0);
   sendRequest(CORE_MODULE_ID, &request, sizeof(ParameterRequest));
 }
 
-void ActivityCoreClient::playMusic(MusicId id) {
-  LOG("send play music request : id=%s.", id);
-  PlayMusicRequest request(client, id);
+void ActivityCoreClient::playMusic(MusicId id, bool displayImage) {
+  LOG("send play music request : id=%s", id);
+  PlayMusicRequest request(client, id, displayImage);
+  sendRequest(CORE_MODULE_ID, &request, sizeof(PlayMusicRequest));
+  blockCoreStatusProcessing(500);
+}
+
+void ActivityCoreClient::playMusic(uint8_t index, bool displayImage) {
+  LOG("send play music request : index=%d", index);
+  PlayMusicRequest request(client, index, displayImage);
   sendRequest(CORE_MODULE_ID, &request, sizeof(PlayMusicRequest));
   blockCoreStatusProcessing(500);
 }
@@ -66,7 +73,7 @@ void ActivityCoreClient::playSound(TrackId track) {
 }
 
 void ActivityCoreClient::playSound(TrackFolder folder, TrackId track) {
-  LOG("send play sound request : folder=%d, track=%d.", folder, track);
+  LOG("send play sound request : folder=%d, track=%d", folder, track);
   PlaySoundRequest request(client, folder, track);
   sendRequest(CORE_MODULE_ID, &request, sizeof(PlaySoundRequest));
   blockCoreStatusProcessing(500);
@@ -79,25 +86,25 @@ void ActivityCoreClient::stopSound() {
 }
 
 void ActivityCoreClient::displayMessage(MessageId id) {
-  LOG("send display message request : id=%s.", id);
+  LOG("send display message request : id=%s", id);
   DisplayMessageRequest request(client, id);
   sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayMessageRequest));
 }
 
 void ActivityCoreClient::displayImage(ImageId id) {
-  LOG("send display image request : id=%s.", id);
+  LOG("send display image request : id=%s", id);
   DisplayImageRequest request(client, id);
   sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayImageRequest));
 }
 
 void ActivityCoreClient::displayMenu(MenuId id, uint8_t selectedIndex) {
-  LOG("send display menu request : id=%s (%d).", id, selectedIndex);
+  LOG("send display menu request : id=%s (%d)", id, selectedIndex);
   DisplayMenuRequest request(client, id, selectedIndex);
   sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayMenuRequest));
 }
 
 DataStream ActivityCoreClient::readData(DataId id) {
-  LOG("send read data request : id=%s.", id);
+  LOG("send read data request : id=%s", id);
   ReadDataRequest request(client, id);
   sendRequest(CORE_MODULE_ID, &request, sizeof(ReadDataRequest));
   blockCoreStatusProcessing(2000);

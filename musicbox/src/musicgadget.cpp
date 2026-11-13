@@ -6,7 +6,8 @@
 
 MusicGadget::MusicGadget()
     : core(MUSICGADGET_ID),
-      nfc(core) {
+      nfc(core),
+      musicIndex(0xff) {
 }
 
 void MusicGadget::setup() {
@@ -16,12 +17,11 @@ void MusicGadget::setup() {
 
   nfc.setup();
   core.setup(CORE_STATUS_IRQ);
+  inputController.setup();
 
   core.init(STARTUP_IMAGE);
   core.playSound(STARTUP_TRACK);
   core.setStatusHandler(this);
-
-  pinMode(STOP_BUTTON, INPUT_PULLUP);
 
   LOG("Music Gadget started.");
 }
@@ -31,17 +31,44 @@ void MusicGadget::loop() {
   nfc.loop();
   core.loop();
 
-  if (playing && activityControls.buttonPressed(STOP_BUTTON)) {
-    core.stopSound();
-    playing = false;
-    digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
+  Input input = inputController.get();
+  switch (input) {
+    case StdInput::START:
+      if (!playing) {
+        musicIndex++;
+        core.playMusic(musicIndex);
+        playing = true;
+      }
+      break;
+    case StdInput::REPEAT:
+      core.playMusic(musicIndex);
+      break;
+    case StdInput::NEXT:
+      musicIndex++;
+      core.playMusic(musicIndex);
+      break;
+    case StdInput::STOP:
+      core.stopSound();
+      playing = false;
+      break;
   }
+
+  if (!playing) {
+    if (!notPlayingSince) {
+      notPlayingSince = millis();
+    }
+    else if (millis() > notPlayingSince + NOTPLAYING_RESET_TIMEOUT) {
+      notPlayingSince = 0;
+      core.displayImage(STARTUP_IMAGE);
+    }
+  }
+  else {
+	notPlayingSince = 0;
+  }
+
+  digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
 }
 
 void MusicGadget::handleCoreStatus(CoreStatus coreStatus) {
   playing = coreStatus.playerState == PlayerState::PLAYING;
-  digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
-  if (!playing) {
-    core.displayImage(STARTUP_IMAGE);
-  }
 }
