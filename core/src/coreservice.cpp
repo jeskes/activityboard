@@ -10,6 +10,7 @@ CoreService::CoreService()
       contexts(storage),
       display(storage, ledRing, rotary),
       wifi(scheduler, extras, contexts) {
+  coreControl.clear();
 }
 
 void CoreService::setup(uint8_t module) {
@@ -62,8 +63,9 @@ void CoreService::loop() {
 
 void CoreService::stopAll() {
   LOG("stop all");
-  display.drawImage(STARTUP_IMAGE);
-  player.stop();
+  // display.drawImage(STARTUP_IMAGE);
+  // player.stop();
+  coreControl += CoreControl::STOP_ALL;
 }
 
 void CoreService::processRequest(BaseRequest* request) {
@@ -102,6 +104,7 @@ void CoreService::processRequest(BaseRequest* request) {
 }
 
 void CoreService::processRequest(InitCoreRequest* request) {
+  coreControl.clear();
   ImageDef def = contexts.get(request->client).getImageDef(request->startupImage);
   LOG("draw startup image: id=%s, path=%s.", request->startupImage, def.path);
   auto& dsp = display;
@@ -216,6 +219,8 @@ bool CoreService::writeCoreStatus() {
   CoreStatus status(statusSerial++);
   status.playerState = player.playerState;
   status.webState = wifi.fetchState();
+  status.control = coreControl;
+  coreControl.clear();
   LOG("write core status: playerState=%d, webInput=0x%02X", status.playerState, status.webState.input);
   return writeStatus(&status, sizeof(CoreStatus));
 }

@@ -55,5 +55,6 @@ class CoreService : public PeriphericalService {
   bool writeCoreStatus();
   void fireCoreStatusUpdate();
 
+  CoreControl coreControl;
   unsigned long lastHeartbeat;
 };

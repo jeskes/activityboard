@@ -24,4 +24,5 @@ class MusicGadget : public GadgetBase, public CoreStatusHandler {
   unsigned long notPlayingSince;
 
   uint8_t musicIndex;
+  bool stopAll;
 };

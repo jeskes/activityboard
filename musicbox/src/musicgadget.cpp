@@ -46,6 +46,14 @@ void MusicGadget::loop() {
   wasPlaying = playing;
 
   digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
+
+  if (stopAll) {
+    LOG("core says: stop all");
+    stopAll = false;
+    musicIndex = 0;
+    core.stopSound();
+    core.displayImage(STARTUP_IMAGE);
+  }
 }
 
 void MusicGadget::handleInput(Input input) {
@@ -74,4 +82,8 @@ void MusicGadget::handleInput(Input input) {
 void MusicGadget::handleCoreStatus(CoreStatus coreStatus) {
   playing = coreStatus.playerState == PlayerState::PLAYING;
   handleInput(coreStatus.webState.input);
+
+  if (coreStatus.control.has(CoreControl::STOP_ALL)) {
+    stopAll = true;
+  }
 }

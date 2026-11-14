@@ -170,6 +170,49 @@ struct __attribute__((packed)) WebState {
   Input input;
 };
 
+class __attribute__((packed)) CoreControl {
+ public:
+  static inline constexpr uint8_t NONE = 0;
+  static inline constexpr uint8_t STOP_ALL = (1 << 0);    // Bit 0: 0x01 (1)
+  static inline constexpr uint8_t RESERVED_1 = (1 << 1);  // Bit 1: 0x02 (2)
+  static inline constexpr uint8_t RESERVED_2 = (1 << 2);  // Bit 2: 0x04 (4)
+  static inline constexpr uint8_t RESERVED_3 = (1 << 3);  // Bit 3: 0x08 (8)
+  static inline constexpr uint8_t RESERVED_4 = (1 << 4);  // Bit 4: 0x10 (16)
+  static inline constexpr uint8_t RESERVED_5 = (1 << 5);  // Bit 5: 0x20 (32)
+  static inline constexpr uint8_t RESERVED_6 = (1 << 6);  // Bit 6: 0x40 (64)
+  static inline constexpr uint8_t RESERVED_7 = (1 << 7);  // Bit 7: 0x80 (128)
+
+  operator uint8_t() const {
+    return flags;
+  }
+
+  CoreControl& operator=(uint8_t byte) {
+    flags = byte;
+    return *this;
+  }
+
+  CoreControl& clear() {
+    return operator=(0);
+  }
+
+  CoreControl& operator+=(uint8_t flag) {
+    flags |= flag;
+    return *this;
+  }
+
+  CoreControl& operator-=(uint8_t flag) {
+    flags &= ~flag;
+    return *this;
+  }
+
+  bool has(uint8_t flag) const {
+    return (flags & flag) != 0;
+  }
+
+ private:
+  uint8_t flags = 0;
+};
+
 struct __attribute__((packed)) CoreStatus : public BaseStatus {
   CoreStatus(uint8_t serial = 0)
       : BaseStatus(serial, StatusType::CORE_STATUS),
@@ -178,4 +221,5 @@ struct __attribute__((packed)) CoreStatus : public BaseStatus {
   }
   PlayerState playerState;
   WebState webState;
+  CoreControl control;
 };
