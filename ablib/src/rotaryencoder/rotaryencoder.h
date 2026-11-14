@@ -11,7 +11,7 @@
 
 class ActivityRotaryEncoder : public ActivityButton {
  public:
-  ActivityRotaryEncoder(long initialValue, long minValue, long maxValue, long step = ROTARY_ENCODER_STEP, unsigned long pressedTimeout = BUTTON_PRESSED_TIMEOUT);
+  ActivityRotaryEncoder(long initialValue, long minValue, long maxValue, long step = ROTARY_ENCODER_STEP, unsigned long pressedTimeout = DEBOUNCE_DELAY);
   void setup(uint8_t clk, uint8_t dt, uint8_t sw);
   void loop();
 

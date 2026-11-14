@@ -6,7 +6,7 @@
 
 class ActivityButton {
  public:
-  ActivityButton(unsigned long pressedTimeout = BUTTON_PRESSED_TIMEOUT);
+  ActivityButton(unsigned long pressedTimeout = DEBOUNCE_DELAY);
   void setup(uint8_t pin);
   bool pressed();
 

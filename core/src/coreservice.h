@@ -13,6 +13,7 @@
 #include "rotaryexpansion.h"
 #include "extrasexpansion.h"
 #include "wificontroller.h"
+#include "gadgetswitcher.h"
 
 class CoreService : public PeriphericalService {
  public:
@@ -20,6 +21,7 @@ class CoreService : public PeriphericalService {
 
   RotaryExpansion rotary;
   ExtrasExpansion extras;
+  GadgetSwitcher gadgetSwitcher;
 
   LedRing ledRing;
   Player player;
@@ -52,9 +54,9 @@ class CoreService : public PeriphericalService {
   bool handleRequest(StatusRequest* request);
   bool handleRequest(ReadDataRequest* request);
 
+  /* core status processing */
   bool writeCoreStatus();
   void fireCoreStatusUpdate();
-
   CoreControl coreControl;
   unsigned long lastHeartbeat;
 };

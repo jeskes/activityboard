@@ -42,10 +42,11 @@ inline constexpr uint8_t DEFAULT_BUZZER = 12;
 inline constexpr int DEFAULT_BUZZER_FREQUENCY = 150;
 inline constexpr unsigned long DEFAULT_BUZZER_TIMEOUT = 250;
 
-constexpr unsigned long BUTTON_PRESSED_TIMEOUT = 200;
+inline constexpr unsigned long DEBOUNCE_DELAY = 50;
 
-constexpr unsigned long CORECLIENT_HEARTBEAT_TIMEOUT = 2000;
-constexpr unsigned long CORECLIENT_DISCONNECTED_TIMEOUT = 5000;
+inline constexpr unsigned long CORECLIENT_HEARTBEAT_TIMEOUT = 2000;
+inline constexpr unsigned long CORECLIENT_DISCONNECTED_TIMEOUT = 5000;
+
 
 /* ========================================================================= */
 /*                                                             general types */

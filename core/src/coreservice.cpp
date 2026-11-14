@@ -22,8 +22,11 @@ void CoreService::setup(uint8_t module) {
   else {
     LOG("Wire1 initialization failed");
   }
+
   rotary.setup();
   extras.setup();
+  gadgetSwitcher.setup();
+
   ledRing.setup();
   storage.setup(SD_CLK, SD_MISO, SD_MOSI, SD_CS);
   display.setup();
@@ -53,6 +56,7 @@ void CoreService::loop() {
   player.loop();
   rotary.loop();
   extras.loop();
+  gadgetSwitcher.loop();
   scheduler.execute();
 
   if (lastHeartbeat && millis() > lastHeartbeat + CORECLIENT_DISCONNECTED_TIMEOUT) {
@@ -63,8 +67,9 @@ void CoreService::loop() {
 
 void CoreService::stopAll() {
   LOG("stop all");
-  // display.drawImage(STARTUP_IMAGE);
-  // player.stop();
+  gadgetSwitcher.allOff();
+  display.drawImage(STARTUP_IMAGE);
+  player.stop();
   coreControl += CoreControl::STOP_ALL;
 }
 

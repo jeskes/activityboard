@@ -38,5 +38,7 @@ class Player {
   void setVolume(int volume);
   void toggleMute();
 
+  bool debouncePlaying;
+  unsigned long debounceTimestamp;
   PlayerStateChangeHandler handler;
 };

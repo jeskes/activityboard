@@ -36,7 +36,7 @@ void ExtrasExpansion::loop() {
     for (uint8_t pin = 0; pin < 8; pin++) {
       if (!(reg & (1 << pin))) {
         // debounce
-        if (millis() - lastClickTime[pin] > BUTTON_PRESSED_TIMEOUT) {
+        if (millis() - lastClickTime[pin] > DEBOUNCE_DELAY) {
           lastClickTime[pin] = millis();
           if (handlers[pin] != nullptr) {
             handlers[pin]();

@@ -14,7 +14,9 @@ Player::Player(LedRing& ledRing, RotaryExpansion& rotary)
       playerSerial(2),
       mute(false),
       volume(INITIAL_VOLUME),
-      playerState(PlayerState::UNKNOWN) {
+      playerState(PlayerState::UNKNOWN),
+      debouncePlaying(false),
+      debounceTimestamp(0) {
   rotary.setAdapterLeft(volumeAdapter);
 }
 
@@ -46,17 +48,13 @@ void Player::onStateChange(PlayerStateChangeHandler handler) {
   this->handler = handler;
 }
 
-bool tempPlaying = false;
-unsigned long tempTimestamp = 0;
-const unsigned long DEBOUNCE_DELAY = 100;
-
 void Player::loop() {
   bool playing = checkPlaying();
-  if (playing != tempPlaying || !tempTimestamp) {
-    tempPlaying = playing;
-    tempTimestamp = millis();
+  if (playing != debouncePlaying || !debounceTimestamp) {
+    debouncePlaying = playing;
+    debounceTimestamp = millis();
   }
-  else if (millis() > tempTimestamp + DEBOUNCE_DELAY) {
+  else if (millis() > debounceTimestamp + PLAYER_DEBOUNCE_DELAY) {
     PlayerState oldState = playerState;
     playerState = playing ? PlayerState::PLAYING : PlayerState::IDLE;
     if (handler && oldState != playerState) {
@@ -108,7 +106,7 @@ void Player::awaitBusy(bool busy) {
     loop++;
     playing = checkPlaying();
   }
-  if( busy != playing ) {
-	  LOG("==> player waited for=%d, playing=%d, loops=%d", busy, playing, loop);
+  if (busy != playing) {
+    LOG("==> player waited for=%d, playing=%d, loops=%d", busy, playing, loop);
   }
 }

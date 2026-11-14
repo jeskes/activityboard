@@ -7,7 +7,7 @@ class RotaryExpansion;
 
 class RotaryAdapter {
  public:
-  RotaryAdapter(long initialValue, long minValue, long maxValue, long step = 1, unsigned long pressedTimeout = BUTTON_PRESSED_TIMEOUT);
+  RotaryAdapter(long initialValue, long minValue, long maxValue, long step = 1, unsigned long pressedTimeout = DEBOUNCE_DELAY);
 
   void onPressed(std::function<void()> handler);
   void onValueChanged(std::function<void(long value)> handler);
