@@ -24,6 +24,7 @@ class Storage {
   void diagnostics();
 
   File open(const char* path);
+  bool exists(const char* path);
   bool loadJson(const char* path, JsonDocument& json);
 
   template <typename F>

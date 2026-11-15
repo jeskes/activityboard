@@ -46,6 +46,14 @@ if %errorlevel% neq 0 (
     pause
 )
 
+echo prepare tracks...
+cd /d "%SOURCE_DIR%music"
+call powershell -ExecutionPolicy Bypass -File .\prepare-tracks.ps1
+if %errorlevel% neq 0 (
+    echo failed to prepare tracks. continue?
+    pause
+)
+
 xcopy "%SOURCE_DIR%core" "%TARGET_PATH%" /E /I /Y
 echo successfuly copied core sd card.
 echo.

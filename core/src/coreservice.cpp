@@ -151,21 +151,32 @@ void CoreService::processRequest(DisplayImageRequest* request) {
 void CoreService::processRequest(PlayMusicRequest* request) {
   MusicDef def;
   ClientContext& context = contexts.get(request->client);
-  if (*request->musicId) {
-    def = context.getMusicDef(request->musicId);
-    LOG("play music: id=%s, folder=%d, track=%d", request->musicId, def.folder, def.track);
+  if (request->control.has(MusicControl::BY_INDEX)) {
+    MusicCategory category = request->by_index.category;
+    MusicIndex index = request->by_index.index;
+    def = context.getMusicDef(category, index);
+    LOG("play music by index: category=%d, index=%d, folder=%d, track=%d, name=%s", category, index, def.folder, def.track, def.name);
+  }
+  else if (request->control.has(MusicControl::BY_NAME)) {
+    MusicCategory category = request->by_name.category;
+    MusicName name = request->by_name.name;
+    def = context.getMusicDef(category, name);
+    LOG("play music by name: category=%d, name=%s, folder=%d, track=%d, name=%s", category, name, def.folder, def.track, def.name);
   }
   else {
-    def = context.getMusicDef(request->index);
-    LOG("play music: index=%d, folder=%d, track=%d", request->index, def.folder, def.track);
+    def = context.getMusicDef(request->by_alias.alias);
+    LOG("play music: alias=%s, folder=%d, track=%d, name=%d", request->by_alias.alias, def.folder, def.track, def.name);
   }
-  player.play(def.folder, def.track);
-  LOG("music image: %s", def.image ? def.image : "undef");
-  if (request->displayImage && def.image) {
-    ImageDef imageDef = context.getImageDef(def.image);
-    LOG("draw image: id=%s, path=%s.", def.image, imageDef.path);
-    auto& dsp = display;
-    runner.schedule([&dsp, imageDef]() { dsp.drawImage(imageDef.path); });
+  if (def.folder && def.track) {
+    player.play(def.folder, def.track);
+    if (request->control.has(MusicControl::DISPLAY_INFO) && def.image) {
+      LOG("draw music image: %s", def.image);
+      auto& dsp = display;
+      runner.schedule([&dsp, def]() { dsp.drawImage(def.image); });
+    }
+  }
+  else {
+    LOG("cannot play music - no definition found");
   }
 }
 

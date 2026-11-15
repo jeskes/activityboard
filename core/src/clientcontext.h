@@ -25,13 +25,12 @@ struct DataDef {
 struct MusicDef {
   TrackFolder folder;
   TrackId track;
-  ImageId image;
+  MusicName name;
+  const char* image;
 };
 
 class ClientContext {
  public:
-  void clearParams();
-  void clearParam(ParameterId id);
   void putParam(ParameterId id, const char* value, byte append);
 
   const char* getMessage(MessageId id);
@@ -39,17 +38,24 @@ class ClientContext {
   MenuDef getMenuDef(MenuId id);
   ImageDef getImageDef(ImageId id);
   DataDef getDataDef(DataId id);
-  MusicDef getMusicDef(MusicId id);
-  MusicDef getMusicDef(uint8_t index);
+  MusicDef getMusicDef(MusicAlias alias);
+  MusicDef getMusicDef(MusicCategory category, MusicName name);
+  MusicDef getMusicDef(MusicCategory category, MusicIndex index);
 
   String utf8ToExtendedAscii(const String& utf8);
 
  private:
   void init(Storage& storage, ClientId client);
+  void initMusicCategories(Storage& storage);
 
   ClientId client;
+  Storage* storage;
+
   JsonDocument config;
   std::map<String, String> params;
+
+  void fillImagePath(MusicDef& def);
+  std::map<uint8_t, JsonDocument> musicCategories;
 
   friend class ClientContexts;
 };

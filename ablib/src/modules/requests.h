@@ -122,22 +122,59 @@ struct __attribute__((packed)) PlaySoundRequest : public BaseRequest {
   TrackId track;
 };
 
+struct __attribute__((packed)) MusicControl : CoreFlags<MusicControl> {
+  static inline constexpr uint8_t BY_NAME = (1 << 0);
+  static inline constexpr uint8_t BY_INDEX = (1 << 1);
+  static inline constexpr uint8_t BY_ALIAS = (1 << 2);
+  static inline constexpr uint8_t RESERVED_3 = (1 << 3);
+  static inline constexpr uint8_t DISPLAY_INFO = (1 << 4);
+  static inline constexpr uint8_t RESERVED_5 = (1 << 5);
+  static inline constexpr uint8_t RESERVED_6 = (1 << 6);
+  static inline constexpr uint8_t RESERVED_7 = (1 << 7);
+};
+
 struct __attribute__((packed)) PlayMusicRequest : public BaseRequest {
-  PlayMusicRequest(ClientId client, MusicId id, bool displayImage)
-      : BaseRequest(client, RequestType::PLAY_MUSIC),
-        index(0),
-        displayImage(displayImage) {
-    strlcpy(musicId, id, ID_BUFFER_SIZE);
+  PlayMusicRequest(ClientId client, MusicAlias alias, bool displayInfo)
+      : BaseRequest(client, RequestType::PLAY_MUSIC) {
+    control += MusicControl::BY_ALIAS;
+    strlcpy(by_alias.alias, alias, ID_BUFFER_SIZE);
+    if (displayInfo) {
+      control += MusicControl::DISPLAY_INFO;
+    }
   }
-  PlayMusicRequest(ClientId client, uint8_t index, bool displayImage)
-      : BaseRequest(client, RequestType::PLAY_MUSIC),
-        index(index),
-        displayImage(displayImage) {
-    musicId[0] = 0;
+  PlayMusicRequest(ClientId client, MusicCategory category, MusicName name, bool displayInfo)
+      : BaseRequest(client, RequestType::PLAY_MUSIC) {
+    control += MusicControl::BY_NAME;
+    by_name.category = category;
+    strlcpy(by_name.name, name, ID_BUFFER_SIZE);
+    if (displayInfo) {
+      control += MusicControl::DISPLAY_INFO;
+    }
   }
-  char musicId[ID_BUFFER_SIZE];
-  uint8_t index;
-  bool displayImage;
+  PlayMusicRequest(ClientId client, uint8_t category, uint8_t index, bool displayInfo)
+      : BaseRequest(client, RequestType::PLAY_MUSIC) {
+    control += MusicControl::BY_INDEX;
+    by_index.category = category;
+    by_index.index = index;
+    if (displayInfo) {
+      control += MusicControl::DISPLAY_INFO;
+    }
+  }
+
+  MusicControl control;
+  union {
+    struct __attribute__((packed)) {
+      uint8_t category;
+      char name[ID_BUFFER_SIZE];
+    } by_name;
+    struct __attribute__((packed)) {
+      uint8_t category;
+      uint8_t index;
+    } by_index;
+    struct __attribute__((packed)) {
+      char alias[ID_BUFFER_SIZE];
+    } by_alias;
+  };
 };
 
 struct __attribute__((packed)) StopSoundRequest : public BaseRequest {
@@ -170,8 +207,7 @@ struct __attribute__((packed)) WebState {
   Input input;
 };
 
-class __attribute__((packed)) CoreControl {
- public:
+struct __attribute__((packed)) CoreControl : CoreFlags<CoreControl> {
   static inline constexpr uint8_t NONE = 0;
   static inline constexpr uint8_t STOP_ALL = (1 << 0);    // Bit 0: 0x01 (1)
   static inline constexpr uint8_t RESERVED_1 = (1 << 1);  // Bit 1: 0x02 (2)
@@ -181,36 +217,6 @@ class __attribute__((packed)) CoreControl {
   static inline constexpr uint8_t RESERVED_5 = (1 << 5);  // Bit 5: 0x20 (32)
   static inline constexpr uint8_t RESERVED_6 = (1 << 6);  // Bit 6: 0x40 (64)
   static inline constexpr uint8_t RESERVED_7 = (1 << 7);  // Bit 7: 0x80 (128)
-
-  operator uint8_t() const {
-    return flags;
-  }
-
-  CoreControl& operator=(uint8_t byte) {
-    flags = byte;
-    return *this;
-  }
-
-  CoreControl& clear() {
-    return operator=(0);
-  }
-
-  CoreControl& operator+=(uint8_t flag) {
-    flags |= flag;
-    return *this;
-  }
-
-  CoreControl& operator-=(uint8_t flag) {
-    flags &= ~flag;
-    return *this;
-  }
-
-  bool has(uint8_t flag) const {
-    return (flags & flag) != 0;
-  }
-
- private:
-  uint8_t flags = 0;
 };
 
 struct __attribute__((packed)) CoreStatus : public BaseStatus {
@@ -219,7 +225,7 @@ struct __attribute__((packed)) CoreStatus : public BaseStatus {
         playerState(PlayerState::UNKNOWN),
         webState{false} {
   }
+  CoreControl control;
   PlayerState playerState;
   WebState webState;
-  CoreControl control;
 };

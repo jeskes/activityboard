@@ -46,6 +46,10 @@ File Storage::open(const char* path) {
   return file;
 }
 
+bool Storage::exists(const char* path) {
+  return sd.exists(path);
+}
+
 bool Storage::loadJson(const char* path, JsonDocument& json) {
   File file = open(path);
   if (!file) {
@@ -101,7 +105,7 @@ static void resetSDCardSPI(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t clk) 
   pinMode(cs, OUTPUT);
   pinMode(mosi, OUTPUT);
   pinMode(clk, OUTPUT);
-  pinMode(miso, INPUT_PULLUP); // Zwingt die hängende MISO-Leitung auf HIGH
+  pinMode(miso, INPUT_PULLUP);  // Zwingt die hängende MISO-Leitung auf HIGH
 
   // 2. Zustand einfrieren (Karte abwählen)
   digitalWrite(cs, HIGH);
@@ -122,8 +126,8 @@ static void resetSDCardSPI(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t clk) 
   digitalWrite(mosi, LOW);
   digitalWrite(clk, LOW);
   // pinMode(miso, OUTPUT);
-  // digitalWrite(miso, LOW); 
-  delay(50); // 50ms künstlicher "Mini-Stromausfall" auf den Datenleitungen
+  // digitalWrite(miso, LOW);
+  delay(50);  // 50ms künstlicher "Mini-Stromausfall" auf den Datenleitungen
 
   // 5. Pins wieder in den korrekten IDLE-Zustand versetzen vor SPI.begin
   pinMode(miso, INPUT_PULLUP);

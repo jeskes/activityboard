@@ -2,6 +2,8 @@
 
 static volatile bool statusAvailable = false;
 
+inline constexpr unsigned long BLOCK_STATUS_PLAYSOUND = 500;
+
 static void IRAM_ATTR statusInterrupt() {
   statusAvailable = true;
   LOG("interrupted");
@@ -54,18 +56,25 @@ void ActivityCoreClient::putParam(ParameterId id, const char* value) {
   sendRequest(CORE_MODULE_ID, &request, sizeof(ParameterRequest));
 }
 
-void ActivityCoreClient::playMusic(MusicId id, bool displayImage) {
-  LOG("send play music request : id=%s", id);
-  PlayMusicRequest request(client, id, displayImage);
+void ActivityCoreClient::playMusic(MusicAlias alias, bool displayInfo) {
+  LOG("send play music request : alias=%s", alias);
+  PlayMusicRequest request(client, alias, displayInfo);
   sendRequest(CORE_MODULE_ID, &request, sizeof(PlayMusicRequest));
-  blockCoreStatusProcessing(500);
+  blockCoreStatusProcessing(BLOCK_STATUS_PLAYSOUND);
 }
 
-void ActivityCoreClient::playMusic(uint8_t index, bool displayImage) {
-  LOG("send play music request : index=%d", index);
-  PlayMusicRequest request(client, index, displayImage);
+void ActivityCoreClient::playMusic(MusicCategory category, MusicName name, bool displayInfo) {
+  LOG("send play music request : category=%d, name=%s", category, name);
+  PlayMusicRequest request(client, category, name, displayInfo);
   sendRequest(CORE_MODULE_ID, &request, sizeof(PlayMusicRequest));
-  blockCoreStatusProcessing(500);
+  blockCoreStatusProcessing(BLOCK_STATUS_PLAYSOUND);
+}
+
+void ActivityCoreClient::playMusic(MusicCategory category, MusicIndex index, bool displayInfo) {
+  LOG("send play music request : category=%d, index=%d", category, index);
+  PlayMusicRequest request(client, category, index, displayInfo);
+  sendRequest(CORE_MODULE_ID, &request, sizeof(PlayMusicRequest));
+  blockCoreStatusProcessing(BLOCK_STATUS_PLAYSOUND);
 }
 
 void ActivityCoreClient::playSound(TrackId track) {
@@ -76,7 +85,7 @@ void ActivityCoreClient::playSound(TrackFolder folder, TrackId track) {
   LOG("send play sound request : folder=%d, track=%d", folder, track);
   PlaySoundRequest request(client, folder, track);
   sendRequest(CORE_MODULE_ID, &request, sizeof(PlaySoundRequest));
-  blockCoreStatusProcessing(500);
+  blockCoreStatusProcessing(BLOCK_STATUS_PLAYSOUND);
 }
 
 void ActivityCoreClient::stopSound() {

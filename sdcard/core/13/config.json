@@ -1,26 +1,46 @@
 {
 	"images": {
-		"STARTUP": "startup.raw",
-		"8a5b8e4f": "bongobong.raw",
-		"17bf224d": "hamkumst.raw",
-		"049e979ce42a81": "woid.raw"
+		"STARTUP": "startup.raw"
 	},
 	"messages": {
 		"WELCOME": "Willkommen bei Musicbox"
 	},
 	"music": {
-		"8a5b8e4f": {
-			"folder": null,
-			"track": 2,
-			"image": "8a5b8e4f"
+		"alias": {
+			"8a5b8e4f": {
+				"category": 0,
+				"trackname": "BongoBong"
+			},
+			"17bf224d": {
+				"category": 0,
+				"trackname": "HamKumst"
+			},
+			"049e979ce42a81": {
+				"category": 0,
+				"trackname": "Woid"
+			}
 		},
-		"17bf224d": {
-			"track": 3,
-			"image": "17bf224d"
-		},
-		"049e979ce42a81": {
-			"track": 4,
-			"image": "049e979ce42a81"
-		}
+		"categories": [
+			{
+				"title": "Popuplar Music",
+				"folder": 30
+			},
+			{
+				"title": "Classical Music",
+				"folder": 31
+			},
+			{
+				"title": "Rock & Roll Music",
+				"folder": 32
+			},
+			{
+				"title": "Chill Out & Jazz Music",
+				"folder": 33
+			},
+			{
+				"title": "Songs for Children",
+				"folder": 34
+			}
+		]
 	}
 }

@@ -7,7 +7,7 @@
 MusicGadget::MusicGadget()
     : core(MUSICGADGET_ID),
       nfc(core),
-      musicIndex(0xff) {
+      sequential(-1) {
 }
 
 void MusicGadget::setup() {
@@ -28,11 +28,16 @@ void MusicGadget::setup() {
 
 void MusicGadget::loop() {
   GadgetBase::loop();
-  nfc.loop();
   core.loop();
 
-  Input input = inputController.get();
-  handleInput(input);
+  RfidId rfid = nfc.loop();
+  if (rfid) {
+    playRfidTrack(rfid);
+  }
+  else {
+    Input input = inputController.get();
+    handleInput(input);
+  }
 
   if (!playing) {
     if (wasPlaying) {
@@ -48,10 +53,9 @@ void MusicGadget::loop() {
   digitalWrite(INDICATOR_PLAYING, playing ? HIGH : LOW);
 
   if (stopAll) {
-    LOG("core says: stop all");
+    LOG("stop all");
     stopAll = false;
-    musicIndex = 0;
-    core.stopSound();
+    stop();
     core.displayImage(STARTUP_IMAGE);
   }
 }
@@ -59,31 +63,65 @@ void MusicGadget::loop() {
 void MusicGadget::handleInput(Input input) {
   switch (input) {
     case StdInput::START:
-      if (!playing) {
-        musicIndex++;
-        core.playMusic(musicIndex);
-        playing = true;
-      }
+      start();
       break;
     case StdInput::REPEAT:
-      core.playMusic(musicIndex);
+      repeat();
       break;
     case StdInput::NEXT:
-      musicIndex++;
-      core.playMusic(musicIndex);
+      next();
       break;
     case StdInput::STOP:
-      core.stopSound();
-      playing = false;
+      stop();
       break;
   }
 }
 
+void MusicGadget::start() {
+  LOG("start");
+  category = categorySwitch.get();
+  playSequential(0);
+}
+
+void MusicGadget::repeat() {
+  LOG("repeat");
+  playSequential(sequential);
+}
+
+void MusicGadget::next() {
+  LOG("next");
+  playSequential(sequential + 1);
+}
+
+void MusicGadget::stop() {
+  LOG("stop");
+  core.stopSound();
+  playing = false;
+  sequential = -1;
+}
+
+void MusicGadget::playSequential(int index) {
+  sequential = index;
+  LOG("play sequential track: category=%d, sequential=%d", category, sequential);
+  core.playMusic(category, sequential);
+  playing = true;
+}
+
+void MusicGadget::playRfidTrack(RfidId rfid) {
+  sequential = -1;
+  core.playMusic(rfid);
+  playing = true;
+}
+
 void MusicGadget::handleCoreStatus(CoreStatus coreStatus) {
   playing = coreStatus.playerState == PlayerState::PLAYING;
-  handleInput(coreStatus.webState.input);
+  if (!playing && sequential >= 0) {
+    next();
+  }
 
   if (coreStatus.control.has(CoreControl::STOP_ALL)) {
     stopAll = true;
   }
+
+  handleInput(coreStatus.webState.input);
 }

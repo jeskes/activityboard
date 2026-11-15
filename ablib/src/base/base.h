@@ -11,8 +11,10 @@
 
 #define SERIAL_BAUD 115200
 
-#define CORE_MODULE_ID 0x10
-#define NUMPAD_MODULE_ID 0x20
+inline constexpr uint8_t CORE_MODULE_ID = 0x10;
+inline constexpr uint8_t NUMPAD_MODULE_ID = 0x20;
+inline constexpr uint8_t GADGET_EXPANSION_ID1 = 0x26;
+inline constexpr uint8_t GADGET_EXPANSION_ID2 = 0x27;
 
 #ifdef ARDUINO_ARCH_ESP32
 inline constexpr uint8_t WIRE_SDA = 21;
@@ -47,7 +49,6 @@ inline constexpr unsigned long DEBOUNCE_DELAY = 50;
 inline constexpr unsigned long CORECLIENT_HEARTBEAT_TIMEOUT = 2000;
 inline constexpr unsigned long CORECLIENT_DISCONNECTED_TIMEOUT = 5000;
 
-
 /* ========================================================================= */
 /*                                                             general types */
 /* ========================================================================= */
@@ -60,7 +61,10 @@ inline constexpr ClientId SYSTEM_CLIENT_ID = 10;
 using ParameterId = const char*;
 using TrackId = uint8_t;
 using TrackFolder = uint8_t;
-using MusicId = const char*;
+using MusicCategory = uint8_t;
+using MusicName = const char*;
+using MusicIndex = uint8_t;
+using MusicAlias = const char*;
 using MessageId = const char*;
 using ImageId = const char*;
 using MenuId = const char*;
@@ -93,6 +97,38 @@ inline constexpr Input PAUSE = 0x15;
 inline constexpr Input RESUME = 0x16;
 inline constexpr Input CUSTOM = 0x20; /* start ax 0x20 */
 };  // namespace StdInput
+
+template <typename Derived>
+struct __attribute__((packed)) CoreFlags {
+  explicit operator uint8_t() const {
+    return flags;
+  }
+
+  Derived& operator=(uint8_t byte) {
+    flags = byte;
+    return static_cast<Derived&>(*this);
+  }
+
+  Derived& clear() {
+    return operator=(0);
+  }
+
+  Derived& operator+=(uint8_t flag) {
+    flags |= flag;
+    return static_cast<Derived&>(*this);
+  }
+
+  Derived& operator-=(uint8_t flag) {
+    flags &= ~flag;
+    return static_cast<Derived&>(*this);
+  }
+
+  bool has(uint8_t flag) const {
+    return (flags & flag) != 0;
+  }
+
+  uint8_t flags = 0;
+};
 
 /* ========================================================================= */
 /*                                                     global activity board */

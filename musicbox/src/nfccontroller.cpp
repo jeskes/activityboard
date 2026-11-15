@@ -6,7 +6,10 @@
 
 NfcController::NfcController(ActivityCoreClient& core)
     : core(core),
-      mfrc522(RC522_SS, RC522_RST) {
+      mfrc522(RC522_SS, RC522_RST),
+      currentUID{0},
+      currentUIDLength(0),
+      uid{0} {
 }
 
 void NfcController::setup() {
@@ -21,11 +24,9 @@ void NfcController::setup() {
   LOG("nfc reader initialized");
 }
 
-void NfcController::loop() {
-  checkCard();
-}
+RfidId NfcController::loop() {
+  RfidId rfidId = nullptr;
 
-void NfcController::checkCard() {
   if (millis() - lastCheckTime > 250) {
     lastCheckTime = millis();
 
@@ -38,14 +39,9 @@ void NfcController::checkCard() {
       if (mfrc522.uid.size != currentUIDLength || memcmp(mfrc522.uid.uidByte, currentUID, mfrc522.uid.size) != 0) {
         currentUIDLength = mfrc522.uid.size;
         memcpy(currentUID, mfrc522.uid.uidByte, mfrc522.uid.size);
-
-        char uid[2 * currentUIDLength + 1] = {0};
         activityLogger.tohex(currentUID, currentUIDLength, uid);
         LOG("found new card: uid=%s", uid);
-
-        core.playMusic(uid);
-		activityControls.blink(INDICATOR_PLAYING, 3, 100);
-        digitalWrite(INDICATOR_PLAYING, HIGH);
+        rfidId = uid;
       }
 
       mfrc522.PCD_StopCrypto1();
@@ -55,7 +51,6 @@ void NfcController::checkCard() {
         missingCount++;
         if (missingCount >= 3) {
           LOG("card removed");
-          // core.stopSound();
           currentUIDLength = 0;
           memset(currentUID, 0, sizeof(currentUID));
           missingCount = 0;
@@ -63,4 +58,6 @@ void NfcController::checkCard() {
       }
     }
   }
+
+  return rfidId;
 }
