@@ -1,24 +1,28 @@
 {
 	"folders": [
 		{
+			"name": "ablib",
 			"path": "ablib"
 		},
 		{
-			"path": "sdcard"
+			"name": "core",
+			"path": "core"
+		},
+		{
+			"name": "dicegadget",
+			"path": "dicegadget"
 		},
 		{
 			"name": "storygadget",
 			"path": "storygadget"
 		},
 		{
-			"path": "dicegadget"
-		},
-		{
-			"path": "core"
-		},
-		{
 			"name": "musicbox",
 			"path": "musicbox"
+		},
+		{
+			"name": "sdcard",
+			"path": "sdcard"
 		}
 	],
 	"settings": {}
