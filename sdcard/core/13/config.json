@@ -1,9 +1,10 @@
 {
 	"images": {
-		"STARTUP": "startup.raw"
-	},
-	"messages": {
-		"WELCOME": "Willkommen bei Musicbox"
+		"startup": "startup.raw",
+		"catagory-0": "category-children.raw",
+		"catagory-1": "category-animals.raw",
+		"catagory-2": "category-classical.raw",
+		"catagory-3": "category-funny.raw"
 	},
 	"music": {
 		"alias": {
@@ -17,30 +18,14 @@
 			},
 			"049e979ce42a81": {
 				"category": 0,
-				"trackname": "Woid"
+				"trackname": "001_Woid"
 			}
 		},
-		"categories": [
-			{
-				"title": "Popuplar Music",
-				"folder": 30
-			},
-			{
-				"title": "Classical Music",
-				"folder": 31
-			},
-			{
-				"title": "Rock & Roll Music",
-				"folder": 32
-			},
-			{
-				"title": "Chill Out & Jazz Music",
-				"folder": 33
-			},
-			{
-				"title": "Songs for Children",
-				"folder": 34
-			}
+		"category-folders": [
+			30,
+			31,
+			32,
+			33
 		]
 	}
 }
