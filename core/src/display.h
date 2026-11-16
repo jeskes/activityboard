@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Adafruit_ILI9341.h>
 #include <storage/storage.h>
 
 #include "base/base.h"
 #include "clientcontext.h"
 #include "ledring.h"
 #include "rotaryexpansion.h"
+#include "displayconfig.h"
 
 class Display {
  public:
@@ -24,7 +24,7 @@ class Display {
   void toggleOff();
 
  private:
-  Adafruit_ILI9341 tft;
+  LGFX tft;
   Storage& storage;
   LedRing& ledRing;
   RotaryAdapter brightnessAdapter;

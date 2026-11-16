@@ -5,8 +5,7 @@
 static SPIClass spi(HSPI);
 
 Display::Display(Storage& storage, LedRing& ledRing, RotaryExpansion& rotary)
-    : tft(&spi, TFT_DC, TFT_CS, TFT_RST),
-      storage(storage),
+    : storage(storage),
       brightnessAdapter(INITIAL_BRIGHTNESS, MINIMUM_BRIGHTNESS, MAXIMUM_BRIGHTNESS, BRIGHTNESS_STEP),
       ledRing(ledRing),
       brightness(INITIAL_BRIGHTNESS) {
@@ -16,9 +15,7 @@ Display::Display(Storage& storage, LedRing& ledRing, RotaryExpansion& rotary)
 void Display::setup() {
   LOG("setup TFT display...");
 
-  spi.begin(TFT_CLK, TFT_MISO, TFT_MOSI, -1);
-  tft.begin(40000000);
-
+  tft.init();
   tft.setRotation(1);
 
   setBrightness(brightness);
@@ -35,7 +32,7 @@ void Display::clear() {
 }
 
 void Display::drawText(const char* text) {
-  drawText(ILI9341_BLACK, ILI9341_WHITE, text);
+  drawText(TFT_BLACK, TFT_WHITE, text);
 }
 
 void Display::drawText(uint16_t backgroundColor, uint16_t textColor, const char* text) {
@@ -56,11 +53,11 @@ void Display::drawMenu(MenuDef def, uint8_t selectedIndex) {
     return;
   }
 
-  tft.fillScreen(ILI9341_BLACK);
+  tft.fillScreen(TFT_BLACK);
 
   if (def.title) {
     tft.setTextSize(2);
-    tft.setTextColor(ILI9341_YELLOW, ILI9341_BLACK);
+    tft.setTextColor(TFT_YELLOW, TFT_BLACK);
     tft.setCursor(10, 10);
     tft.print(def.title);
   }
@@ -72,14 +69,12 @@ void Display::drawMenu(MenuDef def, uint8_t selectedIndex) {
   for (uint8_t idx = 0; idx < MAX_MENU_OPTIONS; idx++) {
     if (def.options[idx] != nullptr) {
       tft.setCursor(15, optionY);
-      tft.setTextColor(idx == selectedIndex ? ILI9341_GREEN : ILI9341_WHITE, ILI9341_BLACK);
+      tft.setTextColor(idx == selectedIndex ? TFT_GREEN : TFT_WHITE, TFT_BLACK);
       tft.print(def.options[idx]);
       optionY += rowHeight;
     }
   }
 }
-
-/* always convert images with ffmpeg -i myimage.bmp -f rawvideo -pix_fmt rgb565be myimage.raw */
 
 void Display::drawImage(ImageDef def, int16_t x, int16_t y) {
   drawImage(def.path, x, y, def.width, def.height);
@@ -97,38 +92,28 @@ void Display::drawImage(const char* path, int16_t x, int16_t y, uint16_t width, 
     return;
   }
 
-  int maxRows = DISPLAY_BUFFER_SIZE / (width * 2);
-  int row = 0;
-  do {
-    int rows = min(maxRows, height - row);
-    int chunkSize = rows * width * 2;
+  tft.startWrite();
+  bool ok = tft.drawJpg(&file, x, y);
+  tft.endWrite();
 
-    file.read((uint8_t*)buffer, chunkSize);
+  if (!ok) {
+    LOG("failed to decode jpeg: file=%s", path);
+  }
 
-    // tft.drawRGBBitmap(x, y + row, buffer, width, rows);
-
-    tft.startWrite();
-    tft.setAddrWindow(x, y+row, width, rows);
-    tft.writePixels(buffer, width * rows);
-    tft.endWrite();
-
-    row += rows;
-  } while (row < height);
-
-  storage.sdAccess([&]() { file.close(); });
+  file.close();
 }
 
 void Display::setBrightness(int value) {
   off = false;
   brightness = max(0, min(value, 255));
   LOG("set brightness: %d", brightness);
-  analogWrite(TFT_BL, brightness);
+  tft.setBrightness(brightness);
   ledRing.updateBrightness(brightness, off);
 }
 
 void Display::toggleOff() {
   off = !off;
   LOG("toggle off: off=%d", off);
-  analogWrite(TFT_BL, off ? 0 : brightness);
+  tft.setBrightness(off ? 0 : brightness);
   ledRing.updateBrightness(brightness, off);
 }

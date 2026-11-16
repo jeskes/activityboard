@@ -1,10 +1,10 @@
 {
 	"images": {
-		"startup": "startup.raw",
-		"catagory-0": "category-children.raw",
-		"catagory-1": "category-animals.raw",
-		"catagory-2": "category-classical.raw",
-		"catagory-3": "category-funny.raw"
+		"startup": "startup.jpg",
+		"catagory-0": "category-children.jpg",
+		"catagory-1": "category-animals.jpg",
+		"catagory-2": "category-classical.jpg",
+		"catagory-3": "category-funny.jpg"
 	},
 	"music": {
 		"alias": {

@@ -162,7 +162,7 @@ ImageDef ClientContext::getImageDef(ImageId id) {
   }
   else {
     LOG("image id %s not found.", id);
-    strcpy(def.path, "/10/images/fallback.raw");
+    strcpy(def.path, "/10/images/fallback.jpg");
   }
   return def;
 }
@@ -254,9 +254,9 @@ MusicDef ClientContext::getMusicDef(MusicCategory category, MusicIndex index) {
 
 void ClientContext::fillImagePath(MusicDef& def) {
   char path[PATH_BUFFER_SIZE];
-  sprintf(path, "/%02d/images/%s.raw", def.folder, def.name);
+  sprintf(path, "/%02d/images/%s.jpg", def.folder, def.name);
   LOG("looking for music image: folder=%d, name=%s, path=%s", def.folder, def.name, path);
-  strlcpy(musicImageBuffer, storage->exists(path) ? path : "/10/images/music.raw", PATH_BUFFER_SIZE);
+  strlcpy(musicImageBuffer, storage->exists(path) ? path : "/10/images/music.jpg", PATH_BUFFER_SIZE);
   def.image = musicImageBuffer;
 }
 
