@@ -18,3 +18,4 @@ sdcard/core/31
 sdcard/core/32
 sdcard/core/33
 sdcard/core/34
+sdcard/**/*.raw
