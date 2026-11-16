@@ -61,21 +61,24 @@ void ClientContext::init(Storage& storage, ClientId client) {
   LOG("menus: client=%d, count=%d", client, config["menus"].is<JsonObject>() ? config["menus"].as<JsonObject>().size() : 0);
   LOG("images: client=%d, count=%d", client, config["images"].is<JsonObject>() ? config["images"].as<JsonObject>().size() : 0);
   LOG("data: client=%d, count=%d", client, config["data"].is<JsonObject>() ? config["data"].as<JsonObject>().size() : 0);
-  LOG("music categories: client=%d, count=%d", client, config["music"]["categories"].is<JsonArray>() ? config["music"]["categories"].as<JsonArray>().size() : 0);
+  LOG("music categories: client=%d, count=%d", client, config["music"]["category-folders"].is<JsonArray>() ? config["music"]["category-folders"].as<JsonArray>().size() : 0);
   LOG("music aliases: client=%d, count=%d", client, config["music"]["alias"].is<JsonObject>() ? config["music"]["alias"].as<JsonObject>().size() : 0);
 }
 
 void ClientContext::initMusicCategories(Storage& storage) {
-  if (config["music"]["categories"].is<JsonArray>()) {
-    JsonArray categories = config["music"]["categories"].as<JsonArray>();
+  JsonArray categories = config["music"]["category-folders"].as<JsonArray>();
+  if (!categories.isNull()) {
     for (size_t idx = 0; idx < categories.size(); idx++) {
-      TrackFolder folder = categories[idx]["folder"].as<TrackFolder>();
+      TrackFolder folder = categories[idx].as<TrackFolder>();
       char path[PATH_BUFFER_SIZE];
       sprintf(path, "/%02d/music.json", folder);
       LOG("load music folder config: path=%s", path);
       storage.loadJson(path, musicCategories[idx]);
       LOG("loaded music folder config: path=%s, entries=%d", path, musicCategories[idx].size());
     }
+  }
+  else {
+    LOG("no music category folders");
   }
 }
 
@@ -193,12 +196,12 @@ MusicDef ClientContext::getMusicDef(MusicAlias alias) {
 
 MusicDef ClientContext::getMusicDef(MusicCategory category, MusicName name) {
   MusicDef def;
-  JsonObject categoryDef = config["music"]["categories"].as<JsonArray>()[category];
-  if (!categoryDef.isNull()) {
-    def.folder = categoryDef["folder"].is<TrackFolder>() ? categoryDef["folder"].as<TrackFolder>() : client;
+  JsonVariant folderDef = config["music"]["category-folders"][category].as<JsonVariant>();
+  if (!folderDef.isNull()) {
     JsonDocument categoryConfig = musicCategories[category];
     if (categoryConfig.size() > 0) {
       if (!categoryConfig[name].isNull()) {
+        def.folder = folderDef.as<TrackFolder>();
         def.track = categoryConfig[name].as<TrackId>();
         strlcpy(musicNameBuffer, name, ID_BUFFER_SIZE);
         def.name = musicNameBuffer;
@@ -220,21 +223,27 @@ MusicDef ClientContext::getMusicDef(MusicCategory category, MusicName name) {
 
 MusicDef ClientContext::getMusicDef(MusicCategory category, MusicIndex index) {
   MusicDef def;
-  JsonObject categoryDef = config["music"]["categories"].as<JsonArray>()[category];
-  if (!categoryDef.isNull()) {
-    def.folder = categoryDef["folder"].is<TrackFolder>() ? categoryDef["folder"].as<TrackFolder>() : client;
+  LOG("make music-def: category=%d, index=%d", category, index);
+  JsonVariant folderDef = config["music"]["category-folders"][category].as<JsonVariant>();
+  if (!folderDef.isNull()) {
     JsonDocument tracks = musicCategories[category];
-    index = index % tracks.size();
-    uint8_t idx = 0;
-    for (JsonPair entry : tracks.as<JsonObject>()) {
-      if (idx == index) {
-        def.track = entry.value().as<TrackId>();
-        strlcpy(musicNameBuffer, entry.key().c_str(), ID_BUFFER_SIZE);
-        def.name = musicNameBuffer;
-        fillImagePath(def);
-        break;
+    if (tracks.size() > 0) {
+      index = index % tracks.size();
+      uint8_t idx = 0;
+      for (JsonPair entry : tracks.as<JsonObject>()) {
+        if (idx == index) {
+          def.folder = folderDef.as<TrackFolder>();
+          def.track = entry.value().as<TrackId>();
+          strlcpy(musicNameBuffer, entry.key().c_str(), ID_BUFFER_SIZE);
+          def.name = musicNameBuffer;
+          fillImagePath(def);
+          break;
+        }
+        idx++;
       }
-      idx++;
+    }
+    else {
+      LOG("music category is empty: category=%d", category);
     }
   }
   else {
@@ -246,6 +255,7 @@ MusicDef ClientContext::getMusicDef(MusicCategory category, MusicIndex index) {
 void ClientContext::fillImagePath(MusicDef& def) {
   char path[PATH_BUFFER_SIZE];
   sprintf(path, "/%02d/images/%s.raw", def.folder, def.name);
+  LOG("looking for music image: folder=%d, name=%s, path=%s", def.folder, def.name, path);
   strlcpy(musicImageBuffer, storage->exists(path) ? path : "/10/images/music.raw", PATH_BUFFER_SIZE);
   def.image = musicImageBuffer;
 }

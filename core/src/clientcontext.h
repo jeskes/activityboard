@@ -9,24 +9,24 @@
 
 struct MenuDef {
   const char* title = nullptr;
-  const char* options[MAX_MENU_OPTIONS];
+  const char* options[MAX_MENU_OPTIONS] = {nullptr};
 };
 
 struct ImageDef {
-  char path[PATH_BUFFER_SIZE];
+  char path[PATH_BUFFER_SIZE] = {0};
   uint16_t width = DEFAULT_IMAGE_WIDTH;
   uint16_t height = DEFAULT_IMAGE_HEIGHT;
 };
 
 struct DataDef {
-  char path[PATH_BUFFER_SIZE];
+  char path[PATH_BUFFER_SIZE] = {0};
 };
 
 struct MusicDef {
-  TrackFolder folder;
-  TrackId track;
-  MusicName name;
-  const char* image;
+  TrackFolder folder = 0;
+  TrackId track = 0;
+  MusicName name = nullptr;
+  const char* image = nullptr;
 };
 
 class ClientContext {

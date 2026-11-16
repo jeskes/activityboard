@@ -7,7 +7,7 @@
 MusicGadget::MusicGadget()
     : core(MUSICGADGET_ID),
       nfc(core),
-      sequential(-1) {
+      sequential(NO_SEQUENTIAL) {
 }
 
 void MusicGadget::setup() {
@@ -17,6 +17,7 @@ void MusicGadget::setup() {
 
   nfc.setup();
   core.setup(CORE_STATUS_IRQ);
+  categorySwitch.setup();
   inputController.setup();
 
   core.init(STARTUP_IMAGE);
@@ -37,6 +38,11 @@ void MusicGadget::loop() {
   else {
     Input input = inputController.get();
     handleInput(input);
+  }
+
+  MusicCategory category = categorySwitch.loop();
+  if (category != MUSIC_CATEGORY_UNDEF) {
+    onCategoryChanged(category);
   }
 
   if (!playing) {
@@ -97,25 +103,36 @@ void MusicGadget::stop() {
   LOG("stop");
   core.stopSound();
   playing = false;
-  sequential = -1;
+  sequential = NO_SEQUENTIAL;
 }
 
 void MusicGadget::playSequential(int index) {
-  sequential = index;
-  LOG("play sequential track: category=%d, sequential=%d", category, sequential);
-  core.playMusic(category, sequential);
-  playing = true;
+  if (category != MUSIC_CATEGORY_UNDEF) {
+    sequential = index;
+    LOG("play sequential track: category=%d, sequential=%d", category, sequential);
+    core.playMusic(category, sequential);
+    playing = true;
+  }
 }
 
 void MusicGadget::playRfidTrack(RfidId rfid) {
-  sequential = -1;
+  sequential = NO_SEQUENTIAL;
   core.playMusic(rfid);
   playing = true;
 }
 
+void MusicGadget::onCategoryChanged(MusicCategory category) {
+  LOG("category changed: category=%d", category);
+  char image[11];
+  sprintf(image, "catagory-%01d", category);
+  core.displayImage(image);
+  core.stopSound();
+  sequential = NO_SEQUENTIAL;
+}
+
 void MusicGadget::handleCoreStatus(CoreStatus coreStatus) {
   playing = coreStatus.playerState == PlayerState::PLAYING;
-  if (!playing && sequential >= 0) {
+  if (!playing && sequential != NO_SEQUENTIAL) {
     next();
   }
 

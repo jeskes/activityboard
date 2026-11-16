@@ -155,19 +155,26 @@ void CoreService::processRequest(PlayMusicRequest* request) {
     MusicCategory category = request->by_index.category;
     MusicIndex index = request->by_index.index;
     def = context.getMusicDef(category, index);
-    LOG("play music by index: category=%d, index=%d, folder=%d, track=%d, name=%s", category, index, def.folder, def.track, def.name);
+    if (def.folder && def.track) {
+      LOG("play music by index: category=%d, index=%d, folder=%d, track=%d, name=%s", category, index, def.folder, def.track, def.name);
+    }
   }
   else if (request->control.has(MusicControl::BY_NAME)) {
     MusicCategory category = request->by_name.category;
     MusicName name = request->by_name.name;
     def = context.getMusicDef(category, name);
-    LOG("play music by name: category=%d, name=%s, folder=%d, track=%d, name=%s", category, name, def.folder, def.track, def.name);
+    if (def.folder && def.track) {
+      LOG("play music by name: category=%d, name=%s, folder=%d, track=%d, name=%s", category, name, def.folder, def.track, def.name);
+    }
   }
   else {
     def = context.getMusicDef(request->by_alias.alias);
-    LOG("play music: alias=%s, folder=%d, track=%d, name=%d", request->by_alias.alias, def.folder, def.track, def.name);
+    if (def.folder && def.track) {
+      LOG("play music: alias=%s, folder=%d, track=%d, name=%s", request->by_alias.alias, def.folder, def.track, def.name);
+    }
   }
   if (def.folder && def.track) {
+    LOG("play track: folder=%d, track=%d", def.folder, def.track)
     player.play(def.folder, def.track);
     if (request->control.has(MusicControl::DISPLAY_INFO) && def.image) {
       LOG("draw music image: %s", def.image);

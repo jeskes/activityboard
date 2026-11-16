@@ -11,6 +11,9 @@ inline constexpr uint16_t BLINK_RATE = 50;
 /* core status irq */
 inline constexpr uint8_t CORE_STATUS_IRQ = 2;
 
+/* category switch interrupt */
+inline constexpr uint8_t CATEGORY_SWITCH_IRQ = 3;
+
 /* button pins */
 inline constexpr uint8_t START_BUTTON = 4;
 inline constexpr uint8_t REPEAT_BUTTON = 5;
@@ -25,7 +28,7 @@ inline constexpr uint8_t CATEGORY_SWITCH_ID = GADGET_EXPANSION_ID1;
 inline constexpr uint8_t CATEGORY_SWITCH_COUNT = 4;
 
 /* image identifiers */
-inline constexpr ImageId STARTUP_IMAGE = "STARTUP";
+inline constexpr ImageId STARTUP_IMAGE = "startup";
 
 /* track identifiers */
 inline constexpr TrackId STARTUP_TRACK = 1;
@@ -41,3 +44,6 @@ inline constexpr uint8_t MAX_RFID_UID_SIZE = 10;
 
 /* reset timeout after not playing anymore */
 inline constexpr unsigned long NOTPLAYING_RESET_TIMEOUT = 5000;
+
+/* indicate no sequential plaing */
+inline constexpr int NO_SEQUENTIAL = -1;

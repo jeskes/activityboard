@@ -70,8 +70,8 @@ using ImageId = const char*;
 using MenuId = const char*;
 using DataId = const char*;
 using RfidId = const char*;
-
 using Input = uint8_t;
+
 /* predefined input values */
 
 namespace StdInput {
@@ -97,6 +97,12 @@ inline constexpr Input PAUSE = 0x15;
 inline constexpr Input RESUME = 0x16;
 inline constexpr Input CUSTOM = 0x20; /* start ax 0x20 */
 };  // namespace StdInput
+
+/* typed constants */
+
+inline constexpr MusicCategory MUSIC_CATEGORY_UNDEF = 0xFF;
+
+/* flags base class */
 
 template <typename Derived>
 struct __attribute__((packed)) CoreFlags {

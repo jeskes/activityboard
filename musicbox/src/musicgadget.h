@@ -35,4 +35,6 @@ class MusicGadget : public GadgetBase, public CoreStatusHandler {
   uint8_t category;
   void playSequential(int index);
   void playRfidTrack(RfidId rfid);
+
+  void onCategoryChanged(MusicCategory category);
 };
