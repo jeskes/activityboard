@@ -25,5 +25,7 @@
 			"path": "sdcard"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"powershell.cwd": "sdcard"
+	}
 }
