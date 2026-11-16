@@ -31,7 +31,13 @@ foreach ($Dir in $SubDirs) {
     foreach ($File in $Mp3Files) {
         # Index dreistellig mit Nullen auffüllen (z.B. 1 -> "001")
         $PaddedIndex = $Index.ToString("000")
-        $NewFileName = "$PaddedIndex.mp3"
+		$Name = if ($File.BaseName -match '^\d{3}_(.*)$') {
+			$Matches[1]
+		}
+		else {
+			$File.BaseName
+		}
+        $NewFileName = "${PaddedIndex}_${Name}.mp3"
         $DestFilePath = Join-Path $TargetSoundDir $NewFileName
 
         # MP3-Datei nach "../sound/<Ordnername>/001.mp3" kopieren
