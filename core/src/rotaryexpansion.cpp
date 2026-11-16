@@ -6,9 +6,9 @@
 /*                                                          rotary expansion */
 /* ========================================================================= */
 
-volatile bool rotaryInterrupt = false;
+static volatile bool rotaryInterrupt = false;
 
-void IRAM_ATTR isrRotary() {
+static void IRAM_ATTR isrRotary() {
   rotaryInterrupt = true;
 }
 
@@ -26,6 +26,7 @@ void RotaryExpansion::setup() {
   decoder.setStepsPerClick(1, 1);
   delay(10);
 
+  pinMode(ROTARY_EXPANSION_INT, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(ROTARY_EXPANSION_INT), isrRotary, FALLING);
 
   uint8_t initial = decoder.readInitialState();

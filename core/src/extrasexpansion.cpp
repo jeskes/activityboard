@@ -4,9 +4,9 @@
 
 #include "const.h"
 
-volatile bool extrasInterrupt = false;
+static volatile bool extrasInterrupt = false;
 
-void IRAM_ATTR isrExtras() {
+static void IRAM_ATTR isrExtras() {
   extrasInterrupt = true;
 }
 
@@ -19,11 +19,10 @@ void ExtrasExpansion::setup() {
   pcf8574.begin();
 
   pinMode(EXTRAS_EXPANSION_INT, INPUT_PULLUP);
-  
   attachInterrupt(digitalPinToInterrupt(EXTRAS_EXPANSION_INT), isrExtras, FALLING);
   
   uint8_t state = pcf8574.read8(); /* initial read */
-  LOG("initialized extras extension: connected=%d, state=0x%02X", pcf8574.isConnected(), state);
+  LOG("extras extension initialized: connected=%d, state=0x%02X", pcf8574.isConnected(), state);
 }
 
 void ExtrasExpansion::loop() {

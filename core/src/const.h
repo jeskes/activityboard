@@ -22,7 +22,8 @@ inline constexpr uint8_t EXTRAS_WIFI_BUTTON = 0;
 inline constexpr uint8_t EXTRAS_WIFI_LED = 1;
 inline constexpr uint8_t EXTRAS_STOP_BUTTON = 2;
 
-inline constexpr uint8_t SWITCHER_EXPANSION_ID = 0x22;
+inline constexpr uint8_t SWITCH_EXPANSION_ID = 0x22;
+inline constexpr uint8_t SWITCH_EXPANSION_INT = 35;
 
 /* wifi */
 
@@ -63,7 +64,7 @@ inline constexpr unsigned long PLAYER_DEBOUNCE_DELAY = 100;
 /* sd card */
 
 inline constexpr uint8_t SD_CLK = 18;
-inline constexpr uint8_t SD_MISO = 34;
+inline constexpr uint8_t SD_MISO = 35;
 inline constexpr uint8_t SD_MOSI = 23;
 inline constexpr uint8_t SD_CS = 5;
 

@@ -2,13 +2,24 @@
 
 #include "const.h"
 
+static volatile bool switcherInterrupt = false;
+
+static void IRAM_ATTR isrSwitcher() {
+  switcherInterrupt = true;
+}
+
 GadgetSwitcher::GadgetSwitcher()
-    : pcf8574(SWITCHER_EXPANSION_ID, &Wire1) {
+    : pcf8574(SWITCH_EXPANSION_ID, &Wire1) {
 }
 
 void GadgetSwitcher::setup() {
   pcf8574.begin(BUTTONS_MASK);
   activeGadget = -1;
+
+  // pinMode(SWITCH_EXPANSION_INT, INPUT_PULLUP);
+  // attachInterrupt(digitalPinToInterrupt(SWITCH_EXPANSION_INT), isrSwitcher, FALLING);
+
+  LOG("gadget switcher initialized");
 }
 
 void GadgetSwitcher::loop() {
