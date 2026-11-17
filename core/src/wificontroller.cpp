@@ -8,6 +8,10 @@
 
 #include "const.h"
 
+static IPAddress ap_ip(10, 0, 0, 1);
+static IPAddress ap_gateway(10, 0, 0, 1);
+static IPAddress ap_subnet(255, 255, 255, 0);
+
 WifiController::WifiController(Scheduler& scheduler, ExtrasExpansion& extras, ClientContexts contexts)
     : server(80),
       webSocket(81),
@@ -85,7 +89,8 @@ void WifiController::processWifiState() {
     case WIFI_START_AP:
       WiFi.disconnect(true);
       WiFi.mode(WIFI_AP);
-      WiFi.softAP("fizzbizz", "fizzbizz");
+      WiFi.softAP(WIFI_USERNAME, WIFI_PASSWORD);
+	  WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet);
       extras.toggleLed(EXTRAS_WIFI_LED);
       currentState = WIFI_CHECK_AP;
       break;
@@ -103,12 +108,14 @@ void WifiController::processWifiState() {
     case WIFI_START_SERVER:
       server.begin();
       webSocket.begin();
+	  ftpServer.begin(WIFI_USERNAME, WIFI_PASSWORD);
       currentState = WIFI_SERVER_RUNNING;
       break;
 
     case WIFI_SERVER_RUNNING:
       server.handleClient();
       webSocket.loop();
+	  ftpServer.handleFTP();
       extras.showLed(EXTRAS_WIFI_LED, true);
       wifiTask.setInterval(WIFI_ACTIVE_POLLING);
       break;
@@ -149,7 +156,6 @@ void WifiController::handleImage(const char* path) {
   uint8_t buffer[512];  // 512 Byte Puffer (schont den RAM des ESP32)
   while (imgFile.available()) {
     size_t bytesRead = imgFile.read(buffer, sizeof(buffer));
-    LOG("send bytes: %d", bytesRead);
     if (bytesRead > 0) {
       server.client().write(buffer, bytesRead);
     }

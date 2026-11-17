@@ -1,6 +1,6 @@
 #pragma once
 
-#include "base/base.h"
+#include <base/base.h>
 
 /* core status irq */
 
@@ -28,6 +28,8 @@ inline constexpr uint8_t SWITCH_EXPANSION_ID = 0x22;
 
 inline constexpr unsigned long WIFI_ACTIVATION_POLLING = 20;
 inline constexpr unsigned long WIFI_ACTIVE_POLLING = 5;
+inline constexpr char* WIFI_USERNAME = "fizzbizz";
+inline constexpr char* WIFI_PASSWORD = "fizzbizz";
 
 /* tft display */
 

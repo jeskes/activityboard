@@ -3,6 +3,7 @@
 #include <TaskSchedulerDeclarations.h>
 #include <WebServer.h>
 #include <WebSocketsServer.h>
+#include <SimpleFTPServer.h>
 #include <modules/requests.h>
 
 #include "clientcontext.h"
@@ -35,6 +36,7 @@ class WifiController {
 
   WebServer server;
   WebSocketsServer webSocket;
+  FtpServer ftpServer;
 
   ClientId client;
   bool webSocketConnected;
