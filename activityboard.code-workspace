@@ -9,6 +9,10 @@
 			"path": "core"
 		},
 		{
+			"name": "sound",
+			"path": "sound"
+		},
+		{
 			"name": "dicegadget",
 			"path": "dicegadget"
 		},

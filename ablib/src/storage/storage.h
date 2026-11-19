@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) && !defined(AB_NO_STORAGE)
 
 #include <ArduinoJson.h>
 #include <FS.h>

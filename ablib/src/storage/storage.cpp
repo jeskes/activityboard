@@ -1,8 +1,8 @@
+#if defined(ARDUINO_ARCH_ESP32) && !defined(AB_NO_STORAGE)
+
 #include "storage.h"
 
 #include "base/base.h"
-
-#ifdef ARDUINO_ARCH_ESP32
 
 static void resetSDCardSPI(uint8_t cs, uint8_t mosi, uint8_t miso, uint8_t clk);
 

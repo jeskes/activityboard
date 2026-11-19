@@ -4,12 +4,14 @@
 #include "dataprovider.h"
 
 static uint8_t statusSerial = 0;
+static MaintenanceController::Configuration maintenanceConfiguration = {.hostname = "core"};
 
 CoreService::CoreService()
-    : player(ledRing, rotary),
+    : display(storage, ledRing, rotary),
       contexts(storage),
-      display(storage, ledRing, rotary),
-      wifi(scheduler, extras, contexts) {
+      wifiController(contexts),
+      soundController(ledRing, rotary),
+      maintenanceController(maintenanceConfiguration) {
   coreControl.clear();
 }
 
@@ -31,20 +33,23 @@ void CoreService::setup(uint8_t module) {
   storage.setup(SD_CLK, SD_MISO, SD_MOSI, SD_CS);
   display.setup();
   runner.setup();
-  player.setup();
-  wifi.setup();
+  soundController.setup();
+  wifiController.setup();
 
-  player.onStateChange([&]() {
+  soundController.onStateChange([&]() {
     LOG("player state changed");
     fireCoreStatusUpdate();
   });
 
-  wifi.onStateChange([&]() {
+  wifiController.setHandler([&]() {
     LOG("wifi state changed");
     fireCoreStatusUpdate();
   });
 
-  extras.addHandler(EXTRAS_STOP_BUTTON, [&]() { stopAll(); });
+  extras.addHandler(EXTRAS_STOP_ALL_BUTTON, [&]() { stopAll(); });
+  extras.addHandler(EXTRAS_WIFI_BUTTON, [&]() { startStopWifi(); });
+  extras.addHandler(EXTRAS_MAINENANCE_BUTTON, [&]() { startStopMaintenance(); });
+
   pinMode(CORE_STATUS_IRQ, OUTPUT);
   digitalWrite(CORE_STATUS_IRQ, HIGH);
 
@@ -53,23 +58,28 @@ void CoreService::setup(uint8_t module) {
 
 void CoreService::loop() {
   PeriphericalService::loop();
-  player.loop();
+  soundController.loop();
   rotary.loop();
   extras.loop();
   gadgetSwitcher.loop();
+  wifiController.loop();
+  maintenanceController.loop();
   scheduler.execute();
 
   if (lastHeartbeat && millis() > lastHeartbeat + CORECLIENT_DISCONNECTED_TIMEOUT) {
     stopAll();
     lastHeartbeat = 0;
   }
+
+  extras.showLed(EXTRAS_WIFI_LED, wifiController.isRunning());
+  extras.showLed(EXTRAS_MAINENANCE_LED, maintenanceController.isRunning());
 }
 
 void CoreService::stopAll() {
   LOG("stop all");
   gadgetSwitcher.allOff();
   display.drawImage(STARTUP_IMAGE);
-  player.stop();
+  soundController.stop();
   coreControl += CoreControl::STOP_ALL;
 }
 
@@ -114,8 +124,8 @@ void CoreService::processRequest(InitCoreRequest* request) {
   LOG("draw startup image: id=%s, path=%s.", request->startupImage, def.path);
   auto& dsp = display;
   runner.schedule([&dsp, def]() { dsp.drawImage(def, 0, 0); });
-  wifi.configureClient(request->client);
-  player.stop();
+  wifiController.configureClient(request->client);
+  soundController.stop();
 }
 
 void CoreService::processRequest(ClearDisplayRequest* request) {
@@ -175,7 +185,7 @@ void CoreService::processRequest(PlayMusicRequest* request) {
   }
   if (def.folder && def.track) {
     LOG("play track: folder=%d, track=%d", def.folder, def.track)
-    player.play(def.folder, def.track);
+    soundController.play(def.folder, def.track);
     if (request->control.has(MusicControl::DISPLAY_INFO) && def.image) {
       LOG("draw music image: %s", def.image);
       auto& dsp = display;
@@ -188,11 +198,11 @@ void CoreService::processRequest(PlayMusicRequest* request) {
 }
 
 void CoreService::processRequest(PlaySoundRequest* request) {
-  player.play(request->folder, request->track);
+  soundController.play(request->folder, request->track);
 }
 
 void CoreService::processRequest(StopSoundRequest* request) {
-  player.stop();
+  soundController.stop();
 }
 
 bool CoreService::handleRequest(BaseRequest* request) {
@@ -240,10 +250,37 @@ void CoreService::fireCoreStatusUpdate() {
 
 bool CoreService::writeCoreStatus() {
   CoreStatus status(statusSerial++);
-  status.playerState = player.playerState;
-  status.webState = wifi.fetchState();
+  status.playerState = soundController.playerState;
+  status.webState = wifiController.fetchState();
   status.control = coreControl;
   coreControl.clear();
   LOG("write core status: playerState=%d, webInput=0x%02X", status.playerState, status.webState.input);
   return writeStatus(&status, sizeof(CoreStatus));
+}
+
+void CoreService::startStopWifi() {
+  if (wifiController.isRunning()) {
+    wifiController.stop();
+  }
+  else {
+    if (maintenanceController.isRunning()) {
+      maintenanceController.stop();
+      soundController.stopMaintenance();
+    }
+    wifiController.start();
+  }
+}
+
+void CoreService::startStopMaintenance() {
+  if (maintenanceController.isRunning()) {
+    maintenanceController.stop();
+    soundController.stopMaintenance();
+  }
+  else {
+    if (wifiController.isRunning()) {
+      wifiController.stop();
+    }
+    maintenanceController.start();
+    soundController.startMaintenance();
+  }
 }

@@ -1,6 +1,5 @@
 #include <TaskScheduler.h>
 #include <WiFi.h>
-
 #include "const.h"
 #include "coreservice.h"
 

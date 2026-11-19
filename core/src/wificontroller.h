@@ -1,55 +1,67 @@
 #pragma once
 
 #include <TaskSchedulerDeclarations.h>
+
+#undef NETWORK_ENC28J60
+#undef NETWORK_ESP32
+#undef NETWORK_ESP32_ETH
+#undef NETWORK_ESP8266
+#undef NETWORK_ESP8266_ASYNC
+#undef NETWORK_W5100
 #include <WebServer.h>
+
+#undef NETWORK_ENC28J60
+#undef NETWORK_ESP32
+#undef NETWORK_ESP32_ETH
+#undef NETWORK_ESP8266
+#undef NETWORK_ESP8266_ASYNC
+#undef NETWORK_W5100
 #include <WebSocketsServer.h>
-#include <SimpleFTPServer.h>
+
 #include <modules/requests.h>
 
 #include "clientcontext.h"
 #include "extrasexpansion.h"
 
-enum WifiState {
-  WIFI_IDLE,
-  WIFI_START_AP,
-  WIFI_CHECK_AP,
-  WIFI_START_SERVER,
-  WIFI_SERVER_RUNNING
-};
-
 using WifiStateChangeHandler = std::function<void()>;
 
 class WifiController {
  public:
-  WifiController(Scheduler& scheduler, ExtrasExpansion& extras, ClientContexts contexts);
+  WifiController(ClientContexts contexts);
+
+  enum State {
+    STOPPED,
+    STARTING,
+    RUNNING,
+	STOPPING
+  };
 
   void setup();
+  void loop();
+
+  void startStop();
+  void start();
+  void stop();
+
+  bool isRunning();
 
   void configureClient(ClientId client);
   WebState fetchState();
 
-  void onStateChange(WifiStateChangeHandler handler);
+  void setHandler(WifiStateChangeHandler handler);
 
  private:
-  WifiState currentState;
+  State state;
   WifiStateChangeHandler handler;
 
   WebServer server;
   WebSocketsServer webSocket;
-  FtpServer ftpServer;
 
   ClientId client;
   bool webSocketConnected;
   uint8_t webSocketNumber;
 
-  Scheduler& scheduler;
-  ExtrasExpansion& extras;
   ClientContexts& contexts;
-
-  void startStop();
-
-  Task wifiTask;
-  void processWifiState();
 
   void handleRoot();
   void handleImage(const char* path);

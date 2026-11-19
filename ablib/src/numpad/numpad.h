@@ -1,5 +1,7 @@
 #pragma once
 
+#if !defined(AB_NO_NUMPAD)
+
 #include <I2CKeyPad.h>
 
 class ActivityNumpadClient {
@@ -14,3 +16,5 @@ class ActivityNumpadClient {
   char getChar();
   int16_t readString(char* buffer, uint8_t length, int16_t timeout = -1, char until = '#');
 };
+
+#endif

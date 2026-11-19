@@ -3,17 +3,18 @@
 #include <SPI.h>
 #include <TaskSchedulerDeclarations.h>
 #include <modules/periphericalservice.h>
+#include <maintenace/maintenancecontroller.h>
 
 #include "clientcontext.h"
 #include "display.h"
+#include "extrasexpansion.h"
+#include "gadgetswitcher.h"
 #include "ledring.h"
-#include "player.h"
+#include "soundcontroller.h"
+#include "rotaryexpansion.h"
 #include "storage/storage.h"
 #include "taskrunner.h"
-#include "rotaryexpansion.h"
-#include "extrasexpansion.h"
 #include "wificontroller.h"
-#include "gadgetswitcher.h"
 
 class CoreService : public PeriphericalService {
  public:
@@ -24,11 +25,12 @@ class CoreService : public PeriphericalService {
   GadgetSwitcher gadgetSwitcher;
 
   LedRing ledRing;
-  Player player;
   Storage storage;
   Display display;
-  WifiController wifi;
   ClientContexts contexts;
+  WifiController wifiController;
+  SoundController soundController;
+  MaintenanceController maintenanceController;
 
   TaskRunner runner;
   Scheduler scheduler;
@@ -59,4 +61,8 @@ class CoreService : public PeriphericalService {
   void fireCoreStatusUpdate();
   CoreControl coreControl;
   unsigned long lastHeartbeat;
+
+  /* wifi & maintenance */
+  void startStopWifi();
+  void startStopMaintenance();
 };

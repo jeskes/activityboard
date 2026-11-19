@@ -1,19 +1,19 @@
 #pragma once
 
-#include <DFRobotDFPlayerMini.h>
 #include <base/base.h>
 #include <modules/requests.h>
+#include <uart/uartcontroller.h>
 
 #include <functional>
 
 #include "ledring.h"
 #include "rotaryexpansion.h"
 
-using PlayerStateChangeHandler = std::function<void()>;
+using SoundStateChangeHandler = std::function<void()>;
 
-class Player {
+class SoundController : public StreamCommandHandler {
  public:
-  Player(LedRing& ledRing, RotaryExpansion& rotary);
+  SoundController(LedRing& ledRing, RotaryExpansion& rotary);
 
   void setup();
   void loop();
@@ -21,8 +21,13 @@ class Player {
   void play(TrackFolder folder, TrackId track);
   void stop();
 
+  void startMaintenance();
+  void stopMaintenance();
+
   PlayerState playerState;
-  void onStateChange(PlayerStateChangeHandler handler);
+  void onStateChange(SoundStateChangeHandler handler);
+
+  void handleStreamCommand(StreamCommand cmd, const char* params) override;
 
  private:
   bool mute;
@@ -30,8 +35,7 @@ class Player {
 
   LedRing& ledRing;
   RotaryAdapter volumeAdapter;
-  HardwareSerial playerSerial;
-  DFRobotDFPlayerMini player;
+  UartController uartController;
 
   bool checkPlaying();
   void awaitBusy(bool playing);
@@ -40,5 +44,5 @@ class Player {
 
   bool debouncePlaying;
   unsigned long debounceTimestamp;
-  PlayerStateChangeHandler handler;
+  SoundStateChangeHandler handler;
 };

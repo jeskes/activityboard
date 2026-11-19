@@ -1,4 +1,7 @@
+#if !defined(AB_NO_NUMPAD)
+
 #include "numpad.h"
+
 #include "base/base.h"
 
 static char keymap[19] = "123A456B789C*0#DNF";  // N = no key, F = failure
@@ -16,12 +19,12 @@ void ActivityNumpadClient::setup() {
     LOG("loading keymap: %d", keymap);
     keyPad.loadKeyMap(keymap);
     LOG("numpad initialized at address %d", NUMPAD_MODULE_ID);
-	initialized = true;
+    initialized = true;
   }
 }
 
 bool ActivityNumpadClient::available() {
-	return initialized;
+  return initialized;
 }
 
 char ActivityNumpadClient::getChar() {
@@ -73,3 +76,5 @@ int16_t ActivityNumpadClient::readString(char* buffer, uint8_t length, int16_t t
 
   return idx;
 }
+
+#endif

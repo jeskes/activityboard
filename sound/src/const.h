@@ -1,20 +1,22 @@
 #pragma once
 
-// pins
+#include <Arduino.h>
 
-#define VOLUME_SW 2
-#define VOLUME_DT 3
-#define VOLUME_CLK 4
-#define SPEAKER_CONTROL 9
-#define PLAYER_TX 10
-#define PLAYER_RX 11
-#define PLAYER_BUSY 12
+/* MAX98357A (I2S Audio) */
 
-// volume control
+inline constexpr uint8_t AUDIO_LRC = 3;
+inline constexpr uint8_t AUDIO_BCLK = 1;
+inline constexpr uint8_t AUDIO_DIN = 0;
 
-#define INITIAL_VOLUME 1
-#define MAXIMUM_VOLUME 25
+// SD-Card Modul (SPI)
 
-// startup
+inline constexpr uint8_t SD_SCK = 4;
+inline constexpr uint8_t SD_MISO = 5;
+inline constexpr uint8_t SD_MOSI = 6;
+inline constexpr uint8_t SD_CS = 7;
 
-#define STARTUP_TRACK_ID 100
+// communication with core
+
+inline constexpr uint8_t UART_RX = 20;      // connected to Core GPIO 25 (TX)
+inline constexpr uint8_t UART_TX = 21;      // connected to Core GPIO 26 (RX)
+inline constexpr uint8_t AUDIO_BUSY = 10;  // LOW = playing, HIGH = idle

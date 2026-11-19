@@ -4,6 +4,14 @@
 
 ActivityLogger activityLogger;
 
+void ActivityLogger::setup() {
+  Serial.begin(SERIAL_BAUD);
+  while (!Serial) {
+    delay(50);
+  }
+  LOG("logger started");
+}
+
 void ActivityLogger::print(const char* fmt, ...) {
   va_list args;
   va_start(args, fmt);

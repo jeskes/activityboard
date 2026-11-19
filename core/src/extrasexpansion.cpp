@@ -20,7 +20,7 @@ void ExtrasExpansion::setup() {
 
   pinMode(EXTRAS_EXPANSION_INT, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(EXTRAS_EXPANSION_INT), isrExtras, FALLING);
-  
+
   uint8_t state = pcf8574.read8(); /* initial read */
   LOG("extras extension initialized: connected=%d, state=0x%02X", pcf8574.isConnected(), state);
 }
@@ -28,16 +28,14 @@ void ExtrasExpansion::setup() {
 void ExtrasExpansion::loop() {
   if (extrasInterrupt || digitalRead(EXTRAS_EXPANSION_INT) == LOW) {
     extrasInterrupt = false;
-    LOG("extras interrupt");
 
     uint8_t reg = pcf8574.read8();
-
     for (uint8_t pin = 0; pin < 8; pin++) {
       if (!(reg & (1 << pin))) {
         // debounce
         if (millis() - lastClickTime[pin] > DEBOUNCE_DELAY) {
           lastClickTime[pin] = millis();
-          if (handlers[pin] != nullptr) {
+          if (handlers[pin]) {
             handlers[pin]();
           }
         }

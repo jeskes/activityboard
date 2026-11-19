@@ -12,22 +12,14 @@ static IPAddress ap_ip(10, 0, 0, 1);
 static IPAddress ap_gateway(10, 0, 0, 1);
 static IPAddress ap_subnet(255, 255, 255, 0);
 
-WifiController::WifiController(Scheduler& scheduler, ExtrasExpansion& extras, ClientContexts contexts)
-    : server(80),
+WifiController::WifiController(ClientContexts contexts)
+    : state(State::STOPPED),
+      server(80),
       webSocket(81),
-      extras(extras),
-      contexts(contexts),
-      scheduler(scheduler),
-      wifiTask(WIFI_ACTIVATION_POLLING, TASK_FOREVER, [this]() { this->processWifiState(); }) {
+      contexts(contexts) {
 }
 
 void WifiController::setup() {
-  extras.showLed(EXTRAS_WIFI_LED, false);
-  extras.addHandler(EXTRAS_WIFI_BUTTON, [&]() { startStop(); });
-
-  scheduler.addTask(wifiTask);
-  wifiTask.enable();
-
   server.on("/", [&]() { handleRoot(); });
 
   server.on(UriBraces("/{}/images/{}"), [&]() {
@@ -41,18 +33,18 @@ void WifiController::setup() {
   webSocket.onEvent([&](uint8_t num, WStype_t type, uint8_t* payload, size_t length) { webSocketEvent(num, type, payload, length); });
 }
 
-void WifiController::onStateChange(WifiStateChangeHandler handler) {
+void WifiController::setHandler(WifiStateChangeHandler handler) {
   this->handler = handler;
 }
 
 WebState WifiController::fetchState() {
-  WebState state;
-  state.active = currentState == WifiState::WIFI_SERVER_RUNNING;
-  state.age = webInputTimestamp ? millis() - webInputTimestamp : 0;
-  state.input = webInput;
+  WebState webState;
+  webState.active = state == State::RUNNING;
+  webState.age = webInputTimestamp ? millis() - webInputTimestamp : 0;
+  webState.input = webInput;
   webInput = StdInput::NONE;
   webInputTimestamp = 0;
-  return state;
+  return webState;
 }
 
 void WifiController::configureClient(ClientId client) {
@@ -63,65 +55,79 @@ void WifiController::configureClient(ClientId client) {
 }
 
 void WifiController::startStop() {
-  if (currentState == WIFI_IDLE) {
-    LOG("start wifi...");
-    currentState = WIFI_START_AP;
-    webSocketNumber = 0xff;
-    webSocketConnected = false;
-    webInput = StdInput::NONE;
-    wifiTask.enable();
-      wifiTask.setInterval(WIFI_ACTIVATION_POLLING);
+  if (state == State::RUNNING) {
+    stop();
   }
-  else {
-    LOG("shutdown wifi");
-    wifiTask.disable();
-    server.stop();
-    webSocket.close();
-    WiFi.softAPdisconnect(true);
-    WiFi.mode(WIFI_OFF);
-    extras.showLed(EXTRAS_WIFI_LED, false);
-    currentState = WIFI_IDLE;
+  else if (state == State::STOPPED) {
+    start();
   }
 }
 
-void WifiController::processWifiState() {
-  switch (currentState) {
-    case WIFI_START_AP:
-      WiFi.disconnect(true);
-      WiFi.mode(WIFI_AP);
-      WiFi.softAP(WIFI_USERNAME, WIFI_PASSWORD);
-	  WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet);
-      extras.toggleLed(EXTRAS_WIFI_LED);
-      currentState = WIFI_CHECK_AP;
-      break;
+void WifiController::start() {
+  if (state != State::STOPPED) {
+    return;
+  }
 
-    case WIFI_CHECK_AP:
-      extras.toggleLed(EXTRAS_WIFI_LED);
-      if (WiFi.softAPIP() != IPAddress(0, 0, 0, 0)) {
-        IPAddress ip = WiFi.softAPIP();
-        LOG("wifi started ip=%s", WiFi.softAPIP().toString().c_str());
-        LOG("connect to http://%s", ip.toString().c_str());
-        currentState = WIFI_START_SERVER;
-      }
-      break;
+  state = State::STARTING;
+  LOG("start wifi");
 
-    case WIFI_START_SERVER:
-      server.begin();
-      webSocket.begin();
-	  ftpServer.begin(WIFI_USERNAME, WIFI_PASSWORD);
-      currentState = WIFI_SERVER_RUNNING;
-      break;
+  webSocketNumber = 0xff;
+  webSocketConnected = false;
+  webInput = StdInput::NONE;
 
-    case WIFI_SERVER_RUNNING:
-      server.handleClient();
-      webSocket.loop();
-	  ftpServer.handleFTP();
-      extras.showLed(EXTRAS_WIFI_LED, true);
-      wifiTask.setInterval(WIFI_ACTIVE_POLLING);
-      break;
+  WiFi.disconnect(true);
+  delay(100);
+  WiFi.persistent(false);
 
-    default:
-      break;
+  WiFi.mode(WIFI_AP);
+  if (!WiFi.softAP(WIFI_SSID, WIFI_PASSPHRASE)) {
+    LOG("cannot start wifi access point");
+    return;
+  }
+
+  delay(150);
+  WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet);
+  WiFi.setSleep(false);
+
+  if (WiFi.softAPIP() == IPAddress(0, 0, 0, 0)) {
+    LOG("cannot start wifi ap ip");
+    return;
+  }
+
+  server.begin();
+  webSocket.begin();
+
+  state = State::RUNNING;
+
+  LOG("wifi started: ip=%s", WiFi.softAPIP().toString().c_str());
+}
+
+void WifiController::stop() {
+  if (state != State::RUNNING) {
+    return;
+  }
+
+  state = STOPPING;
+  LOG("stop wifi");
+
+  server.stop();
+  webSocket.close();
+  WiFi.softAPdisconnect(true);
+  WiFi.mode(WIFI_OFF);
+
+  state = State::STOPPED;
+
+  LOG("wifi stopped");
+}
+
+bool WifiController::isRunning() {
+  return state == State::RUNNING;
+}
+
+void WifiController::loop() {
+  if (isRunning()) {
+    server.handleClient();
+    webSocket.loop();
   }
 }
 

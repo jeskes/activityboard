@@ -19,7 +19,9 @@ inline constexpr uint8_t GADGET_EXPANSION_ID2 = 0x27;
 #ifdef ARDUINO_ARCH_ESP32
 inline constexpr uint8_t WIRE_SDA = 21;
 inline constexpr uint8_t WIRE_SCL = 22;
+#ifndef LED_BUILTIN
 inline constexpr uint8_t LED_BUILTIN = 14;
+#endif
 #else
 inline constexpr uint8_t WIRE_SDA = A4;
 inline constexpr uint8_t WIRE_SCL = A5;
@@ -44,7 +46,7 @@ inline constexpr uint8_t DEFAULT_BUZZER = 12;
 inline constexpr int DEFAULT_BUZZER_FREQUENCY = 150;
 inline constexpr unsigned long DEFAULT_BUZZER_TIMEOUT = 250;
 
-inline constexpr unsigned long DEBOUNCE_DELAY = 50;
+inline constexpr unsigned long DEBOUNCE_DELAY = 250;
 
 inline constexpr unsigned long CORECLIENT_HEARTBEAT_TIMEOUT = 2000;
 inline constexpr unsigned long CORECLIENT_DISCONNECTED_TIMEOUT = 5000;
@@ -137,6 +139,30 @@ struct __attribute__((packed)) CoreFlags {
 };
 
 /* ========================================================================= */
+/*                                                             wifi settings */
+/* ========================================================================= */
+
+inline constexpr unsigned long WIFI_ACTIVATION_POLLING = 20;
+inline constexpr unsigned long WIFI_ACTIVE_POLLING = 5;
+inline constexpr const char* WIFI_SSID = "fizzbizz";
+inline constexpr const char* WIFI_PASSPHRASE = "fizzbizz";
+inline constexpr const char* WIFI_USERNAME = "fizzbizz";
+inline constexpr const char* WIFI_PASSWORD = "fizzbizz";
+inline constexpr const uint32_t WIFI_TIMEOUT = 10000;
+
+/* ========================================================================= */
+/*                                                               maintenance */
+/* ========================================================================= */
+
+inline constexpr const char* MAINTENANCE_SSID = "tecsi";
+inline constexpr const char* MAINTENANCE_PASSPHRASE = "wiseguys";
+inline constexpr const char* MAINTENANCE_FTP_USERNAME = "fizzbizz";
+inline constexpr const char* MAINTENANCE_FTP_PASSWORD = "fizzbizz";
+inline constexpr const char* MAINTENANCE_OTA_PASSWORD = "";
+inline constexpr const char* MAINTENANCE_HOST_CORE = "core";
+inline constexpr const char* MAINTENANCE_HOST_SOUND = "sound";
+
+/* ========================================================================= */
 /*                                                     global activity board */
 /* ========================================================================= */
 
@@ -155,6 +181,7 @@ extern ActivityBoard activityBoard;
 
 class ActivityLogger {
  public:
+  void setup();
   void print(const char* fmt, ...);
   void println(const char* fmt, ...);
 #if defined(ARDUINO_ARCH_ESP32)
@@ -173,7 +200,7 @@ class ActivityLogger {
 
 extern ActivityLogger activityLogger;
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined(AB_DEBUG)
 #if defined(ARDUINO_ARCH_ESP32)
 #define LOG(fmt, ...)                                 \
   {                                                   \

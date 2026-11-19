@@ -1,13 +1,17 @@
-#include "sound.h"
+#include "soundservice.h"
 
-SoundService soundService;
+static SoundService soundService;
+
+unsigned long startup = millis() + 500;
 
 void setup() {
-  soundService.setup(SOUND_MODULE_ID);
-  soundService.play(SYSTEM_CLIENT_ID, STARTUP_TRACK_ID);
-  LOG("Sound Module started.");
+  soundService.setup();
 }
 
 void loop() {
   soundService.loop();
+  if (startup && millis() > startup) {
+    soundService.audioPlayer.play("/10/100.mp3");
+    startup = 0;
+  }
 }

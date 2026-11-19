@@ -15,10 +15,7 @@ ActivityBoard activityBoard;
 /* ========================================================================= */
 
 void ActivityBoard::setup() {
-  Serial.begin(SERIAL_BAUD);
-  while (!Serial) {
-    delay(50);
-  }
+  activityLogger.setup();
   LOG("initialize wire as gadget (master).");
 #if defined(ARDUINO_ARCH_ESP32)
   clearI2CBus(WIRE_SDA, WIRE_SCL);
@@ -42,10 +39,7 @@ void ActivityBoard::setup() {
 /* ========================================================================= */
 
 void ActivityBoard::setup(uint8_t module) {
-  Serial.begin(SERIAL_BAUD);
-  while (!Serial) {
-    delay(50);
-  }
+  activityLogger.setup();
   LOG("initialize wire as peripherical service (module=%d).", module);
 #if defined(ARDUINO_ARCH_ESP32)
   int trials = 40;
