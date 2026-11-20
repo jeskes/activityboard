@@ -96,6 +96,7 @@ void Storage::list(const char* folder) {
     else {
       LOG("  file: %s [%d bytes]", file.path(), file.size());
     }
+	file.close();
     file = root.openNextFile();
   }
 }
