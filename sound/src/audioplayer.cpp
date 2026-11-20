@@ -8,7 +8,7 @@ AudioPlayer::AudioPlayer(SDFS& sd)
     : sd(sd),
       mp3(nullptr),
       file(nullptr),
-	  out(nullptr) {
+      out(nullptr) {
 }
 
 void AudioPlayer::setup() {
@@ -34,9 +34,9 @@ void AudioPlayer::loop() {
 
 bool AudioPlayer::play(const char* path) {
   stop();
-  if (!sd.exists(path)) {
+  if (!path || !sd.exists(path)) {
     signalBusy();
-    LOG("cannot find track: path=%s", path);
+    LOG("cannot find track: path=%s", path ? path : "<null>");
     return false;
   }
 
@@ -46,19 +46,19 @@ bool AudioPlayer::play(const char* path) {
   LOG("play - mp3");
   mp3 = new AudioGeneratorMP3();
 
-  LOG( "play - begin");
+  LOG("play - begin");
   mp3->begin(file, out);
-  
+
   LOG("playing track: path=%s", path);
   signalBusy();
-  
+
   return true;
 }
 
 void AudioPlayer::stop() {
-	LOG("stopping");
+  LOG("stopping");
   if (mp3 && mp3->isRunning()) {
-	LOG("mp3 running - stop it");
+    LOG("mp3 running - stop it");
     mp3->stop();
   }
   cleanup();
