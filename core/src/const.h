@@ -35,6 +35,11 @@ inline constexpr int8_t TFT_CS = 15;
 inline constexpr int8_t TFT_DC = 2;
 inline constexpr int8_t TFT_RST = 4;
 inline constexpr int8_t TFT_BL = 17;
+inline constexpr int8_t TOUCH_SDA = WIRE1_SDA;
+inline constexpr int8_t TOUCH_SCL = WIRE1_SCL;
+inline constexpr int8_t TOUCH_INT = 34;
+inline constexpr int8_t TOUCH_RST = -1;
+inline constexpr int8_t TOUCH_I2C_ADDRESS = 0x38;
 
 inline constexpr long BRIGHTNESS_STEP = 40;
 inline constexpr long INITIAL_BRIGHTNESS = 180;
@@ -51,8 +56,8 @@ inline constexpr uint8_t SOUND_SYSTEM_RX = 26;    /* connected to ESP32-C3 GPIO 
 inline constexpr uint8_t SOUND_SYSTEM_BUSY = 27; /* connected to ESP32-C3 GPIO 10 (BUSY) */
 
 inline constexpr long VOLUMNE_STEP = 5;
-inline constexpr long INITIAL_VOLUME = 10;
-inline constexpr long MINIMUM_VOLUME = 10;
+inline constexpr long INITIAL_VOLUME = 5;
+inline constexpr long MINIMUM_VOLUME = 5;
 inline constexpr long MAXIMUM_VOLUME = 100;
 
 inline constexpr int PLAYER_WAIT_FOR_BUSY_COUNT = 20;
