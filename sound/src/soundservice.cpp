@@ -11,6 +11,7 @@ static MaintenanceController::Configuration maintenanceConfiguration = {.hostnam
 
 SoundService::SoundService()
     : audioPlayer(SD),
+      trackManager(SD),
       uartController(Serial1),
       consoleController(Serial),
       maintenanceController(maintenanceConfiguration) {
@@ -26,7 +27,6 @@ void SoundService::setup() {
   LOG("starting");
 
   audioPlayer.setup();
-
   uartController.setup(UART_RX, UART_TX);
   uartController.setHandler(this);
   consoleController.setHandler(this);
@@ -39,6 +39,9 @@ void SoundService::setup() {
   else {
     uartController.send(SoundCom::INFO, "sd module ready");
   }
+
+  delay(100);
+  trackManager.setup();
 
   LOG("sound service initialized");
 }
@@ -57,7 +60,8 @@ void SoundService::loop() {
 void SoundService::handleStreamCommand(StreamCommand cmd, const char* params) {
   LOG("command: cmd=%s, params=%s", cmd, params);
   if (!strcmp(cmd, SoundCom::PLAY)) {
-    if (audioPlayer.play(params)) {
+    const char* path = trackManager.mapTrackPath(params);
+    if (audioPlayer.play(path)) {
       uartController.send(SoundCom::INFO, "playing track");
     }
     else {

@@ -3,6 +3,7 @@
 #include <uart/uartcontroller.h>
 
 #include "audioplayer.h"
+#include "trackmanager.h"
 
 class SoundService : public StreamCommandHandler {
  public:
@@ -14,6 +15,7 @@ class SoundService : public StreamCommandHandler {
   void handleStreamCommand(StreamCommand cmd, const char* params) override;
 
   AudioPlayer audioPlayer;
+  TrackManager trackManager;
   UartController uartController;
   StreamController consoleController;
   MaintenanceController maintenanceController;
