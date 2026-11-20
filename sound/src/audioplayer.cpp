@@ -17,7 +17,7 @@ void AudioPlayer::setup() {
 
   out = new AudioOutputI2S();
   out->SetPinout(AUDIO_BCLK, AUDIO_LRC, AUDIO_DIN);
-  out->SetGain(.3);
+  out->SetGain(.05);
 
   LOG("audio player initialized");
 }
