@@ -41,8 +41,15 @@ void MusicGadget::loop() {
   }
 
   MusicCategory category = categorySwitch.loop();
-  if (category != MUSIC_CATEGORY_UNDEF) {
-    onCategoryChanged(category);
+  switch (category) {
+    case MUSIC_CATEGORY_NONE:
+      LOG("no cat");
+      core.displayImage(STARTUP_IMAGE);
+      break;
+    case MUSIC_CATEGORY_UNDEF:
+      break;
+    default:
+      onCategoryChanged(category);
   }
 
   if (!playing) {
@@ -85,7 +92,7 @@ void MusicGadget::handleInput(Input input) {
         category = input - 1;
         playSequential(0);
       }
-	  break;
+      break;
   }
 }
 

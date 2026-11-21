@@ -44,6 +44,7 @@ MusicCategory CategorySwitch::get() {
         return idx;
       }
     }
+	return MUSIC_CATEGORY_NONE;
   }
   return MUSIC_CATEGORY_UNDEF;
 }
