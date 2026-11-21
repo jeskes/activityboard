@@ -1,3 +1,4 @@
+#if defined(AB_MAINTENANCE)
 #include <esp_wifi.h>
 
 #include "MaintenanceController.h"
@@ -101,7 +102,7 @@ void MaintenanceController::loop() {
 
   ArduinoOTA.handle();
 
-  int ftpLoops = ftpActive ? 20 : 1;
+  int ftpLoops = ftpActive ? 5 : 1;
   do {
     ftpServer.handleFTP();
   } while (--ftpLoops > 0);
@@ -120,11 +121,10 @@ void MaintenanceController::ftpCallback(FtpOperation op, uint32_t freeSpace, uin
     return;
   }
   if (op == FTP_CONNECT) {
-    LOG("ftp conntected");
+    // LOG("ftp conntected");
   }
   else if (op == FTP_DISCONNECT) {
-    LOG("ftp disconntected");
-    instance->ftpActive = false;
+    // LOG("ftp disconntected");
   }
 }
 
@@ -138,6 +138,7 @@ void MaintenanceController::ftpTransferCallback(FtpTransferOperation op, const c
   }
   else if (op == FTP_TRANSFER_STOP || op == FTP_TRANSFER_ERROR) {
     instance->ftpActive = false;
-    LOG("ftp transfer stop: op=%d", op);
+    LOG("ftp end: op=%d, bytes=%u, freeHeap=%u", op, transferredSize, ESP.getFreeHeap());
   }
 }
+#endif

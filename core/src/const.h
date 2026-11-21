@@ -80,5 +80,4 @@ inline constexpr uint8_t LEDRING_BRIGHTNESS = 40;
 
 /* startup */
 
-inline constexpr TrackId STARTUP_TRACK_ID = 100;
 inline constexpr const char* STARTUP_IMAGE = "/10/images/startup.jpg";

@@ -1,4 +1,5 @@
 #pragma once
+#if defined(AB_UARTCONTROLLER)
 
 #include <HardwareSerial.h>
 
@@ -36,3 +37,4 @@ class UartController : public StreamController {
     return *((HardwareSerial*)&stream);
   }
 };
+#endif

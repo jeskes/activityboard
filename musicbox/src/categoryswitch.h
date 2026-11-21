@@ -1,5 +1,6 @@
 #include <PCF8574.h>
 #include <base/base.h>
+#include "const.h"
 
 class CategorySwitch {
  public:

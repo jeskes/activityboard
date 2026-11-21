@@ -1,8 +1,8 @@
 #include "storycontroller.h"
 
 StoryController::StoryController(Definition& definition, ActivityCoreClient& core, InputController& inputController)
-    : core(core),
-      definition(definition),
+    : definition(definition),
+      core(core),
       inputController(inputController),
       playerMonitor(PlayerMonitor::UNDEFINED) {
 }
@@ -19,7 +19,7 @@ bool StoryController::run(StoryId story) {
   activityControls.blink(blinks, 3, 3, 100);
 
   storyDefinition = definition.getStoryDefinition(story);
-  tracks = storyDefinition["tracks"].as<TrackFolder>();
+  tracks = storyDefinition["tracks"].as<uint8_t>();
   ChapterId start = storyDefinition["start"].as<ChapterId>();
   if (!start) {
     LOG("error: no start found");
@@ -102,12 +102,12 @@ void StoryController::startChapter(ChapterId chapter) {
 
   core.displayImage(image);
 
-  TrackId track = chapterDef["track"].as<TrackId>();
+  TrackPath track = chapterDef["track"].as<TrackPath>();
   if (!track) {
     LOG("chapter track not found");
   }
 
-  core.playSound(tracks, track);
+  playStoryTrack(track);
   playerMonitor = PlayerMonitor::PENDING;
 
   currentMenu = nullptr;
@@ -142,7 +142,7 @@ void StoryController::startMenu(MenuId menu) {
   currentMenuSelection = 0;
 
   core.displayMenu(currentMenu, -1);
-  core.playSound(tracks, currentMenuDef["track"].as<TrackId>());
+  playStoryTrack(currentMenuDef["track"].as<TrackPath>());
   playerMonitor = PlayerMonitor::PENDING;
 }
 
@@ -150,8 +150,8 @@ void StoryController::startMenuOption(uint8_t index) {
   currentMenuSelection = index;
   core.displayMenu(currentMenu, index);
   JsonObject option = currentMenuDef["options"].as<JsonArray>()[index].as<JsonObject>();
-  TrackId track = option["track"].as<TrackId>();
-  core.playSound(tracks, track);
+  TrackPath track = option["track"].as<TrackPath>();
+  playStoryTrack(track);
 }
 
 void StoryController::onMenuOptionSelected(uint8_t index) {
@@ -181,6 +181,12 @@ bool StoryController::isBusy() {
 
 bool StoryController::inMenu() {
   return currentMenu != nullptr;
+}
+
+void StoryController::playStoryTrack(TrackPath track) {
+  char path[ID_BUFFER_SIZE];
+  sprintf(path, "/%02d/%s", tracks, track);
+  core.playTrack(path, SoundControl(SoundControl::DISPLAY_INFO));
 }
 
 void StoryController::handleCoreStatus(CoreStatus status) {

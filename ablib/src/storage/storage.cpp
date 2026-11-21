@@ -1,4 +1,4 @@
-#if defined(ARDUINO_ARCH_ESP32) && !defined(AB_NO_STORAGE)
+#if defined(AB_STORAGE)
 
 #include "storage.h"
 

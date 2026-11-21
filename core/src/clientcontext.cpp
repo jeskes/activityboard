@@ -5,8 +5,8 @@ inline constexpr int VALUE_BUFFER_SIZE = 128;
 
 /* static buffers */
 
-static char musicNameBuffer[ID_BUFFER_SIZE];
-static char musicImageBuffer[PATH_BUFFER_SIZE];
+static char trackPathBuffer[PATH_BUFFER_SIZE];
+static char trackImageBuffer[PATH_BUFFER_SIZE];
 
 /* contexts (manager) */
 
@@ -55,31 +55,11 @@ void ClientContext::init(Storage& storage, ClientId client) {
     LOG("parameters: client=%d, count=0");
   }
 
-  initMusicCategories(storage);
-
   LOG("messages: client=%d, count=%d", client, config["messages"].is<JsonObject>() ? config["messages"].as<JsonObject>().size() : 0);
   LOG("menus: client=%d, count=%d", client, config["menus"].is<JsonObject>() ? config["menus"].as<JsonObject>().size() : 0);
   LOG("images: client=%d, count=%d", client, config["images"].is<JsonObject>() ? config["images"].as<JsonObject>().size() : 0);
   LOG("data: client=%d, count=%d", client, config["data"].is<JsonObject>() ? config["data"].as<JsonObject>().size() : 0);
-  LOG("music categories: client=%d, count=%d", client, config["music"]["category-folders"].is<JsonArray>() ? config["music"]["category-folders"].as<JsonArray>().size() : 0);
-  LOG("music aliases: client=%d, count=%d", client, config["music"]["alias"].is<JsonObject>() ? config["music"]["alias"].as<JsonObject>().size() : 0);
-}
-
-void ClientContext::initMusicCategories(Storage& storage) {
-  JsonArray categories = config["music"]["category-folders"].as<JsonArray>();
-  if (!categories.isNull()) {
-    for (size_t idx = 0; idx < categories.size(); idx++) {
-      TrackFolder folder = categories[idx].as<TrackFolder>();
-      char path[PATH_BUFFER_SIZE];
-      sprintf(path, "/%02d/music.json", folder);
-      LOG("load music folder config: path=%s", path);
-      storage.loadJson(path, musicCategories[idx]);
-      LOG("loaded music folder config: path=%s, entries=%d", path, musicCategories[idx].size());
-    }
-  }
-  else {
-    LOG("no music category folders");
-  }
+  LOG("track aliases: client=%d, count=%d", client, config["tracks"]["alias"].is<JsonObject>() ? config["tracks"]["alias"].as<JsonObject>().size() : 0);
 }
 
 void ClientContext::putParam(ParameterId name, const char* value, byte append) {
@@ -179,85 +159,43 @@ DataDef ClientContext::getDataDef(DataId id) {
   return def;
 }
 
-MusicDef ClientContext::getMusicDef(MusicAlias alias) {
-  MusicDef def;
-  JsonObject aliasDef = config["music"]["alias"][alias].as<JsonObject>();
-  if (!aliasDef.isNull()) {
-    MusicCategory category = aliasDef["category"].as<MusicCategory>();
-    MusicName trackname = aliasDef["trackname"].as<MusicName>();
-    LOG("map music alias: %s => (%d, %s)", alias, category, trackname);
-    return getMusicDef(category, trackname);
-  }
-  else {
-    LOG("music not found: alias=%s", alias);
-  }
-  return def;
-}
+TrackDef ClientContext::getTrackDef(TrackPath path) {
+  TrackDef def;
 
-MusicDef ClientContext::getMusicDef(MusicCategory category, MusicName name) {
-  MusicDef def;
-  JsonVariant folderDef = config["music"]["category-folders"][category].as<JsonVariant>();
-  if (!folderDef.isNull()) {
-    JsonDocument categoryConfig = musicCategories[category];
-    if (categoryConfig.size() > 0) {
-      if (!categoryConfig[name].isNull()) {
-        def.folder = folderDef.as<TrackFolder>();
-        def.track = categoryConfig[name].as<TrackId>();
-        strlcpy(musicNameBuffer, name, ID_BUFFER_SIZE);
-        def.name = musicNameBuffer;
-        fillImagePath(def);
-      }
-      else {
-        LOG("music not found in category: category=%d, name=%s", category, name);
-      }
+  if (*path == '@') {
+    const char* alias = path + 1;
+    TrackPath realPath = config["tracks"]["alias"][alias].as<TrackPath>();
+    if (realPath) {
+      LOG("map track alias: %s => (%s)", alias, realPath);
+      return getTrackDef(realPath);
     }
     else {
-      LOG("music category is empty: category=%d", category);
+      LOG("track not found: alias=%s", alias);
     }
   }
-  else {
-    LOG("music not found: category=%d", category);
+  else if (*path == '/') {
+    strncpy(def.path, path, sizeof(def.path));
+    fillImagePath(def);
   }
+  else {
+    snprintf(trackPathBuffer, PATH_BUFFER_SIZE, "/%02d/%s", client, path);
+    return getTrackDef(trackPathBuffer);
+  }
+
   return def;
 }
 
-MusicDef ClientContext::getMusicDef(MusicCategory category, MusicIndex index) {
-  MusicDef def;
-  LOG("make music-def: category=%d, index=%d", category, index);
-  JsonVariant folderDef = config["music"]["category-folders"][category].as<JsonVariant>();
-  if (!folderDef.isNull()) {
-    JsonDocument tracks = musicCategories[category];
-    if (tracks.size() > 0) {
-      index = index % tracks.size();
-      uint8_t idx = 0;
-      for (JsonPair entry : tracks.as<JsonObject>()) {
-        if (idx == index) {
-          def.folder = folderDef.as<TrackFolder>();
-          def.track = entry.value().as<TrackId>();
-          strlcpy(musicNameBuffer, entry.key().c_str(), ID_BUFFER_SIZE);
-          def.name = musicNameBuffer;
-          fillImagePath(def);
-          break;
-        }
-        idx++;
-      }
+void ClientContext::fillImagePath(TrackDef& def) {
+  char folder[8];
+  char track[32];
+  if (sscanf(def.path, "/%7[^/]/%31[^\n]", folder, track) == 2) {
+    sprintf(trackImageBuffer, "/%s/images/%s.jpg", folder, track);
+    LOG("looking for track image: folder=%s, track=%s", folder, track);
+    if (!storage->exists(trackImageBuffer)) {
+      strlcpy(trackImageBuffer, "/10/images/music.jpg", PATH_BUFFER_SIZE);
     }
-    else {
-      LOG("music category is empty: category=%d", category);
-    }
+    def.image = trackImageBuffer;
   }
-  else {
-    LOG("music not found: category=%d", category);
-  }
-  return def;
-}
-
-void ClientContext::fillImagePath(MusicDef& def) {
-  char path[PATH_BUFFER_SIZE];
-  sprintf(path, "/%02d/images/%s.jpg", def.folder, def.name);
-  LOG("looking for music image: folder=%d, name=%s, path=%s", def.folder, def.name, path);
-  strlcpy(musicImageBuffer, storage->exists(path) ? path : "/10/images/music.jpg", PATH_BUFFER_SIZE);
-  def.image = musicImageBuffer;
 }
 
 String ClientContext::utf8ToExtendedAscii(const String& utf8Str) {

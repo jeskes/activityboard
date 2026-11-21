@@ -1,6 +1,5 @@
 #pragma once
-
-#if !defined(AB_NO_NUMPAD)
+#if defined(AB_NUMPAD)
 
 #include <I2CKeyPad.h>
 

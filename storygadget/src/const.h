@@ -33,7 +33,7 @@ inline constexpr uint8_t RC522_SCK = 18;
 
 inline constexpr MessageId LOADING_STORY = "LOADING_STORY";
 inline constexpr ImageId STARTUP_IMAGE = "STARTUP";
-inline constexpr TrackId STARTUP_TRACK = 1;
+inline constexpr TrackPath STARTUP_TRACK = "001";
 
 inline constexpr DataId STORIES_DATA = "stories";
 

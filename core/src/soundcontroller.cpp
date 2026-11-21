@@ -69,11 +69,9 @@ bool SoundController::checkPlaying() {
   return digitalRead(SOUND_SYSTEM_BUSY) == LOW;
 }
 
-void SoundController::play(TrackFolder folder, TrackId track) {
-  LOG("play sound: folder=%d, track=%d", folder, track);
+void SoundController::play(TrackPath path) {
+  LOG("play sound: path=%s", path);
   playerState = PlayerState::UNKNOWN;
-  char path[PATH_BUFFER_SIZE];
-  snprintf(path, PATH_BUFFER_SIZE, "/%02d/%03d.mp3", folder, track);
   uartController.send(SoundCom::PLAY, path);
   awaitBusy(true);
 }

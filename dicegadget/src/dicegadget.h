@@ -1,7 +1,8 @@
 #pragma once
 
-#include <modules/gadget.h>
 #include <modules/coreclient.h>
+#include <modules/gadget.h>
+
 #include "inputcontroller.h"
 
 class DiceGadget : public GadgetBase, public CoreStatusHandler {
@@ -10,7 +11,7 @@ class DiceGadget : public GadgetBase, public CoreStatusHandler {
 
   void setup();
   void loop();
-  
+
   void handleCoreStatus(CoreStatus status) override;
 
  private:
@@ -53,4 +54,6 @@ class DiceGadget : public GadgetBase, public CoreStatusHandler {
 
   void playJingle();
   void playNumber(int number);
+
+  void playTrack(int decimal);
 };

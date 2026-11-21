@@ -56,35 +56,10 @@ void ActivityCoreClient::putParam(ParameterId id, const char* value) {
   sendRequest(CORE_MODULE_ID, &request, sizeof(ParameterRequest));
 }
 
-void ActivityCoreClient::playMusic(MusicAlias alias, bool displayInfo) {
-  LOG("send play music request : alias=%s", alias);
-  PlayMusicRequest request(client, alias, displayInfo);
-  sendRequest(CORE_MODULE_ID, &request, sizeof(PlayMusicRequest));
-  blockCoreStatusProcessing(BLOCK_STATUS_PLAYSOUND);
-}
-
-void ActivityCoreClient::playMusic(MusicCategory category, MusicName name, bool displayInfo) {
-  LOG("send play music request : category=%d, name=%s", category, name);
-  PlayMusicRequest request(client, category, name, displayInfo);
-  sendRequest(CORE_MODULE_ID, &request, sizeof(PlayMusicRequest));
-  blockCoreStatusProcessing(BLOCK_STATUS_PLAYSOUND);
-}
-
-void ActivityCoreClient::playMusic(MusicCategory category, MusicIndex index, bool displayInfo) {
-  LOG("send play music request : category=%d, index=%d", category, index);
-  PlayMusicRequest request(client, category, index, displayInfo);
-  sendRequest(CORE_MODULE_ID, &request, sizeof(PlayMusicRequest));
-  blockCoreStatusProcessing(BLOCK_STATUS_PLAYSOUND);
-}
-
-void ActivityCoreClient::playSound(TrackId track) {
-  playSound(client, track);
-}
-
-void ActivityCoreClient::playSound(TrackFolder folder, TrackId track) {
-  LOG("send play sound request : folder=%d, track=%d", folder, track);
-  PlaySoundRequest request(client, folder, track);
-  sendRequest(CORE_MODULE_ID, &request, sizeof(PlaySoundRequest));
+void ActivityCoreClient::playTrack(TrackPath path, SoundControl control) {
+  LOG("send play sound request : path=%s", path);
+  PlayTrackRequest request(client, path, control);
+  sendRequest(CORE_MODULE_ID, &request, sizeof(PlayTrackRequest));
   blockCoreStatusProcessing(BLOCK_STATUS_PLAYSOUND);
 }
 

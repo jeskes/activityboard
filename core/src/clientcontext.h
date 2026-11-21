@@ -22,10 +22,8 @@ struct DataDef {
   char path[PATH_BUFFER_SIZE] = {0};
 };
 
-struct MusicDef {
-  TrackFolder folder = 0;
-  TrackId track = 0;
-  MusicName name = nullptr;
+struct TrackDef {
+  char path[PATH_BUFFER_SIZE] = {0};
   const char* image = nullptr;
 };
 
@@ -38,9 +36,7 @@ class ClientContext {
   MenuDef getMenuDef(MenuId id);
   ImageDef getImageDef(ImageId id);
   DataDef getDataDef(DataId id);
-  MusicDef getMusicDef(MusicAlias alias);
-  MusicDef getMusicDef(MusicCategory category, MusicName name);
-  MusicDef getMusicDef(MusicCategory category, MusicIndex index);
+  TrackDef getTrackDef(TrackPath path);
 
   String utf8ToExtendedAscii(const String& utf8);
 
@@ -54,8 +50,7 @@ class ClientContext {
   JsonDocument config;
   std::map<String, String> params;
 
-  void fillImagePath(MusicDef& def);
-  std::map<uint8_t, JsonDocument> musicCategories;
+  void fillImagePath(TrackDef& def);
 
   friend class ClientContexts;
 };

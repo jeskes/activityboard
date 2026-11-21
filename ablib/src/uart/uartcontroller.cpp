@@ -1,3 +1,4 @@
+#if defined(AB_UARTCONTROLLER)
 #include "uartcontroller.h"
 
 #include "../base/base.h"
@@ -44,3 +45,4 @@ void UartController::send(StreamCommand cmd, const char* params) {
   snprintf(buffer, STREAM_COMMAND_BUFFER_SIZE, "%s:%s", cmd, args);
   getSerial().println(buffer);
 }
+#endif

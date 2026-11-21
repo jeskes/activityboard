@@ -29,7 +29,7 @@ inline constexpr uint8_t WIRE_SCL = A5;
 #endif
 inline constexpr uint32_t WIRE_SPEED = 100000;
 
-inline constexpr uint8_t ID_BUFFER_SIZE = 26;
+inline constexpr uint8_t ID_BUFFER_SIZE = 28;
 inline constexpr uint8_t PARAM_NAME_BUFFER_SIZE = 10;
 inline constexpr uint8_t PARAM_VALUE_BUFFER_SIZE = 16;
 inline constexpr uint8_t PRINT_BUFFER_SIZE = 128;
@@ -61,12 +61,7 @@ using ClientId = uint8_t;
 inline constexpr ClientId SYSTEM_CLIENT_ID = 10;
 
 using ParameterId = const char*;
-using TrackId = uint8_t;
-using TrackFolder = uint8_t;
-using MusicCategory = uint8_t;
-using MusicName = const char*;
-using MusicIndex = uint8_t;
-using MusicAlias = const char*;
+using TrackPath = const char*;
 using MessageId = const char*;
 using ImageId = const char*;
 using MenuId = const char*;
@@ -102,12 +97,17 @@ inline constexpr Input CUSTOM = 0x20; /* start ax 0x20 */
 
 /* typed constants */
 
-inline constexpr MusicCategory MUSIC_CATEGORY_UNDEF = 0xFF;
-
 /* flags base class */
 
 template <typename Derived>
 struct __attribute__((packed)) CoreFlags {
+  CoreFlags() {
+  }
+
+  CoreFlags(const uint8_t& flags) {
+    this->flags = flags;
+  }
+
   explicit operator uint8_t() const {
     return flags;
   }

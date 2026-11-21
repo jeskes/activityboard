@@ -31,7 +31,7 @@ inline constexpr uint8_t CATEGORY_SWITCH_COUNT = 4;
 inline constexpr ImageId STARTUP_IMAGE = "startup";
 
 /* track identifiers */
-inline constexpr TrackId STARTUP_TRACK = 1;
+inline constexpr TrackPath STARTUP_TRACK = "001";
 
 /* rc522 module pins */
 inline constexpr uint8_t RC522_RST = 9;
@@ -47,3 +47,8 @@ inline constexpr unsigned long NOTPLAYING_RESET_TIMEOUT = 5000;
 
 /* indicate no sequential plaing */
 inline constexpr int NO_SEQUENTIAL = -1;
+
+using MusicCategory = uint8_t;
+inline constexpr MusicCategory MUSIC_CATEGORY_UNDEF = 0xFF;
+
+inline constexpr int MUSIC_CATEGORY_FOLDERS[] = {30, 32, 32, 33};

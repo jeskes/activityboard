@@ -1,4 +1,5 @@
 #include "dicegadget.h"
+
 #include "const.h"
 
 const uint8_t indicators[] = {INDICATOR_LED_1, INDICATOR_LED_2, INDICATOR_LED_3, INDICATOR_LED_4, INDICATOR_LED_5, INDICATOR_LED_6};
@@ -29,7 +30,7 @@ void DiceGadget::setup() {
   input.setup();
 
   core.init(STARTUP_IMAGE);
-  core.playSound(STARTUP_TRACK);
+  core.playTrack(STARTUP_TRACK);
   core.setStatusHandler(this);
 
   LOG("Dice Gadget started.");
@@ -70,7 +71,7 @@ void DiceGadget::stateMachine() {
       indicatingTime = millis();
       if (currentGuess) {
         core.displayMessage(currentGuess == currentNumber ? MATCH_MESSAGE : SORRY_MESSAGE);
-        core.playSound(200 + (currentGuess == currentNumber ? 1 : 2));
+        playTrack(200 + (currentGuess == currentNumber ? 1 : 2));
       }
       break;
     case Status::NUMBER_INDICATING:
@@ -176,11 +177,17 @@ void DiceGadget::showIndicators() {
 
 void DiceGadget::playNumber(int number) {
   int language = random(0, LANGUAGES_COUNT);
-  core.playSound(10 * language + number);
+  playTrack(10 * language + number);
 }
 
 void DiceGadget::playJingle() {
-  core.playSound(JINGLE_START + currentJingle);
+  playTrack(JINGLE_START + currentJingle);
+}
+
+void DiceGadget::playTrack(int decimal) {
+  char path[10];
+  sprintf(path, "%03d", decimal);
+  core.playTrack(path);
 }
 
 void DiceGadget::checkDisplayReset() {

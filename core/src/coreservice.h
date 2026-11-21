@@ -43,8 +43,7 @@ class CoreService : public PeriphericalService {
   void processRequest(BaseRequest* request) override;
   void processRequest(InitCoreRequest* request);
   void processRequest(ParameterRequest* request);
-  void processRequest(PlayMusicRequest* request);
-  void processRequest(PlaySoundRequest* request);
+  void processRequest(PlayTrackRequest* request);
   void processRequest(StopSoundRequest* request);
   void processRequest(ClearDisplayRequest* request);
   void processRequest(DisplayMessageRequest* request);

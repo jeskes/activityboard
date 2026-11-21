@@ -6,26 +6,11 @@
 		"catagory-2": "category-classical.jpg",
 		"catagory-3": "category-funny.jpg"
 	},
-	"music": {
+	"tracks": {
 		"alias": {
-			"8a5b8e4f": {
-				"category": 0,
-				"trackname": "BongoBong"
-			},
-			"17bf224d": {
-				"category": 0,
-				"trackname": "HamKumst"
-			},
-			"049e979ce42a81": {
-				"category": 0,
-				"trackname": "001_Woid"
-			}
-		},
-		"category-folders": [
-			30,
-			31,
-			32,
-			33
-		]
+			"8a5b8e4f": "/30/BongoBong",
+			"17bf224d": "/30/HamKumst",
+			"049e979ce42a81": "/30/Woid"
+		}
 	}
 }

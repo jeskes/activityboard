@@ -12,9 +12,8 @@ enum class RequestType : uint8_t {
   UNKNOWN = 0x00,
   INIT = 0x01,
   PARAMETER = 0x02,
-  PLAY_SOUND = 0x10,
+  PLAY_TRACK = 0x10,
   STOP_SOUND = 0x11,
-  PLAY_MUSIC = 0x12,
   CLEAR_DISPLAY = 0x20,
   DISPLAY_MESSAGE = 0x21,
   DISPLAY_IMAGE = 0x22,
@@ -112,69 +111,31 @@ struct __attribute__((packed)) DisplayMenuRequest : public BaseRequest {
   uint8_t selectedIndex;
 };
 
-struct __attribute__((packed)) PlaySoundRequest : public BaseRequest {
-  PlaySoundRequest(ClientId client, TrackFolder folder, TrackId track)
-      : BaseRequest(client, RequestType::PLAY_SOUND),
-        folder(folder),
-        track(track) {
-  }
-  TrackFolder folder;
-  TrackId track;
-};
-
-struct __attribute__((packed)) MusicControl : CoreFlags<MusicControl> {
-  static inline constexpr uint8_t BY_NAME = (1 << 0);
-  static inline constexpr uint8_t BY_INDEX = (1 << 1);
-  static inline constexpr uint8_t BY_ALIAS = (1 << 2);
+struct __attribute__((packed)) SoundControl : CoreFlags<SoundControl> {
+  static inline constexpr uint8_t DISPLAY_INFO = (1 << 0);
+  static inline constexpr uint8_t RESERVED_1 = (1 << 1);
+  static inline constexpr uint8_t RESERVED_2 = (1 << 2);
   static inline constexpr uint8_t RESERVED_3 = (1 << 3);
-  static inline constexpr uint8_t DISPLAY_INFO = (1 << 4);
+  static inline constexpr uint8_t RESERVED_4 = (1 << 4);
   static inline constexpr uint8_t RESERVED_5 = (1 << 5);
   static inline constexpr uint8_t RESERVED_6 = (1 << 6);
   static inline constexpr uint8_t RESERVED_7 = (1 << 7);
+  SoundControl()
+      : CoreFlags() {
+  }
+  SoundControl(uint8_t flags)
+      : CoreFlags(flags) {
+  }
 };
 
-struct __attribute__((packed)) PlayMusicRequest : public BaseRequest {
-  PlayMusicRequest(ClientId client, MusicAlias alias, bool displayInfo)
-      : BaseRequest(client, RequestType::PLAY_MUSIC) {
-    control += MusicControl::BY_ALIAS;
-    strlcpy(by_alias.alias, alias, ID_BUFFER_SIZE);
-    if (displayInfo) {
-      control += MusicControl::DISPLAY_INFO;
-    }
-  }
-  PlayMusicRequest(ClientId client, MusicCategory category, MusicName name, bool displayInfo)
-      : BaseRequest(client, RequestType::PLAY_MUSIC) {
-    control += MusicControl::BY_NAME;
-    by_name.category = category;
-    strlcpy(by_name.name, name, ID_BUFFER_SIZE);
-    if (displayInfo) {
-      control += MusicControl::DISPLAY_INFO;
-    }
-  }
-  PlayMusicRequest(ClientId client, uint8_t category, uint8_t index, bool displayInfo)
-      : BaseRequest(client, RequestType::PLAY_MUSIC) {
-    control += MusicControl::BY_INDEX;
-    by_index.category = category;
-    by_index.index = index;
-    if (displayInfo) {
-      control += MusicControl::DISPLAY_INFO;
-    }
+struct __attribute__((packed)) PlayTrackRequest : public BaseRequest {
+  PlayTrackRequest(ClientId client, TrackPath path, SoundControl control)
+      : BaseRequest(client, RequestType::PLAY_TRACK) {
+    strlcpy(this->path, path, ID_BUFFER_SIZE);
   }
 
-  MusicControl control;
-  union {
-    struct __attribute__((packed)) {
-      uint8_t category;
-      char name[ID_BUFFER_SIZE];
-    } by_name;
-    struct __attribute__((packed)) {
-      uint8_t category;
-      uint8_t index;
-    } by_index;
-    struct __attribute__((packed)) {
-      char alias[ID_BUFFER_SIZE];
-    } by_alias;
-  };
+  SoundControl control;
+  char path[ID_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) StopSoundRequest : public BaseRequest {

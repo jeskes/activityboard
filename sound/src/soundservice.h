@@ -1,9 +1,10 @@
 #pragma once
-#include <maintenace/maintenancecontroller.h>
 #include <uart/uartcontroller.h>
+#include <maintenace/maintenancecontroller.h>
 
 #include "audioplayer.h"
 #include "trackmanager.h"
+#include "maintenancecontroller.h"
 
 class SoundService : public StreamCommandHandler {
  public:

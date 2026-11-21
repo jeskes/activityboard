@@ -3,70 +3,70 @@
 	"tracks": 21,
 	"chapters": {
 		"sunnyday": {
-			"track": 1,
+			"track": "001",
 			"image": "noddySunnyday",
 			"next": "ducks"
 		},
 		"ducks": {
-			"track": 2,
+			"track": "002",
 			"image": "noddyDucks",
 			"next": "farmerstraw"
 		},
 		"farmerstraw": {
-			"track": 3,
+			"track": "003",
 			"image": "noddyFarmerstraw",
 			"menu": "noddyFarmerstraw"
 		},
 		"pig": {
-			"track": 4,
+			"track": "004",
 			"image": "noddyPig",
 			"next": "sheep"
 		},
 		"sheep": {
-			"track": 5,
+			"track": "005",
 			"image": "noddySheep",
 			"next": "dog"
 		},
 		"dog": {
-			"track": 6,
+			"track": "006",
 			"image": "noddyDog",
 			"next": "goat"
 		},
 		"goat": {
-			"track": 7,
+			"track": "007",
 			"image": "noddyGoat",
 			"next": "pooroldnoddy"
 		},
 		"pooroldnoddy": {
-			"track": 8,
+			"track": "008",
 			"image": "noddyPooroldnoddy",
 			"next": "milk"
 		},
 		"milk": {
-			"track": 9,
+			"track": "009",
 			"image": "noddyMilk",
 			"next": "goodbye"
 		},
 		"goodbye": {
-			"track": 10,
+			"track": "010",
 			"image": "noddyGoodbye"
 		}
 	},
 	"menus": {
 		"noddyFarmerstraw": {
-			"track": 100,
+			"track": "100",
 			"options": [
 				{
 					"next": "pig",
-					"track": 101
+					"track": "101"
 				},
 				{
 					"next": "dog",
-					"track": 102
+					"track": "102"
 				},
 				{
 					"next": "goodbye",
-					"track": 103
+					"track": "103"
 				}
 			]
 		}

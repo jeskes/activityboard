@@ -1,4 +1,5 @@
 #pragma once
+#if defined(AB_MAINTENANCE)
 
 #include <Arduino.h>
 #include <ArduinoOTA.h>
@@ -11,6 +12,9 @@
 #undef NETWORK_ESP8266
 #undef NETWORK_ESP8266_ASYNC
 #undef NETWORK_W5100
+
+// #define FTP_BUF_SIZE 1024
+// #define FTP_TRANSFER_STALL_TIMEOUT_MS 15000
 #define DEFAULT_STORAGE_TYPE_ESP32 STORAGE_SD
 #include <SimpleFTPServer.h>
 
@@ -55,10 +59,12 @@ class MaintenanceController {
   Configuration& configuration;
 
   State state;
-  bool ftpActive = false;
-  bool otaActive = false;
+  volatile bool ftpActive = false;
+  volatile bool otaActive = false;
 
   static MaintenanceController* instance;
   static void ftpCallback(FtpOperation op, uint32_t freeSpace, uint32_t totalSpace);
   static void ftpTransferCallback(FtpTransferOperation op, const char* name, uint32_t transferredSize);
 };
+
+#endif

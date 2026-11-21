@@ -53,8 +53,10 @@ void SoundService::loop() {
   else {
     audioPlayer.loop();
   }
-  uartController.loop();
-  consoleController.loop();
+  if( !maintenanceController.isBusy() ) {
+	  uartController.loop();
+	  consoleController.loop();
+  }
 }
 
 void SoundService::handleStreamCommand(StreamCommand cmd, const char* params) {
@@ -82,6 +84,7 @@ void SoundService::handleStreamCommand(StreamCommand cmd, const char* params) {
   }
   else if (!strcmp(cmd, SoundCom::STOP_MAINTENANCE)) {
     maintenanceController.stop();
+	trackManager.setup();
     uartController.send(SoundCom::INFO, "stopped maintenance");
   }
 }

@@ -18,7 +18,7 @@ class SoundController : public StreamCommandHandler {
   void setup();
   void loop();
 
-  void play(TrackFolder folder, TrackId track);
+  void play(TrackPath path);
   void stop();
 
   void startMaintenance();

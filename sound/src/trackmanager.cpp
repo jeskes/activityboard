@@ -48,7 +48,14 @@ const char* TrackManager::mapTrackPath(const char* path) const {
   }
   const char* hashStr = strstr(path, "/#");
   if (!hashStr) {
-    return path;
+    size_t len = strlen(path);
+    if (len > 4 && !strcmp(path + (len - 4), ".mp3")) {
+      return path;
+    }
+    static char buffer[PATH_BUFFER_SIZE];
+    strcpy(buffer, path);
+    strcat(buffer, ".mp3");
+    return buffer;
   }
 
   String folderPath;

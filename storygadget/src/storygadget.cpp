@@ -28,7 +28,7 @@ void StoryGadget::setup() {
   nfc.setHandler(this);
 
   core.init(STARTUP_IMAGE);
-  core.playSound(STARTUP_TRACK);
+  core.playTrack(STARTUP_TRACK);
   core.setStatusHandler(this);
 
   LOG("Story Gadget started.");

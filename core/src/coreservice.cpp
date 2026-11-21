@@ -92,11 +92,8 @@ void CoreService::processRequest(BaseRequest* request) {
     case RequestType::PARAMETER:
       processRequest((ParameterRequest*)request);
       break;
-    case RequestType::PLAY_MUSIC:
-      processRequest((PlayMusicRequest*)request);
-      break;
-    case RequestType::PLAY_SOUND:
-      processRequest((PlaySoundRequest*)request);
+    case RequestType::PLAY_TRACK:
+      processRequest((PlayTrackRequest*)request);
       break;
     case RequestType::STOP_SOUND:
       processRequest((StopSoundRequest*)request);
@@ -158,47 +155,20 @@ void CoreService::processRequest(DisplayImageRequest* request) {
   runner.schedule([&dsp, def]() { dsp.drawImage(def); });
 }
 
-void CoreService::processRequest(PlayMusicRequest* request) {
-  MusicDef def;
-  ClientContext& context = contexts.get(request->client);
-  if (request->control.has(MusicControl::BY_INDEX)) {
-    MusicCategory category = request->by_index.category;
-    MusicIndex index = request->by_index.index;
-    def = context.getMusicDef(category, index);
-    if (def.folder && def.track) {
-      LOG("play music by index: category=%d, index=%d, folder=%d, track=%d, name=%s", category, index, def.folder, def.track, def.name);
-    }
-  }
-  else if (request->control.has(MusicControl::BY_NAME)) {
-    MusicCategory category = request->by_name.category;
-    MusicName name = request->by_name.name;
-    def = context.getMusicDef(category, name);
-    if (def.folder && def.track) {
-      LOG("play music by name: category=%d, name=%s, folder=%d, track=%d, name=%s", category, name, def.folder, def.track, def.name);
-    }
-  }
-  else {
-    def = context.getMusicDef(request->by_alias.alias);
-    if (def.folder && def.track) {
-      LOG("play music: alias=%s, folder=%d, track=%d, name=%s", request->by_alias.alias, def.folder, def.track, def.name);
-    }
-  }
-  if (def.folder && def.track) {
-    LOG("play track: folder=%d, track=%d", def.folder, def.track)
-    soundController.play(def.folder, def.track);
-    if (request->control.has(MusicControl::DISPLAY_INFO) && def.image) {
+void CoreService::processRequest(PlayTrackRequest* request) {
+  TrackDef def = contexts.get(request->client).getTrackDef(request->path);
+  LOG("play track: path=%s, real=%s", request->path, def.path);
+  if (*def.path) {
+    soundController.play(def.path);
+    if (request->control.has(SoundControl::DISPLAY_INFO) && def.image) {
       LOG("draw music image: %s", def.image);
       auto& dsp = display;
       runner.schedule([&dsp, def]() { dsp.drawImage(def.image); });
     }
   }
   else {
-    LOG("cannot play music - no definition found");
+    LOG("cannot play track - no definition found");
   }
-}
-
-void CoreService::processRequest(PlaySoundRequest* request) {
-  soundController.play(request->folder, request->track);
 }
 
 void CoreService::processRequest(StopSoundRequest* request) {

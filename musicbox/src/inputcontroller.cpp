@@ -37,11 +37,11 @@ Input InputController::get() {
     default:
       break;
   }
-/*
+
   int num = ch - (int)'0';
-  if (num >= 0 && num <= 9) {
+  if (num > 0 && num <= CATEGORY_SWITCH_COUNT) {
     return (Input)num;
   }
-*/
+
   return StdInput::NONE;
 }

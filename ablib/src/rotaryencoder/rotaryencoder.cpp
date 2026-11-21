@@ -1,6 +1,6 @@
 #include "rotaryencoder.h"
 
-#if defined(ARDUINO_ARCH_ESP32) && defined(AB_ROTARYENCODER)
+#if defined(AB_ROTARYENCODER)
 
 ActivityRotaryEncoder::ActivityRotaryEncoder(long initialValue, long minValue, long maxValue, long step, unsigned long pressedTimeout)
     : ActivityButton(pressedTimeout),

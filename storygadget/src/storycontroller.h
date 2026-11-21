@@ -26,7 +26,7 @@ class StoryController : CoreStatusHandler {
 
   StoryId activeStory;
   JsonVariant storyDefinition;
-  TrackFolder tracks;
+  uint8_t tracks;
 
   ChapterId currentChapter;
   void startChapter(ChapterId chapter);
@@ -49,4 +49,6 @@ class StoryController : CoreStatusHandler {
   };
   PlayerMonitor playerMonitor;
   void handleCoreStatus(CoreStatus status) override;
+
+  void playStoryTrack(TrackPath track);
 };

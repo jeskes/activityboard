@@ -21,7 +21,7 @@ void MusicGadget::setup() {
   inputController.setup();
 
   core.init(STARTUP_IMAGE);
-  core.playSound(STARTUP_TRACK);
+  core.playTrack(STARTUP_TRACK);
   core.setStatusHandler(this);
 
   LOG("Music Gadget started.");
@@ -80,6 +80,12 @@ void MusicGadget::handleInput(Input input) {
     case StdInput::STOP:
       stop();
       break;
+    default:
+      if (input > 0 && input <= CATEGORY_SWITCH_COUNT) {
+        category = input - 1;
+        playSequential(0);
+      }
+	  break;
   }
 }
 
@@ -110,14 +116,18 @@ void MusicGadget::playSequential(int index) {
   if (category != MUSIC_CATEGORY_UNDEF) {
     sequential = index;
     LOG("play sequential track: category=%d, sequential=%d", category, sequential);
-    core.playMusic(category, sequential);
+    char path[ID_BUFFER_SIZE];
+    sprintf(path, "/%02d/#%d", MUSIC_CATEGORY_FOLDERS[category], sequential);
+    core.playTrack(path);
     playing = true;
   }
 }
 
 void MusicGadget::playRfidTrack(RfidId rfid) {
   sequential = NO_SEQUENTIAL;
-  core.playMusic(rfid);
+  char path[ID_BUFFER_SIZE];
+  sprintf(path, "@%s", rfid);
+  core.playTrack(path);
   playing = true;
 }
 

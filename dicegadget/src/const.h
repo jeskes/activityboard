@@ -60,7 +60,7 @@ inline constexpr ParameterId GUESS_PARAMETER = "guess";
 inline constexpr ParameterId JINGLE_PARAMETER = "jingle";
 
 /* track identifiers */
-inline constexpr TrackId STARTUP_TRACK = 101;
+inline constexpr TrackPath STARTUP_TRACK = "101";
 
 namespace DiceInput {
 	inline constexpr Input JINGLE = StdInput::CUSTOM + 0;

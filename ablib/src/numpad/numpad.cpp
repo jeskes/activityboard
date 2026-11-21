@@ -1,4 +1,4 @@
-#if !defined(AB_NO_NUMPAD)
+#if defined(AB_NUMPAD)
 
 #include "numpad.h"
 

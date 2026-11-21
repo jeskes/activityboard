@@ -32,12 +32,7 @@ class ActivityCoreClient : public PeriphericalClient {
   void putParam(ParameterId id, uint16_t value);
   void putParam(ParameterId id, const char* value);
 
-  void playMusic(MusicAlias alias, bool displayInfo = true);
-  void playMusic(MusicCategory category, MusicName name, bool displayInfo = true);
-  void playMusic(MusicCategory category, MusicIndex index, bool displayInfo = true);
-
-  void playSound(TrackId id);
-  void playSound(TrackFolder folder, TrackId id);
+  void playTrack(TrackPath path, SoundControl control = SoundControl());
   void stopSound();
 
   void clearDisplay();
@@ -54,9 +49,9 @@ class ActivityCoreClient : public PeriphericalClient {
 
   unsigned long heartbeat;
   void processAvailableStatus();
-  
+
   unsigned long coreStatusBlocked;
   void blockCoreStatusProcessing(unsigned long timeout);
-  
+
   CoreStatusHandler* statusHandler;
 };
