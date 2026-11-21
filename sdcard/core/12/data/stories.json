@@ -1,12 +1,12 @@
 {
 	"roman": {
-		"track": "020",
+		"track": "romanTeaser",
 		"image": "romanCover",
 		"definition": "roman",
 		"rfid": "8a5b8e4f"
 	},
 	"noddy": {
-		"track": "021",
+		"track": "noddyTeaser",
 		"image": "noddyCover",
 		"definition": "noddy",
 		"rfid": "049e979ce42a81"

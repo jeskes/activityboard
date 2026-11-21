@@ -31,7 +31,7 @@ inline constexpr uint8_t CATEGORY_SWITCH_COUNT = 4;
 inline constexpr ImageId STARTUP_IMAGE = "startup";
 
 /* track identifiers */
-inline constexpr TrackPath STARTUP_TRACK = "001";
+inline constexpr TrackPath STARTUP_TRACK = "startup";
 
 /* rc522 module pins */
 inline constexpr uint8_t RC522_RST = 9;

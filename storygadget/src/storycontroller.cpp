@@ -186,7 +186,7 @@ bool StoryController::inMenu() {
 void StoryController::playStoryTrack(TrackPath track) {
   char path[ID_BUFFER_SIZE];
   sprintf(path, "/%02d/%s", tracks, track);
-  core.playTrack(path, SoundControl(SoundControl::DISPLAY_INFO));
+  core.playTrack(path);
 }
 
 void StoryController::handleCoreStatus(CoreStatus status) {
