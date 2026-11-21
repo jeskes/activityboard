@@ -6,7 +6,6 @@ inline constexpr int VALUE_BUFFER_SIZE = 128;
 /* static buffers */
 
 static char trackPathBuffer[PATH_BUFFER_SIZE];
-static char trackImageBuffer[PATH_BUFFER_SIZE];
 
 /* contexts (manager) */
 
@@ -175,7 +174,6 @@ TrackDef ClientContext::getTrackDef(TrackPath path) {
   }
   else if (*path == '/') {
     strncpy(def.path, path, sizeof(def.path));
-    fillImagePath(def);
   }
   else {
     snprintf(trackPathBuffer, PATH_BUFFER_SIZE, "/%02d/%s", client, path);
@@ -183,19 +181,6 @@ TrackDef ClientContext::getTrackDef(TrackPath path) {
   }
 
   return def;
-}
-
-void ClientContext::fillImagePath(TrackDef& def) {
-  char folder[8];
-  char track[32];
-  if (sscanf(def.path, "/%7[^/]/%31[^\n]", folder, track) == 2) {
-    sprintf(trackImageBuffer, "/%s/images/%s.jpg", folder, track);
-    LOG("looking for track image: folder=%s, track=%s", folder, track);
-    if (!storage->exists(trackImageBuffer)) {
-      strlcpy(trackImageBuffer, "/10/images/music.jpg", PATH_BUFFER_SIZE);
-    }
-    def.image = trackImageBuffer;
-  }
 }
 
 String ClientContext::utf8ToExtendedAscii(const String& utf8Str) {

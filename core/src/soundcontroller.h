@@ -10,6 +10,7 @@
 #include "rotaryexpansion.h"
 
 using SoundStateChangeHandler = std::function<void()>;
+using SoundPlayingHandler = std::function<void(TrackPath path)>;
 
 class SoundController : public StreamCommandHandler {
  public:
@@ -25,6 +26,7 @@ class SoundController : public StreamCommandHandler {
   void stopMaintenance();
 
   PlayerState playerState;
+  void onPlaying(SoundPlayingHandler handler);
   void onStateChange(SoundStateChangeHandler handler);
 
   void handleStreamCommand(StreamCommand cmd, const char* params) override;
@@ -44,5 +46,6 @@ class SoundController : public StreamCommandHandler {
 
   bool debouncePlaying;
   unsigned long debounceTimestamp;
-  SoundStateChangeHandler handler;
+  SoundPlayingHandler playingHandler;
+  SoundStateChangeHandler stateChangeHandler;
 };

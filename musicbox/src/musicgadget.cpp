@@ -118,7 +118,7 @@ void MusicGadget::playSequential(int index) {
     LOG("play sequential track: category=%d, sequential=%d", category, sequential);
     char path[ID_BUFFER_SIZE];
     sprintf(path, "/%02d/#%d", MUSIC_CATEGORY_FOLDERS[category], sequential);
-    core.playTrack(path);
+    core.playTrack(path, SoundControl(SoundControl::DISPLAY_INFO));
     playing = true;
   }
 }
@@ -127,7 +127,7 @@ void MusicGadget::playRfidTrack(RfidId rfid) {
   sequential = NO_SEQUENTIAL;
   char path[ID_BUFFER_SIZE];
   sprintf(path, "@%s", rfid);
-  core.playTrack(path);
+  core.playTrack(path, SoundControl(SoundControl::DISPLAY_INFO));
   playing = true;
 }
 

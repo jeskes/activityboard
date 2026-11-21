@@ -130,7 +130,7 @@ struct __attribute__((packed)) SoundControl : CoreFlags<SoundControl> {
 
 struct __attribute__((packed)) PlayTrackRequest : public BaseRequest {
   PlayTrackRequest(ClientId client, TrackPath path, SoundControl control)
-      : BaseRequest(client, RequestType::PLAY_TRACK) {
+      : BaseRequest(client, RequestType::PLAY_TRACK), control(control) {
     strlcpy(this->path, path, ID_BUFFER_SIZE);
   }
 

@@ -159,12 +159,8 @@ void CoreService::processRequest(PlayTrackRequest* request) {
   TrackDef def = contexts.get(request->client).getTrackDef(request->path);
   LOG("play track: path=%s, real=%s", request->path, def.path);
   if (*def.path) {
+    handleSoundControl(request->control);
     soundController.play(def.path);
-    if (request->control.has(SoundControl::DISPLAY_INFO) && def.image) {
-      LOG("draw music image: %s", def.image);
-      auto& dsp = display;
-      runner.schedule([&dsp, def]() { dsp.drawImage(def.image); });
-    }
   }
   else {
     LOG("cannot play track - no definition found");
@@ -253,4 +249,35 @@ void CoreService::startStopMaintenance() {
     maintenanceController.start();
     soundController.startMaintenance();
   }
+}
+
+void CoreService::handleSoundControl(SoundControl control) {
+  if (!control.has(SoundControl::DISPLAY_INFO)) {
+    LOG("no track image needed");
+    soundController.onPlaying(nullptr);
+  }
+  else {
+    LOG("track image needed");
+    soundController.onPlaying([&](TrackPath path) { displayTrackImage(path); });
+  }
+}
+
+void CoreService::displayTrackImage(TrackPath path) {
+  LOG("draw track image: track=%s", path);
+  static char folder[8];
+  static char track[32];
+  static char imagePath[PATH_BUFFER_SIZE];
+  if (sscanf(path, "/%7[^/]/%31[^.].mp3%n", folder, track) == 2) {
+    sprintf(imagePath, "/%s/images/%s.jpg", folder, track);
+    LOG("looking for track image: folder=%s, track=%s", folder, track);
+    if (!storage.exists(imagePath)) {
+      strlcpy(imagePath, "/10/images/music.jpg", PATH_BUFFER_SIZE);
+    }
+  }
+  else {
+    LOG("path does not match - fallback");
+    strlcpy(imagePath, "/10/images/music.jpg", PATH_BUFFER_SIZE);
+  }
+  auto& dsp = display;
+  runner.schedule([&dsp]() { dsp.drawImage(imagePath); });
 }

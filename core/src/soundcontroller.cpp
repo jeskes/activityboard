@@ -36,8 +36,12 @@ void SoundController::setup() {
   LOG("successfully initialized player");
 }
 
+void SoundController::onPlaying(SoundPlayingHandler handler) {
+  playingHandler = handler;
+}
+
 void SoundController::onStateChange(SoundStateChangeHandler handler) {
-  this->handler = handler;
+  stateChangeHandler = handler;
 }
 
 void SoundController::loop() {
@@ -49,8 +53,8 @@ void SoundController::loop() {
   else if (millis() > debounceTimestamp + PLAYER_DEBOUNCE_DELAY) {
     PlayerState oldState = playerState;
     playerState = playing ? PlayerState::PLAYING : PlayerState::IDLE;
-    if (handler && oldState != playerState) {
-      handler();
+    if (stateChangeHandler && oldState != playerState) {
+      stateChangeHandler();
     }
   }
 
@@ -113,4 +117,9 @@ void SoundController::awaitBusy(bool busy) {
 
 void SoundController::handleStreamCommand(StreamCommand cmd, const char* params) {
   LOG("sound command: cmd=%s, params=%s", cmd, params);
+  if (!strcmp(cmd, SoundCom::PLAYING)) {
+	if(playingHandler) {
+		playingHandler(params);
+	}
+  }
 }

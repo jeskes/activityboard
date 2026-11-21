@@ -64,7 +64,7 @@ void SoundService::handleStreamCommand(StreamCommand cmd, const char* params) {
   if (!strcmp(cmd, SoundCom::PLAY)) {
     const char* path = trackManager.mapTrackPath(params);
     if (audioPlayer.play(path)) {
-      uartController.send(SoundCom::INFO, "playing track");
+      uartController.send(SoundCom::PLAYING, path);
     }
     else {
       uartController.send(SoundCom::ERROR, "cannot play track");

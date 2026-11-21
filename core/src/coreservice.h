@@ -2,16 +2,16 @@
 
 #include <SPI.h>
 #include <TaskSchedulerDeclarations.h>
-#include <modules/periphericalservice.h>
 #include <maintenace/maintenancecontroller.h>
+#include <modules/periphericalservice.h>
 
 #include "clientcontext.h"
 #include "display.h"
 #include "extrasexpansion.h"
 #include "gadgetswitcher.h"
 #include "ledring.h"
-#include "soundcontroller.h"
 #include "rotaryexpansion.h"
+#include "soundcontroller.h"
 #include "storage/storage.h"
 #include "taskrunner.h"
 #include "wificontroller.h"
@@ -64,4 +64,8 @@ class CoreService : public PeriphericalService {
   /* wifi & maintenance */
   void startStopWifi();
   void startStopMaintenance();
+
+  /* sound control */
+  void handleSoundControl(SoundControl control);
+  void displayTrackImage(TrackPath path);
 };

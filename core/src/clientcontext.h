@@ -24,7 +24,6 @@ struct DataDef {
 
 struct TrackDef {
   char path[PATH_BUFFER_SIZE] = {0};
-  const char* image = nullptr;
 };
 
 class ClientContext {
@@ -42,15 +41,12 @@ class ClientContext {
 
  private:
   void init(Storage& storage, ClientId client);
-  void initMusicCategories(Storage& storage);
 
   ClientId client;
   Storage* storage;
 
   JsonDocument config;
   std::map<String, String> params;
-
-  void fillImagePath(TrackDef& def);
 
   friend class ClientContexts;
 };
