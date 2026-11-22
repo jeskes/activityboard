@@ -1,5 +1,6 @@
 #include "coreservice.h"
 
+#include "../../sound/src/soundcom.h"
 #include "const.h"
 #include "dataprovider.h"
 
@@ -11,6 +12,7 @@ CoreService::CoreService()
       contexts(storage),
       wifiController(contexts),
       soundController(ledRing, rotary),
+      consoleController(Serial),
       maintenanceController(maintenanceConfiguration) {
   coreControl.clear();
 }
@@ -55,16 +57,21 @@ void CoreService::setup(uint8_t module) {
   pinMode(CORE_STATUS_IRQ, OUTPUT);
   digitalWrite(CORE_STATUS_IRQ, HIGH);
 
+  consoleController.setHandler(this);
+
   LOG("Display Service started.");
 }
 
 void CoreService::loop() {
   PeriphericalService::loop();
-  soundController.loop();
-  rotary.loop();
-  extras.loop();
-  gadgetSwitcher.loop();
-  wifiController.loop();
+  if( !maintenanceController.isBusy() ) {
+	  soundController.loop();
+	  rotary.loop();
+	  extras.loop();
+	  gadgetSwitcher.loop();
+	  wifiController.loop();
+	  consoleController.loop();
+  }
   maintenanceController.loop();
   scheduler.execute();
 
@@ -285,4 +292,14 @@ void CoreService::displayTrackImage(TrackPath path) {
 void CoreService::onGadgetSwitched(int8_t index) {
   soundController.stop();
   display.drawImage(STARTUP_IMAGE);
+}
+
+void CoreService::handleStreamCommand(StreamCommand cmd, const char* params) {
+  LOG("command: cmd=%s, params=%s", cmd, params);
+  if (!strcmp(cmd, SoundCom::PLAY)) {
+	soundController.play(params);
+  }
+  else if (!strcmp(cmd, SoundCom::STOP)) {
+	soundController.stop();
+  }
 }

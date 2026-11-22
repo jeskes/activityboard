@@ -16,7 +16,7 @@
 #include "taskrunner.h"
 #include "wificontroller.h"
 
-class CoreService : public PeriphericalService {
+class CoreService : public PeriphericalService, public StreamCommandHandler {
  public:
   CoreService();
 
@@ -30,6 +30,7 @@ class CoreService : public PeriphericalService {
   ClientContexts contexts;
   WifiController wifiController;
   SoundController soundController;
+  StreamController consoleController;
   MaintenanceController maintenanceController;
 
   TaskRunner runner;
@@ -71,4 +72,7 @@ class CoreService : public PeriphericalService {
 
   /* gaget switching */
   void onGadgetSwitched(int8_t index);
+
+  /* console control */
+  void handleStreamCommand(StreamCommand cmd, const char* params) override;
 };
