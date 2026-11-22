@@ -63,9 +63,12 @@ class CoreService : public PeriphericalService {
 
   /* wifi & maintenance */
   void startStopWifi();
-  void startStopMaintenance();
+  void startStopMaintenance(bool longPressed);
 
   /* sound control */
   void handleSoundControl(SoundControl control);
   void displayTrackImage(TrackPath path);
+
+  /* gaget switching */
+  void onGadgetSwitched(int8_t index);
 };

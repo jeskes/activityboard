@@ -20,9 +20,9 @@ inline constexpr uint8_t EXTRAS_EXPANSION_ID = 0x21;
 inline constexpr uint8_t EXTRAS_EXPANSION_INT = 39;
 inline constexpr uint8_t EXTRAS_WIFI_BUTTON = 0;
 inline constexpr uint8_t EXTRAS_WIFI_LED = 1;
-inline constexpr uint8_t EXTRAS_STOP_ALL_BUTTON = 2;
-inline constexpr uint8_t EXTRAS_MAINENANCE_BUTTON = 3;
-inline constexpr uint8_t EXTRAS_MAINENANCE_LED = 4;
+inline constexpr uint8_t EXTRAS_MAINENANCE_BUTTON = 2;
+inline constexpr uint8_t EXTRAS_MAINENANCE_LED = 3;
+inline constexpr uint8_t EXTRAS_STOP_ALL_BUTTON = 7;
 
 inline constexpr uint8_t SWITCH_EXPANSION_ID = 0x22;
 

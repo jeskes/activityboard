@@ -9,22 +9,28 @@
  * selected gadget : -1: none, 0..3 correspond to gadget 1..4
  */
 
+
 class GadgetSwitcher {
- public:
-  GadgetSwitcher();
-
-  void setup();
-  void loop();
-
-  void allOff();
-  void selectGadget(uint8_t index);
-  int8_t getActiveGadget() const;
+	public:
+	GadgetSwitcher();
+	
+	void setup();
+	void loop();
+	
+	void allOff();
+	void selectGadget(uint8_t index);
+	int8_t getActiveGadget() const;
+	
+	using Handler = std::function<void(int8_t index)>;
+	inline static constexpr int8_t ALL_OFF = -1;
+	void setHandler( Handler handler);
 
  private:
   PCF8574 pcf8574;
-  int8_t activeGadget = -1;
-  uint8_t lastButtonState = 0x0F;
-  unsigned long lastDebounceTime = 0;
+  int8_t activeGadget;
+  uint8_t lastButtonState;
+  unsigned long lastDebounceTime;
+  Handler handler;
 
   static inline constexpr uint8_t BUTTONS_MASK = 0x0F;
   static inline constexpr uint8_t CONTROLS_MASK = 0xF0;

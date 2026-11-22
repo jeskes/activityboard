@@ -36,6 +36,7 @@ void CoreService::setup(uint8_t module) {
   soundController.setup();
   wifiController.setup();
 
+  gadgetSwitcher.setHandler([&](int8_t activeGadget) { onGadgetSwitched(activeGadget); });
   soundController.onStateChange([&]() {
     LOG("player state changed");
     fireCoreStatusUpdate();
@@ -46,9 +47,10 @@ void CoreService::setup(uint8_t module) {
     fireCoreStatusUpdate();
   });
 
-  extras.addHandler(EXTRAS_STOP_ALL_BUTTON, [&]() { stopAll(); });
-  extras.addHandler(EXTRAS_WIFI_BUTTON, [&]() { startStopWifi(); });
-  extras.addHandler(EXTRAS_MAINENANCE_BUTTON, [&]() { startStopMaintenance(); });
+  extras.addPressHandler(EXTRAS_STOP_ALL_BUTTON, [&]() { stopAll(); });
+  extras.addPressHandler(EXTRAS_WIFI_BUTTON, [&]() { startStopWifi(); });
+  extras.addPressHandler(EXTRAS_MAINENANCE_BUTTON, [&]() { startStopMaintenance(false); });
+  extras.addLongPressHandler(EXTRAS_MAINENANCE_BUTTON, [&]() { startStopMaintenance(true); });
 
   pinMode(CORE_STATUS_IRQ, OUTPUT);
   digitalWrite(CORE_STATUS_IRQ, HIGH);
@@ -78,8 +80,6 @@ void CoreService::loop() {
 void CoreService::stopAll() {
   LOG("stop all");
   gadgetSwitcher.allOff();
-  display.drawImage(STARTUP_IMAGE);
-  soundController.stop();
   coreControl += CoreControl::STOP_ALL;
 }
 
@@ -237,12 +237,12 @@ void CoreService::startStopWifi() {
   }
 }
 
-void CoreService::startStopMaintenance() {
+void CoreService::startStopMaintenance(bool longPressed) {
   if (maintenanceController.isRunning()) {
     maintenanceController.stop();
     soundController.stopMaintenance();
   }
-  else {
+  else if (longPressed) {
     if (wifiController.isRunning()) {
       wifiController.stop();
     }
@@ -280,4 +280,9 @@ void CoreService::displayTrackImage(TrackPath path) {
   }
   auto& dsp = display;
   runner.schedule([&dsp]() { dsp.drawImage(imagePath); });
+}
+
+void CoreService::onGadgetSwitched(int8_t index) {
+  soundController.stop();
+  display.drawImage(STARTUP_IMAGE);
 }

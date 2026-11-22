@@ -3,12 +3,16 @@
 #include "const.h"
 
 GadgetSwitcher::GadgetSwitcher()
-    : pcf8574(SWITCH_EXPANSION_ID, &Wire1) {
+    : pcf8574(SWITCH_EXPANSION_ID, &Wire1),
+      activeGadget(ALL_OFF),
+      lastDebounceTime(0),
+      handler(nullptr) {
 }
 
 void GadgetSwitcher::setup() {
   pcf8574.begin(BUTTONS_MASK);
-  activeGadget = -1;
+  activeGadget = ALL_OFF;
+  lastButtonState = 0xFF;
   LOG("gadget switcher initialized");
 }
 
@@ -32,6 +36,10 @@ void GadgetSwitcher::loop() {
   }
 }
 
+void GadgetSwitcher::setHandler( Handler handler) {
+	this->handler = handler;
+}
+
 void GadgetSwitcher::selectGadget(uint8_t index) {
   index = (index + 4) % 4;
   if (activeGadget == index) {
@@ -44,16 +52,22 @@ void GadgetSwitcher::selectGadget(uint8_t index) {
   delay(15);
   pcf8574.write(index + 4, HIGH);
   activeGadget = index;
+  if (handler) {
+    handler(activeGadget);
+  }
 
   LOG("switched gadgets %d", index + 1);
 }
 
 void GadgetSwitcher::allOff() {
   LOG("turn off all gadgets");
+  if (handler) {
+    handler(ALL_OFF);
+  }
   for (uint8_t pin = 4; pin <= 7; pin++) {
     pcf8574.write(pin, LOW);
   }
-  activeGadget = -1;
+  activeGadget = ALL_OFF;
 }
 
 int8_t GadgetSwitcher::getActiveGadget() const {

@@ -15,10 +15,20 @@ class ExtrasExpansion {
 
   void showLed(uint8_t pin, bool on);
   void toggleLed(uint8_t pin);
-  void addHandler(uint8_t pin, ExtrasPinHandler handler);
+  void addPressHandler(uint8_t pin, ExtrasPinHandler handler);
+  void addLongPressHandler(uint8_t pin, ExtrasPinHandler handler);
 
  private:
   PCF8574 pcf8574;
-  ExtrasPinHandler handlers[8];
-  unsigned long lastClickTime[8];
+
+  uint8_t buttonPins;
+  void initButtonPin(uint8_t pin);
+  ExtrasPinHandler shortPressHandlers[8];
+  ExtrasPinHandler longPressHandlers[8];
+
+  uint8_t lastButtonState;
+  unsigned long pressStartTime[8];
+  bool longPressTriggered[8];
+
+  void clearInterrupt();
 };

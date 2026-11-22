@@ -47,6 +47,7 @@ inline constexpr int DEFAULT_BUZZER_FREQUENCY = 150;
 inline constexpr unsigned long DEFAULT_BUZZER_TIMEOUT = 250;
 
 inline constexpr unsigned long DEBOUNCE_DELAY = 250;
+inline constexpr unsigned long LONGPRESS_DELAY = 2000;
 
 inline constexpr unsigned long CORECLIENT_HEARTBEAT_TIMEOUT = 2000;
 inline constexpr unsigned long CORECLIENT_DISCONNECTED_TIMEOUT = 5000;

@@ -12,51 +12,100 @@ static void IRAM_ATTR isrExtras() {
 
 ExtrasExpansion::ExtrasExpansion()
     : pcf8574(EXTRAS_EXPANSION_ID, &Wire1),
-      handlers({0}) {
+      shortPressHandlers({nullptr}),
+      longPressHandlers({nullptr}),
+      buttonPins(0),
+      pressStartTime{0},
+      longPressTriggered{false} {
 }
 
 void ExtrasExpansion::setup() {
-  pcf8574.begin();
+  pcf8574.begin(0xFF);
+  lastButtonState = 0xFF;
 
   pinMode(EXTRAS_EXPANSION_INT, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(EXTRAS_EXPANSION_INT), isrExtras, FALLING);
 
-  uint8_t state = pcf8574.read8(); /* initial read */
+  uint8_t state = pcf8574.read8(); /* initial read clears interrupt */
   LOG("extras extension initialized: connected=%d, state=0x%02X", pcf8574.isConnected(), state);
 }
 
 void ExtrasExpansion::loop() {
-  if (extrasInterrupt || digitalRead(EXTRAS_EXPANSION_INT) == LOW) {
-    extrasInterrupt = false;
+  unsigned long now = millis();
+  uint8_t buttonState = lastButtonState;
 
-    uint8_t reg = pcf8574.read8();
-    for (uint8_t pin = 0; pin < 8; pin++) {
-      if (!(reg & (1 << pin))) {
-        // debounce
-        if (millis() - lastClickTime[pin] > DEBOUNCE_DELAY) {
-          lastClickTime[pin] = millis();
-          if (handlers[pin]) {
-            handlers[pin]();
-          }
+  if (extrasInterrupt) {
+    extrasInterrupt = false;
+    buttonState = pcf8574.read8();
+  }
+
+  for (uint8_t pin = 0; pin < 8; pin++) {
+    if (!(buttonPins & (1 << pin))) {
+      continue; /* skip non-button pins */
+    }
+
+    bool isPressed = !(buttonState & (1 << pin));
+    bool wasPressed = !(lastButtonState & (1 << pin));
+
+    if (isPressed && !wasPressed) {
+      if (now - pressStartTime[pin] > DEBOUNCE_DELAY) {
+        pressStartTime[pin] = now;
+        longPressTriggered[pin] = false;
+      }
+    }
+    else if (isPressed && wasPressed) {
+      if (longPressHandlers[pin] && !longPressTriggered[pin]) {
+        if (now - pressStartTime[pin] >= LONGPRESS_DELAY) {
+          longPressTriggered[pin] = true;
+          longPressHandlers[pin]();
         }
       }
     }
-    pcf8574.read8(); /* clear interrupt */
+    else if (!isPressed && wasPressed) {
+      if (!longPressTriggered[pin] && shortPressHandlers[pin]) {
+        if (now - pressStartTime[pin] >= DEBOUNCE_DELAY) {
+          shortPressHandlers[pin]();
+        }
+      }
+    }
   }
+
+  lastButtonState = buttonState;
 }
 
 void ExtrasExpansion::showLed(uint8_t pin, bool on) {
+  if (buttonPins & (1 << pin)) {
+    LOG("cannot switch led on button pin");
+    return;
+  }
   // inverted : HIGH = off, LOW = on)
   pcf8574.write(pin, on ? LOW : HIGH);
 }
 
 void ExtrasExpansion::toggleLed(uint8_t pin) {
-  uint8_t state = pcf8574.read(pin);
-  pcf8574.write(pin, state == HIGH ? LOW : HIGH);
+  if (buttonPins & (1 << pin)) {
+    LOG("cannot switch led on button pin");
+    return;
+  }
+  pcf8574.toggle(pin);
 }
 
-void ExtrasExpansion::addHandler(uint8_t pin, ExtrasPinHandler handler) {
-  // configure for internal pull-up
+void ExtrasExpansion::initButtonPin(uint8_t pin) {
+  buttonPins |= (1 << pin);
   pcf8574.write(pin, HIGH);
-  handlers[pin] = handler;
+  clearInterrupt();
+}
+
+void ExtrasExpansion::addPressHandler(uint8_t pin, ExtrasPinHandler handler) {
+  initButtonPin(pin);
+  shortPressHandlers[pin] = handler;
+}
+
+void ExtrasExpansion::addLongPressHandler(uint8_t pin, ExtrasPinHandler handler) {
+  initButtonPin(pin);
+  longPressHandlers[pin] = handler;
+}
+
+void ExtrasExpansion::clearInterrupt() {
+  pcf8574.read8(); /* clears interrupt */
 }
