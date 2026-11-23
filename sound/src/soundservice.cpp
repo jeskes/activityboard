@@ -43,6 +43,8 @@ void SoundService::setup() {
   delay(100);
   trackManager.setup();
 
+  audioPlayer.play(STARTUP_TRACK);
+
   LOG("sound service initialized");
 }
 
@@ -53,9 +55,9 @@ void SoundService::loop() {
   else {
     audioPlayer.loop();
   }
-  if( !maintenanceController.isBusy() ) {
-	  uartController.loop();
-	  consoleController.loop();
+  if (!maintenanceController.isBusy()) {
+    uartController.loop();
+    consoleController.loop();
   }
 }
 
@@ -84,7 +86,7 @@ void SoundService::handleStreamCommand(StreamCommand cmd, const char* params) {
   }
   else if (!strcmp(cmd, SoundCom::STOP_MAINTENANCE)) {
     maintenanceController.stop();
-	trackManager.setup();
+    trackManager.setup();
     uartController.send(SoundCom::INFO, "stopped maintenance");
   }
 }
