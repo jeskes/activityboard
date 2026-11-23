@@ -50,7 +50,7 @@ inline constexpr unsigned long DEBOUNCE_DELAY = 250;
 inline constexpr unsigned long LONGPRESS_DELAY = 2000;
 
 inline constexpr unsigned long CORECLIENT_HEARTBEAT_TIMEOUT = 2000;
-inline constexpr unsigned long CORECLIENT_DISCONNECTED_TIMEOUT = 5000;
+inline constexpr unsigned long CORECLIENT_DISCONNECTED_TIMEOUT = 15000;
 
 /* ========================================================================= */
 /*                                                             general types */

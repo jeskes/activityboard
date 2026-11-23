@@ -64,6 +64,7 @@ void CoreService::setup(uint8_t module) {
 
 void CoreService::loop() {
   PeriphericalService::loop();
+  
   if (!maintenanceController.isBusy()) {
     soundController.loop();
     rotary.loop();
@@ -71,14 +72,16 @@ void CoreService::loop() {
     gadgetSwitcher.loop();
     wifiController.loop();
     consoleController.loop();
+
+    if (lastHeartbeat && millis() > lastHeartbeat + CORECLIENT_DISCONNECTED_TIMEOUT) {
+      LOG("no heartbeat anymore - stop all");
+      stopAll();
+      lastHeartbeat = 0;
+    }
   }
+
   maintenanceController.loop();
   scheduler.execute();
-
-  if (lastHeartbeat && millis() > lastHeartbeat + CORECLIENT_DISCONNECTED_TIMEOUT) {
-    stopAll();
-    lastHeartbeat = 0;
-  }
 
   extras.showLed(EXTRAS_WIFI_LED, wifiController.isRunning());
   extras.showLed(EXTRAS_MAINENANCE_LED, maintenanceController.isRunning());
@@ -309,7 +312,7 @@ void CoreService::handleStreamCommand(StreamCommand cmd, const char* params) {
     else {
       int index = atoi(params);
       if (0 < index && index <= 4) {
-		gadgetSwitcher.selectGadget(index-1);
+        gadgetSwitcher.selectGadget(index - 1);
       }
     }
   }
