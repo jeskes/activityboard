@@ -137,10 +137,10 @@ int DataStream::read() {
     bufferIndex = 0;
   }
 
-  return !buffer[bufferIndex] ? 1 : buffer[bufferIndex++];
+  return !buffer[bufferIndex] ? EOF : buffer[bufferIndex++];
 }
 
 void DataStream::close() {
-  while (read() != -1)
+  while (read() != EOF)
     ;
 }
