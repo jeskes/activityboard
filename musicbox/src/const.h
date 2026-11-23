@@ -52,4 +52,4 @@ using MusicCategory = uint8_t;
 inline constexpr MusicCategory MUSIC_CATEGORY_NONE = 0xFE;
 inline constexpr MusicCategory MUSIC_CATEGORY_UNDEF = 0xFF;
 
-inline constexpr int MUSIC_CATEGORY_FOLDERS[] = {30, 32, 32, 33};
+inline constexpr int MUSIC_CATEGORY_FOLDERS[] = {30, 31, 32, 33};
