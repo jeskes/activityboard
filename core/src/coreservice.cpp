@@ -64,13 +64,13 @@ void CoreService::setup(uint8_t module) {
 
 void CoreService::loop() {
   PeriphericalService::loop();
-  if( !maintenanceController.isBusy() ) {
-	  soundController.loop();
-	  rotary.loop();
-	  extras.loop();
-	  gadgetSwitcher.loop();
-	  wifiController.loop();
-	  consoleController.loop();
+  if (!maintenanceController.isBusy()) {
+    soundController.loop();
+    rotary.loop();
+    extras.loop();
+    gadgetSwitcher.loop();
+    wifiController.loop();
+    consoleController.loop();
   }
   maintenanceController.loop();
   scheduler.execute();
@@ -297,9 +297,20 @@ void CoreService::onGadgetSwitched(int8_t index) {
 void CoreService::handleStreamCommand(StreamCommand cmd, const char* params) {
   LOG("command: cmd=%s, params=%s", cmd, params);
   if (!strcmp(cmd, SoundCom::PLAY)) {
-	soundController.play(params);
+    soundController.play(params);
   }
   else if (!strcmp(cmd, SoundCom::STOP)) {
-	soundController.stop();
+    soundController.stop();
+  }
+  else if (!strcmp(cmd, "GADGET")) {
+    if (!strcmp(params, "OFF")) {
+      gadgetSwitcher.allOff();
+    }
+    else {
+      int index = atoi(params);
+      if (0 < index && index <= 4) {
+		gadgetSwitcher.selectGadget(index-1);
+      }
+    }
   }
 }
