@@ -94,7 +94,7 @@ void MusicGadget::handleInput(Input input) {
 
 void MusicGadget::resetDisplay() {
   char image[11];
-  sprintf(image, "catagory-%01d", category);
+  sprintf(image, "category-%01d", category);
   core.displayImage(image);
 }
 
@@ -150,7 +150,9 @@ void MusicGadget::onCategoryChanged(MusicCategory category) {
   LOG("category changed: category=%d", category);
   this->category = category;
   resetDisplay();
-  core.stopSound();
+  char alias[ID_BUFFER_SIZE];
+  sprintf(alias, "@category-%01d", category);
+  core.playTrack(alias);
 }
 
 void MusicGadget::handleCoreStatus(CoreStatus coreStatus) {

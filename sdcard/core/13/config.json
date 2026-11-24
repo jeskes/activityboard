@@ -1,13 +1,17 @@
 {
 	"images": {
 		"startup": "startup.jpg",
-		"catagory-0": "category-children.jpg",
-		"catagory-1": "category-animals.jpg",
-		"catagory-2": "category-classical.jpg",
-		"catagory-3": "category-funny.jpg"
+		"category-0": "category-children.jpg",
+		"category-1": "category-animals.jpg",
+		"category-2": "category-classical.jpg",
+		"category-3": "category-funny.jpg"
 	},
 	"tracks": {
 		"alias": {
+			"category-0": "/13/category-children.mp3",
+			"category-1": "/13/category-animals.mp3",
+			"category-2": "/13/category-classical.mp3",
+			"category-3": "/13/category-funny.mp3",
 			"8a5b8e4f": "/30/BongoBong",
 			"17bf224d": "/30/HamKumst",
 			"049e979ce42a81": "/30/Woid"
