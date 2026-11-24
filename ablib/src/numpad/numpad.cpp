@@ -38,6 +38,7 @@ char ActivityNumpadClient::getChar() {
     while (keyPad.isPressed()) {
       delay(10);
     }
+    LOG("pressed: key=%c", ch);
     return ch;
   }
 
