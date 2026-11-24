@@ -230,7 +230,7 @@ bool CoreService::writeCoreStatus() {
   status.webState = wifiController.fetchState();
   status.control = coreControl;
   coreControl.clear();
-  LOG("write core status: playerState=%d, webInput=0x%02X", status.playerState, status.webState.input);
+  // LOG("write core status: playerState=%d, webInput=0x%02X", status.playerState, status.webState.input);
   return writeStatus(&status, sizeof(CoreStatus));
 }
 
@@ -277,16 +277,16 @@ void CoreService::displayTrackImage(TrackPath path) {
   static char folder[8];
   static char track[32];
   static char imagePath[PATH_BUFFER_SIZE];
-  if (sscanf(path, "/%7[^/]/%31[^.].mp3%n", folder, track) == 2) {
-    sprintf(imagePath, "/%s/images/%s.jpg", folder, track);
-    LOG("looking for track image: folder=%s, track=%s", folder, track);
+  if (sscanf(path, "/%7[^/]/%31[^.].mp3", folder, track) == 2) {
+    snprintf(imagePath, sizeof(imagePath), "/%s/images/%s.jpg", folder, track);
+    LOG("track image: path=%s", imagePath);
     if (!storage.exists(imagePath)) {
-      strlcpy(imagePath, "/10/images/music.jpg", PATH_BUFFER_SIZE);
+      strlcpy(imagePath, "/10/images/music.jpg", sizeof(imagePath));
     }
   }
   else {
     LOG("path does not match - fallback");
-    strlcpy(imagePath, "/10/images/music.jpg", PATH_BUFFER_SIZE);
+    strlcpy(imagePath, "/10/images/music.jpg", sizeof(imagePath));
   }
   auto& dsp = display;
   runner.schedule([&dsp]() { dsp.drawImage(imagePath); });
