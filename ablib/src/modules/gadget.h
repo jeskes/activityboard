@@ -1,5 +1,5 @@
 #pragma once
-
+#include <TaskSchedulerDeclarations.h>
 #include "../base/base.h"
 
 class GadgetBase {
