@@ -39,7 +39,7 @@ Input InputController::get() {
   }
 
   int num = ch - (int)'0';
-  if (num > 0 && num <= CATEGORY_SWITCH_COUNT) {
+  if (num > 0 && num <= CATEGORY_COUNT) {
     return (Input)num;
   }
 

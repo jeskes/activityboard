@@ -7,7 +7,7 @@
 MusicGadget::MusicGadget()
     : core(MUSICGADGET_ID),
       nfc(core),
-      sequential(NO_SEQUENTIAL) {
+      sequential{0} {
 }
 
 void MusicGadget::setup() {
@@ -24,7 +24,9 @@ void MusicGadget::setup() {
   core.playTrack(STARTUP_TRACK);
   core.setStatusHandler(this);
 
-  LOG("Music Gadget started.");
+  category = categorySwitch.get();
+
+  LOG("Music Gadget started: category=%d", category);
 }
 
 void MusicGadget::loop() {
@@ -41,15 +43,8 @@ void MusicGadget::loop() {
   }
 
   MusicCategory category = categorySwitch.loop();
-  switch (category) {
-    case MUSIC_CATEGORY_NONE:
-      LOG("no cat");
-      core.displayImage(STARTUP_IMAGE);
-      break;
-    case MUSIC_CATEGORY_UNDEF:
-      break;
-    default:
-      onCategoryChanged(category);
+  if (category != CATEGORY_UNDEF) {
+    onCategoryChanged(category);
   }
 
   if (!playing) {
@@ -88,9 +83,9 @@ void MusicGadget::handleInput(Input input) {
       stop();
       break;
     default:
-      if (input > 0 && input <= CATEGORY_SWITCH_COUNT) {
+      if (input > 0 && input <= CATEGORY_COUNT) {
         category = input - 1;
-        playSequential(0);
+        playSequential(Sequential::RESET);
       }
       break;
   }
@@ -98,40 +93,43 @@ void MusicGadget::handleInput(Input input) {
 
 void MusicGadget::start() {
   LOG("start");
-  category = categorySwitch.get();
-  playSequential(0);
+  playSequential(Sequential::RESET);
 }
 
 void MusicGadget::repeat() {
   LOG("repeat");
-  playSequential(sequential);
+  playSequential(Sequential::REPEAT);
 }
 
 void MusicGadget::next() {
   LOG("next");
-  playSequential(sequential + 1);
+  playSequential(Sequential::NEXT);
 }
 
 void MusicGadget::stop() {
   LOG("stop");
   core.stopSound();
   playing = false;
-  sequential = NO_SEQUENTIAL;
 }
 
-void MusicGadget::playSequential(int index) {
-  if (category != MUSIC_CATEGORY_UNDEF) {
-    sequential = index;
-    LOG("play sequential track: category=%d, sequential=%d", category, sequential);
-    char path[ID_BUFFER_SIZE];
-    sprintf(path, "/%02d/#%d", MUSIC_CATEGORY_FOLDERS[category], sequential);
-    core.playTrack(path, SoundControl(SoundControl::DISPLAY_INFO));
-    playing = true;
+void MusicGadget::playSequential(Sequential index) {
+  switch (index) {
+    case Sequential::RESET:
+      sequential[category] = 0;
+      break;
+    case Sequential::NEXT:
+      sequential[category]++;
+      break;
   }
+
+  LOG("play sequential track: category=%d, sequential=%d", category, sequential[category]);
+  char path[ID_BUFFER_SIZE];
+  sprintf(path, "/%02d/#%d", CATEGORY_FOLDERS[category], sequential[category]);
+  core.playTrack(path, SoundControl(SoundControl::DISPLAY_INFO));
+  playing = true;
 }
 
 void MusicGadget::playRfidTrack(RfidId rfid) {
-  sequential = NO_SEQUENTIAL;
   char path[ID_BUFFER_SIZE];
   sprintf(path, "@%s", rfid);
   core.playTrack(path, SoundControl(SoundControl::DISPLAY_INFO));
@@ -140,18 +138,15 @@ void MusicGadget::playRfidTrack(RfidId rfid) {
 
 void MusicGadget::onCategoryChanged(MusicCategory category) {
   LOG("category changed: category=%d", category);
+  this->category = category;
   char image[11];
   sprintf(image, "catagory-%01d", category);
   core.displayImage(image);
   core.stopSound();
-  sequential = NO_SEQUENTIAL;
 }
 
 void MusicGadget::handleCoreStatus(CoreStatus coreStatus) {
   playing = coreStatus.playerState == PlayerState::PLAYING;
-  if (!playing && sequential != NO_SEQUENTIAL) {
-    next();
-  }
 
   if (coreStatus.control.has(CoreControl::STOP_ALL)) {
     stopAll = true;

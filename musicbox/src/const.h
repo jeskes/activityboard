@@ -25,7 +25,6 @@ inline constexpr uint8_t INDICATOR_PLAYING = 8;
 
 /* category switch */
 inline constexpr uint8_t CATEGORY_SWITCH_ID = GADGET_EXPANSION_ID1;
-inline constexpr uint8_t CATEGORY_SWITCH_COUNT = 4;
 
 /* image identifiers */
 inline constexpr ImageId STARTUP_IMAGE = "startup";
@@ -48,8 +47,9 @@ inline constexpr unsigned long NOTPLAYING_RESET_TIMEOUT = 5000;
 /* indicate no sequential plaing */
 inline constexpr int NO_SEQUENTIAL = -1;
 
-using MusicCategory = uint8_t;
-inline constexpr MusicCategory MUSIC_CATEGORY_NONE = 0xFE;
-inline constexpr MusicCategory MUSIC_CATEGORY_UNDEF = 0xFF;
+/* music categories */
+inline constexpr uint8_t CATEGORY_COUNT = 4;
+inline constexpr uint8_t CATEGORY_FOLDERS[CATEGORY_COUNT] = {30, 31, 32, 33};
 
-inline constexpr int MUSIC_CATEGORY_FOLDERS[] = {30, 31, 32, 33};
+using MusicCategory = uint8_t;
+inline constexpr MusicCategory CATEGORY_UNDEF = 0xFF;

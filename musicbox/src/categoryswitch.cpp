@@ -22,7 +22,7 @@ void CategorySwitch::setup() {
   attachInterrupt(digitalPinToInterrupt(CATEGORY_SWITCH_IRQ), categoryIsr, FALLING);
 
   pcf8574.begin(0xFF);
-  uint8_t state = pcf8574.read8(); /* initial read */
+  uint8_t state = pcf8574.read8(); /* initial read clears interrupt */
 
   LOG("initialized category switch: connected=%d, state=0x%02X, irq=%d", pcf8574.isConnected(), state, CATEGORY_SWITCH_IRQ);
 }
@@ -32,19 +32,18 @@ MusicCategory CategorySwitch::loop() {
     categoryInterrupt = false;
     return get();
   }
-  return MUSIC_CATEGORY_UNDEF;
+  return CATEGORY_UNDEF;
 }
 
 MusicCategory CategorySwitch::get() {
   Wire.requestFrom(CATEGORY_SWITCH_ID, (uint8_t)1);
   if (Wire.available()) {
     byte value = Wire.read();
-    for (int idx = 0; idx < CATEGORY_SWITCH_COUNT; idx++) {
+    for (int idx = 0; idx < CATEGORY_COUNT; idx++) {
       if (bitRead(value, idx) == 0) {
         return idx;
       }
     }
-	return MUSIC_CATEGORY_NONE;
   }
-  return MUSIC_CATEGORY_UNDEF;
+  return CATEGORY_UNDEF;
 }

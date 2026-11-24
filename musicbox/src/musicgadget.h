@@ -31,10 +31,16 @@ class MusicGadget : public GadgetBase, public CoreStatusHandler {
   void next();
   void stop();
 
-  int sequential;
   uint8_t category;
-  void playSequential(int index);
-  void playRfidTrack(RfidId rfid);
-
   void onCategoryChanged(MusicCategory category);
+
+  enum class Sequential {
+    RESET,
+    REPEAT,
+    NEXT
+  };
+  void playSequential(Sequential index);
+  int sequential[CATEGORY_COUNT];
+
+  void playRfidTrack(RfidId rfid);
 };
