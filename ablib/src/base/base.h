@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Arduino.h>
-#include <TaskSchedulerDeclarations.h>
 #include <Wire.h>
 #include <stdint.h>
 
