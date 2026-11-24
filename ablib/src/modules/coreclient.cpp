@@ -6,7 +6,6 @@ inline constexpr unsigned long BLOCK_STATUS_PLAYSOUND = 500;
 
 static void IRAM_ATTR statusInterrupt() {
   statusAvailable = true;
-  LOG("interrupted");
 }
 
 ActivityCoreClient::ActivityCoreClient(ClientId client)
