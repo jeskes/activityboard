@@ -26,20 +26,12 @@ inline constexpr uint8_t INDICATOR_PLAYING = 8;
 /* category switch */
 inline constexpr uint8_t CATEGORY_SWITCH_ID = GADGET_EXPANSION_ID1;
 
-/* image identifiers */
-inline constexpr ImageId STARTUP_IMAGE = "startup";
-
-/* track identifiers */
-inline constexpr TrackPath STARTUP_TRACK = "startup";
-
 /* rc522 module pins */
 inline constexpr uint8_t RC522_RST = 9;
 inline constexpr uint8_t RC522_SS = 10;
 inline constexpr uint8_t RC522_MOSI = 11;
 inline constexpr uint8_t RC522_MISO = 12;
 inline constexpr uint8_t RC522_SCK = 13;
-
-inline constexpr uint8_t MAX_RFID_UID_SIZE = 10;
 
 /* reset timeout after not playing anymore */
 inline constexpr unsigned long NOTPLAYING_RESET_TIMEOUT = 5000;

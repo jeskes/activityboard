@@ -4,7 +4,7 @@
 
 StoryGadget::StoryGadget()
     : core(STORYGADGET_ID),
-      nfc(core),
+      nfc(RC522_SS, RC522_RST),
       definition(core),
       selectionController(definition, core, inputController),
       storyController(definition, core, inputController) {
@@ -19,13 +19,13 @@ void StoryGadget::setup() {
   SPI.begin();
 
   core.setup(CORE_STATUS_IRQ);
-  nfc.setup();
+  if (!nfc.setup()) {
+    activityControls.indicateError(READING_LED);
+  }
   definition.setup();
   inputController.setup();
   selectionController.setup();
   storyController.setup();
-
-  nfc.setHandler(this);
 
   core.init(STARTUP_IMAGE);
   core.playTrack(STARTUP_TRACK);
@@ -38,7 +38,10 @@ void StoryGadget::loop() {
   GadgetBase::loop();
 
   core.loop();
-  nfc.loop();
+  RfidId rfid = nfc.loop();
+  if (rfid) {
+    onNewRfidCard(rfid);
+  }
 
   if (selectionController.isBusy()) {
     StoryId selectedStory = selectionController.loop();
@@ -89,10 +92,6 @@ void StoryGadget::onNewRfidCard(RfidId rfid) {
   LOG("rfid story %d selected", story);
   resetPending = true;
   storyController.run(story);
-}
-
-void StoryGadget::onRfidCardRemoved() {
-  /* ignore card removal */
 }
 
 void StoryGadget::handleCoreStatus(CoreStatus coreStatus) {

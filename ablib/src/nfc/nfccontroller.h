@@ -1,19 +1,17 @@
 #pragma once
+#ifdef AB_NFCCONTROLLER
 
 #include <MFRC522.h>
 #include <modules/coreclient.h>
 
-#include "const.h"
-
 class NfcController {
  public:
-  NfcController(ActivityCoreClient& core);
+  NfcController(uint8_t ss, uint8_t rst);
 
-  void setup();
+  bool setup();
   RfidId loop();
 
  private:
-  ActivityCoreClient& core;
   MFRC522 mfrc522;
 
   byte currentUID[MAX_RFID_UID_SIZE];
@@ -24,3 +22,4 @@ class NfcController {
 
   char uid[2 * MAX_RFID_UID_SIZE + 1];
 };
+#endif

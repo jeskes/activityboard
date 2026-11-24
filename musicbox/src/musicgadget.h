@@ -1,9 +1,9 @@
 #include <modules/coreclient.h>
 #include <modules/gadget.h>
+#include <nfc/nfccontroller.h>
 
 #include "categoryswitch.h"
 #include "inputcontroller.h"
-#include "nfccontroller.h"
 
 class MusicGadget : public GadgetBase, public CoreStatusHandler {
  public:
@@ -24,7 +24,9 @@ class MusicGadget : public GadgetBase, public CoreStatusHandler {
   bool playing;
   bool wasPlaying;
   unsigned long notPlayingSince;
+
   bool stopAll;
+  void resetDisplay();
 
   void start();
   void repeat();

@@ -21,3 +21,4 @@ sdcard/core/34
 sdcard/**/*.raw
 core/src-x/**/*
 sound/src-x/**/*
+storygadget/src-x/**/*

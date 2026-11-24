@@ -1,27 +1,27 @@
+#ifdef AB_NFCCONTROLLER
 #include "nfccontroller.h"
 
 #include <base/base.h>
 
-#include "const.h"
 
-NfcController::NfcController(ActivityCoreClient& core)
-    : core(core),
-      mfrc522(RC522_SS, RC522_RST),
+NfcController::NfcController(uint8_t ss, uint8_t rst)
+    : mfrc522(ss, rst),
       currentUID{0},
       currentUIDLength(0),
       uid{0} {
 }
 
-void NfcController::setup() {
+bool NfcController::setup() {
   LOG("initialize mfrc522...");
+  
+  delay(200);
   mfrc522.PCD_Init();
-  delay(4);
-  mfrc522.PCD_DumpVersionToSerial();
-  bool ok = mfrc522.PCD_PerformSelfTest();
-  Serial.print("Hardware-Selbsttest: ");
-  Serial.println(ok ? "BESTANDEN (OK)" : "FEHLGESCHLAGEN");
+  delay(200);
 
-  LOG("nfc reader initialized");
+  bool success = mfrc522.PCD_PerformSelfTest();
+  LOG("rfid reader initialized: status=%s", success ? "ok" : "failed");
+
+  return success;
 }
 
 RfidId NfcController::loop() {
@@ -61,3 +61,4 @@ RfidId NfcController::loop() {
 
   return rfidId;
 }
+#endif

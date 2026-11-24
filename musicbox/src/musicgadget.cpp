@@ -6,7 +6,7 @@
 
 MusicGadget::MusicGadget()
     : core(MUSICGADGET_ID),
-      nfc(core),
+      nfc(RC522_SS, RC522_RST),
       sequential{0} {
 }
 
@@ -15,16 +15,18 @@ void MusicGadget::setup() {
 
   SPI.begin();
 
-  nfc.setup();
+  if (!nfc.setup()) {
+    activityControls.indicateError(INDICATOR_PLAYING);
+  }
+
   core.setup(CORE_STATUS_IRQ);
   categorySwitch.setup();
   inputController.setup();
 
-  core.init(STARTUP_IMAGE);
-  core.playTrack(STARTUP_TRACK);
   core.setStatusHandler(this);
 
   category = categorySwitch.get();
+  resetDisplay();
 
   LOG("Music Gadget started: category=%d", category);
 }
@@ -52,7 +54,7 @@ void MusicGadget::loop() {
       notPlayingSince = millis();
     }
     else if (notPlayingSince && millis() > notPlayingSince + NOTPLAYING_RESET_TIMEOUT) {
-      core.displayImage(STARTUP_IMAGE);
+      resetDisplay();
       notPlayingSince = 0;
     }
   }
@@ -64,7 +66,6 @@ void MusicGadget::loop() {
     LOG("stop all");
     stopAll = false;
     stop();
-    core.displayImage(STARTUP_IMAGE);
   }
 }
 
@@ -91,6 +92,12 @@ void MusicGadget::handleInput(Input input) {
   }
 }
 
+void MusicGadget::resetDisplay() {
+  char image[11];
+  sprintf(image, "catagory-%01d", category);
+  core.displayImage(image);
+}
+
 void MusicGadget::start() {
   LOG("start");
   playSequential(Sequential::RESET);
@@ -110,12 +117,15 @@ void MusicGadget::stop() {
   LOG("stop");
   core.stopSound();
   playing = false;
+  resetDisplay();
 }
 
 void MusicGadget::playSequential(Sequential index) {
   switch (index) {
     case Sequential::RESET:
       sequential[category] = 0;
+      break;
+    case Sequential::REPEAT:
       break;
     case Sequential::NEXT:
       sequential[category]++;
@@ -139,9 +149,7 @@ void MusicGadget::playRfidTrack(RfidId rfid) {
 void MusicGadget::onCategoryChanged(MusicCategory category) {
   LOG("category changed: category=%d", category);
   this->category = category;
-  char image[11];
-  sprintf(image, "catagory-%01d", category);
-  core.displayImage(image);
+  resetDisplay();
   core.stopSound();
 }
 

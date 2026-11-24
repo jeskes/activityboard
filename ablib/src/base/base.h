@@ -51,6 +51,18 @@ inline constexpr unsigned long LONGPRESS_DELAY = 2000;
 inline constexpr unsigned long CORECLIENT_HEARTBEAT_TIMEOUT = 2000;
 inline constexpr unsigned long CORECLIENT_DISCONNECTED_TIMEOUT = 15000;
 
+/* blink at startup or error */
+inline constexpr uint16_t GADGET_INDICATE_STARTUP_CYCLES = 5;
+inline constexpr unsigned long GADGET_INDICATE_STARTUP_BLINKRATE = 100;
+inline constexpr uint16_t GADGET_INDICATE_ERROR_CYCLES = 20;
+inline constexpr unsigned long GADGET_INDICATE_ERROR_BLINKRATE = 50;
+
+/* in case no blinking is done at startup */
+inline constexpr unsigned long GADGET_STARTUP_DELAY = 500;
+
+/* rfid / nfc */
+inline constexpr uint8_t MAX_RFID_UID_SIZE = 10;
+
 /* ========================================================================= */
 /*                                                             general types */
 /* ========================================================================= */
@@ -235,5 +247,6 @@ class ActivityControls {
   bool buttonPressed(uint8_t pin);
   void buzzer(uint8_t buzzer = DEFAULT_BUZZER, int frequency = DEFAULT_BUZZER_FREQUENCY, long timeout = DEFAULT_BUZZER_TIMEOUT);
   void scanWire();
+  void indicateError(uint8_t led);
 };
 extern ActivityControls activityControls;

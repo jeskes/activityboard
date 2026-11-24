@@ -72,3 +72,8 @@ void ActivityControls::scanWire() {
   }
 }
 
+void ActivityControls::indicateError(uint8_t led) {
+  if (led) {
+    activityControls.blink(led, GADGET_INDICATE_ERROR_CYCLES, GADGET_INDICATE_ERROR_BLINKRATE);
+  }
+}

@@ -1,13 +1,13 @@
 #include "gadget.h"
 
-void GadgetBase::setup(uint8_t startupLed) {
-  if (startupLed) {
-	pinMode(startupLed, OUTPUT);
-	activityControls.blink(startupLed, 5, 100);
-	activityControls.blink(startupLed, 1, 500);
+void GadgetBase::setup(uint8_t led) {
+  if (led) {
+    pinMode(led, OUTPUT);
+    activityControls.blink(led, GADGET_INDICATE_STARTUP_CYCLES, GADGET_INDICATE_STARTUP_BLINKRATE);
+    activityControls.blink(led, 1, GADGET_INDICATE_STARTUP_CYCLES * GADGET_INDICATE_STARTUP_BLINKRATE);
   }
   else {
-	  delay(1000);
+    delay(GADGET_STARTUP_DELAY);
   }
   activityBoard.setup();
   LOG("gadget setup done.");

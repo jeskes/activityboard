@@ -1,14 +1,14 @@
 #pragma once
 
 #include <modules/gadget.h>
+#include <nfc/nfccontroller.h>
 
 #include "definition.h"
 #include "inputcontroller.h"
-#include "nfccontroller.h"
 #include "selectionController.h"
 #include "storycontroller.h"
 
-class StoryGadget : public GadgetBase, public NfcEventHandler, public CoreStatusHandler {
+class StoryGadget : public GadgetBase, public CoreStatusHandler {
  public:
   StoryGadget();
 
@@ -16,8 +16,7 @@ class StoryGadget : public GadgetBase, public NfcEventHandler, public CoreStatus
   void loop();
 
   void handleCoreStatus(CoreStatus coreStatus);
-  void onNewRfidCard(RfidId rfid) override;
-  void onRfidCardRemoved() override;
+  void onNewRfidCard(RfidId rfid);
 
  private:
   ActivityCoreClient core;
