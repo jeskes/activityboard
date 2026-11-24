@@ -39,8 +39,11 @@ Input InputController::get() {
   }
 
   int num = ch - (int)'0';
-  if (num > 0 && num <= CATEGORY_COUNT) {
+  if (num > 0 && num <= 9) {
     return (Input)num;
+  }
+  if (num == 0) {
+    return 10;
   }
 
   return StdInput::NONE;

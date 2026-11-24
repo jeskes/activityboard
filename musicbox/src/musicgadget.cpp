@@ -84,9 +84,9 @@ void MusicGadget::handleInput(Input input) {
       stop();
       break;
     default:
-      if (input > 0 && input <= CATEGORY_COUNT) {
-        category = input - 1;
-        playSequential(Sequential::RESET);
+      if (input > 0 && input <= 10) {
+		sequential[category]= input-1;
+        playSequential(Sequential::REPEAT);
       }
       break;
   }
