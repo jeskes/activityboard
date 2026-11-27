@@ -47,7 +47,7 @@ void StoryGadget::loop() {
     StoryId selectedStory = selectionController.loop();
     if (selectedStory) {
       resetPending = true;
-      storyController.run(selectedStory);
+      startStory(selectedStory);
     }
   }
   else if (storyController.isBusy()) {
@@ -67,7 +67,8 @@ void StoryGadget::loop() {
     else if (input >= StdInput::NUM_1 && (int)input <= definition.storiesCount) {
       LOG("story %d selected", input);
       resetPending = true;
-      storyController.run(definition.getStoryId((int)input - 1));
+      StoryId storyId = definition.getStoryId((int)input - 1);
+      startStory(storyId);
     }
   }
 
@@ -77,8 +78,8 @@ void StoryGadget::loop() {
 }
 
 void StoryGadget::onNewRfidCard(RfidId rfid) {
-  StoryId story = definition.getStoryIdByRfid(rfid);
-  if (!story) {
+  StoryId storyId = definition.getStoryIdByRfid(rfid);
+  if (!storyId) {
     return;
   }
 
@@ -89,9 +90,19 @@ void StoryGadget::onNewRfidCard(RfidId rfid) {
     storyController.stop();
   }
 
-  LOG("rfid story %d selected", story);
+  LOG("rfid story %d selected", storyId);
+  startStory(storyId);
+}
+
+void StoryGadget::startStory(StoryId id) {
   resetPending = true;
-  storyController.run(story);
+  const uint8_t blinks[] = {SELECTING_LED, READING_LED, MENU_LED};
+  activityControls.blink(blinks, 3, 3, 100);
+  StoryDef* storyDef = definition.getStory(id);
+  if (storyDef) {
+    storyDef->assertLoaded(core);
+    storyController.run(storyDef);
+  }
 }
 
 void StoryGadget::handleCoreStatus(CoreStatus coreStatus) {

@@ -17,7 +17,7 @@ ActivityCoreClient::ActivityCoreClient(ClientId client)
 void ActivityCoreClient::setup(uint8_t irq) {
   pinMode(irq, INPUT);
   attachInterrupt(digitalPinToInterrupt(irq), statusInterrupt, FALLING);
-  LOG("attached irq: pin=%d", irq);
+  LOG("attached core interrupt: irq=%d", irq);
 }
 
 void ActivityCoreClient::loop() {
@@ -28,7 +28,7 @@ void ActivityCoreClient::loop() {
   }
 }
 
-void ActivityCoreClient::init(ImageId startupImage) {
+void ActivityCoreClient::init(ImagePath startupImage) {
   LOG("send display init request : startup.image=%s", startupImage);
   InitCoreRequest request(client, startupImage);
   sendRequest(CORE_MODULE_ID, &request, sizeof(InitCoreRequest));
@@ -74,9 +74,9 @@ void ActivityCoreClient::displayMessage(MessageId id) {
   sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayMessageRequest));
 }
 
-void ActivityCoreClient::displayImage(ImageId id) {
-  LOG("send display image request : id=%s", id);
-  DisplayImageRequest request(client, id);
+void ActivityCoreClient::displayImage(ImagePath path) {
+  LOG("send display image request : path=%s", path);
+  DisplayImageRequest request(client, path);
   sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayImageRequest));
 }
 
@@ -86,9 +86,9 @@ void ActivityCoreClient::displayMenu(MenuId id, uint8_t selectedIndex) {
   sendRequest(CORE_MODULE_ID, &request, sizeof(DisplayMenuRequest));
 }
 
-DataStream ActivityCoreClient::readData(DataId id) {
-  LOG("send read data request : id=%s", id);
-  ReadDataRequest request(client, id);
+DataStream ActivityCoreClient::readData(DataPath path) {
+  LOG("send read data request : path=%s", path);
+  ReadDataRequest request(client, path);
   sendRequest(CORE_MODULE_ID, &request, sizeof(ReadDataRequest));
   blockCoreStatusProcessing(2000);
   delay(200);
@@ -110,7 +110,7 @@ void ActivityCoreClient::processAvailableStatus() {
 
   CoreStatus status;
   requestCoreStatus(status);
-  // LOG("fetched core status: playerState=%d, webInput=0x%02X", (uint8_t) status.playerState, (uint8_t) status.webState.input);
+  // LOG("fetched core status: playerState=%d, webInput=0x%02X", (uint8_t)status.playerState, (uint8_t)status.webState.input);
   if (statusHandler) {
     statusHandler->handleCoreStatus(status);
   }

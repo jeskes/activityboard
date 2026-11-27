@@ -63,10 +63,13 @@ StoryId SelectionController::loop() {
 }
 
 void SelectionController::initCurrentSelection() {
+  LOG("init current selection");
   currentTimeout = millis() + SELECTION_TIMEOUT;
-  JsonObject storyInfo = definition.getStoryInfo(currentIndex);
-  core.playTrack(storyInfo["track"].as<TrackPath>());
-  core.displayImage(storyInfo["image"].as<ImageId>());
+  StoryDef* storyDef = definition.getStory(currentIndex);
+  if (storyDef) {
+    core.playTrack(storyDef->getTeaserTrackPath());
+    core.displayImage(storyDef->getCoverImagePath());
+  }
 }
 
 StoryId SelectionController::onStorySelected(int index) {

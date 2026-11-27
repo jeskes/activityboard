@@ -159,8 +159,8 @@ void CoreService::processRequest(DisplayMenuRequest* request) {
 }
 
 void CoreService::processRequest(DisplayImageRequest* request) {
-  ImageDef def = contexts.get(request->client).getImageDef(request->imageId);
-  LOG("draw image: id=%s, path=%s.", request->imageId, def.path);
+  ImageDef def = contexts.get(request->client).getImageDef(request->path);
+  LOG("draw image: path=%s, real=%s.", request->path, def.path);
   auto& dsp = display;
   runner.schedule([&dsp, def]() { dsp.drawImage(def); });
 }
@@ -208,8 +208,8 @@ bool CoreService::handleRequest(StatusRequest* request) {
 }
 
 bool CoreService::handleRequest(ReadDataRequest* request) {
-  DataDef def = contexts.get(request->client).getDataDef(request->dataId);
-  LOG("read data: id=%s, path=%s", request->dataId, def.path);
+  DataDef def = contexts.get(request->client).getDataDef(request->path);
+  LOG("read data: path=%s, real=%s", request->path, def.path);
   return storage.sdAccess([&]() {
     File file = storage.open(def.path);
     return DataProvider::init(file);
@@ -278,7 +278,7 @@ void CoreService::displayTrackImage(TrackPath path) {
   static char track[32];
   static char imagePath[PATH_BUFFER_SIZE];
   if (sscanf(path, "/%7[^/]/%31[^.].mp3", folder, track) == 2) {
-    snprintf(imagePath, sizeof(imagePath), "/%s/images/%s.jpg", folder, track);
+    snprintf(imagePath, sizeof(imagePath), "/%s/%s.jpg", folder, track);
     LOG("track image: path=%s", imagePath);
     if (!storage.exists(imagePath)) {
       strlcpy(imagePath, "/10/images/music.jpg", sizeof(imagePath));
@@ -304,6 +304,12 @@ void CoreService::handleStreamCommand(StreamCommand cmd, const char* params) {
   }
   else if (!strcmp(cmd, SoundCom::STOP)) {
     soundController.stop();
+  }
+  else if (!strcmp(cmd, SoundCom::START_MAINTENANCE)) {
+    startStopMaintenance(true);
+  }
+  else if (!strcmp(cmd, SoundCom::STOP_MAINTENANCE)) {
+    startStopMaintenance(false);
   }
   else if (!strcmp(cmd, "GADGET")) {
     if (!strcmp(params, "OFF")) {

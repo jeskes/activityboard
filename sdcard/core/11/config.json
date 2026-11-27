@@ -1,15 +1,11 @@
 {
-	"images": {
-		"STARTUP": "startup.jpg"
-	},
 	"messages": {
-		"WELCOME": "Willkommen bei Lingo Bingo",
-		"GUESS": "Dein Tipp : {{guess}}",
-		"JINGLE": "Aktueller Jingle : {{jingle}}",
-		"STARTED": "ich würfle, bitte warten",
-		"NUMBER": "Gewürfelt : {{number}}",
-		"MATCH": "Du hast richtig getippt",
-		"SORRY": "Deine {{guess}} ist leider falsch"
+		"guess": "Dein Tipp : {{guess}}",
+		"jingle": "Aktueller Jingle : {{jingle}}",
+		"started": "ich würfle, bitte warten",
+		"number": "Gewürfelt : {{number}}",
+		"match": "Du hast richtig getippt",
+		"sorry": "Deine {{guess}} ist leider falsch"
 	},
 	"parameters": [
 		"number",

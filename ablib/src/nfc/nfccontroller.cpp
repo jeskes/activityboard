@@ -4,6 +4,13 @@
 #include <base/base.h>
 
 
+NfcController::NfcController(uint8_t rst)
+    : mfrc522(rst),
+      currentUID{0},
+      currentUIDLength(0),
+      uid{0} {
+}
+
 NfcController::NfcController(uint8_t ss, uint8_t rst)
     : mfrc522(ss, rst),
       currentUID{0},

@@ -15,13 +15,13 @@ inline constexpr uint8_t CORE_STATUS_IRQ = 2;
 inline constexpr uint8_t CATEGORY_SWITCH_IRQ = 3;
 
 /* button pins */
-inline constexpr uint8_t START_BUTTON = 4;
-inline constexpr uint8_t REPEAT_BUTTON = 5;
-inline constexpr uint8_t NEXT_BUTTON = 6;
-inline constexpr uint8_t STOP_BUTTON = 7;
+inline constexpr uint8_t START_BUTTON = 5;
+inline constexpr uint8_t REPEAT_BUTTON = 6;
+inline constexpr uint8_t NEXT_BUTTON = 7;
+inline constexpr uint8_t STOP_BUTTON = 8;
 
 /* indicator pins */
-inline constexpr uint8_t INDICATOR_PLAYING = 8;
+inline constexpr uint8_t INDICATOR_PLAYING = 4;
 
 /* category switch */
 inline constexpr uint8_t CATEGORY_SWITCH_ID = GADGET_EXPANSION_ID1;

@@ -27,7 +27,7 @@ class ActivityCoreClient : public PeriphericalClient {
   void setup(uint8_t irq);
   void loop();
 
-  void init(ImageId startupImage);
+  void init(ImagePath startupImage);
 
   void putParam(ParameterId id, uint16_t value);
   void putParam(ParameterId id, const char* value);
@@ -37,10 +37,10 @@ class ActivityCoreClient : public PeriphericalClient {
 
   void clearDisplay();
   void displayMessage(MessageId id);
-  void displayImage(ImageId id);
+  void displayImage(ImagePath id);
   void displayMenu(MenuId id, uint8_t selectedIndex);
 
-  DataStream readData(DataId id);
+  DataStream readData(DataPath path);
 
   void setStatusHandler(CoreStatusHandler* handler);
 

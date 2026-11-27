@@ -1,7 +1,6 @@
 #pragma once
 
 #include <modules/coreclient.h>
-#include <numpad/numpad.h>
 
 #include "const.h"
 #include "definition.h"
@@ -14,7 +13,7 @@ class StoryController : CoreStatusHandler {
   void setup();
   void loop();
 
-  bool run(StoryId story);
+  bool run(StoryDef* storyDef);
   bool stop();
   bool isBusy();
   bool inMenu();
@@ -24,20 +23,14 @@ class StoryController : CoreStatusHandler {
   ActivityCoreClient& core;
   InputController& inputController;
 
-  StoryId activeStory;
-  JsonVariant storyDefinition;
-  uint8_t tracks;
-
-  ChapterId currentChapter;
-  void startChapter(ChapterId chapter);
+  StoryDef* activeStory;
+  ChapterDef* currentChapter;
+  void startChapter(ChapterId chapterId);
   void onChapterEnded();
 
-  MenuId currentMenu;
-  JsonObject currentMenuDef;
-  uint8_t currentMenuSize;
+  MenuDef* currentMenu;
   uint8_t currentMenuSelection;
   long menuSelectionTimeout;
-
   void startMenu(MenuId menu);
   void startMenuOption(uint8_t index);
   void onMenuOptionSelected(uint8_t index);
@@ -50,5 +43,5 @@ class StoryController : CoreStatusHandler {
   PlayerMonitor playerMonitor;
   void handleCoreStatus(CoreStatus status) override;
 
-  void playStoryTrack(TrackPath track);
+  void playStoryTrack(TrackPath path);
 };

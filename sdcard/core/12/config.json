@@ -1,28 +1,6 @@
 {
-	"images": {
-		"STARTUP": "startup.jpg",
-		"romanCover": "roman/cover.jpg",
-		"romanLangweilig": "roman/langweilig.jpg",
-		"romanSchlafen": "roman/schlafen.jpg",
-		"romanSpazieren": "roman/spazieren.jpg",
-		"romanGluecklich": "roman/gluecklich.jpg",
-		"romanZuhause": "roman/zuhause.jpg",
-		"noddyCover": "noddy/cover.jpg",
-		"noddySunnyday": "noddy/sunnyday.jpg",
-		"noddyDucks": "noddy/ducks.jpg",
-		"noddyFarmerstraw": "noddy/farmerstraw.jpg",
-		"noddyPig": "noddy/pig.jpg",
-		"noddySheep": "noddy/sheep.jpg",
-		"noddyDog": "noddy/dog.jpg",
-		"noddyGoat": "noddy/goat.jpg",
-		"noddyPooroldnoddy": "noddy/pooroldnoddy.jpg",
-		"noddyMilk": "noddy/milk.jpg",
-		"noddyGoodbye": "noddy/goodbye.jpg"
-	},
-	"data": {
-		"stories": "stories.json",
-		"roman": "roman.json",
-		"noddy": "noddy.json"
+	"messages": {
+		"loadingStory": "Geschichte wird geladen."
 	},
 	"menus": {
 		"romanMenu1": {
@@ -40,9 +18,5 @@
 				"should he say goodbye?"
 			]
 		}
-	},
-	"messages": {
-		"WELCOME": "Willkommen bei Storybook",
-		"LOADING_STORY": "Geschichte wird geladen..."
 	}
 }

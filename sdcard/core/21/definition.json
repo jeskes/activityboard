@@ -1,72 +1,71 @@
 {
 	"start": "sunnyday",
-	"tracks": 21,
 	"chapters": {
 		"sunnyday": {
-			"track": "001",
-			"image": "noddySunnyday",
+			"track": "001.mp3",
+			"image": "sunnyday.jpg",
 			"next": "ducks"
 		},
 		"ducks": {
-			"track": "002",
-			"image": "noddyDucks",
+			"track": "002.mp3",
+			"image": "ducks.jpg",
 			"next": "farmerstraw"
 		},
 		"farmerstraw": {
-			"track": "003",
-			"image": "noddyFarmerstraw",
+			"track": "003.mp3",
+			"image": "farmerstraw.jpg",
 			"menu": "noddyFarmerstraw"
 		},
 		"pig": {
-			"track": "004",
-			"image": "noddyPig",
+			"track": "004.mp3",
+			"image": "pig.jpg",
 			"next": "sheep"
 		},
 		"sheep": {
-			"track": "005",
-			"image": "noddySheep",
+			"track": "005.mp3",
+			"image": "sheep.jpg",
 			"next": "dog"
 		},
 		"dog": {
-			"track": "006",
-			"image": "noddyDog",
+			"track": "006.mp3",
+			"image": "dog.jpg",
 			"next": "goat"
 		},
 		"goat": {
-			"track": "007",
-			"image": "noddyGoat",
+			"track": "007.mp3",
+			"image": "goat.jpg",
 			"next": "pooroldnoddy"
 		},
 		"pooroldnoddy": {
-			"track": "008",
-			"image": "noddyPooroldnoddy",
+			"track": "008.mp3",
+			"image": "pooroldnoddy.jpg",
 			"next": "milk"
 		},
 		"milk": {
-			"track": "009",
-			"image": "noddyMilk",
+			"track": "009.mp3",
+			"image": "milk.jpg",
 			"next": "goodbye"
 		},
 		"goodbye": {
-			"track": "010",
-			"image": "noddyGoodbye"
+			"track": "010.mp3",
+			"image": "goodbye.jpg"
 		}
 	},
 	"menus": {
 		"noddyFarmerstraw": {
-			"track": "100",
+			"track": "100.mp3",
 			"options": [
 				{
 					"next": "pig",
-					"track": "101"
+					"track": "101.mp3"
 				},
 				{
 					"next": "dog",
-					"track": "102"
+					"track": "102.mp3"
 				},
 				{
 					"next": "goodbye",
-					"track": "103"
+					"track": "103.mp3"
 				}
 			]
 		}

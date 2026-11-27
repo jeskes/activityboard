@@ -33,8 +33,8 @@ class ClientContext {
   const char* getMessage(MessageId id);
   String formatMessage(MessageId id);
   MenuDef getMenuDef(MenuId id);
-  ImageDef getImageDef(ImageId id);
-  DataDef getDataDef(DataId id);
+  ImageDef getImageDef(ImagePath path);
+  DataDef getDataDef(DataPath path);
   TrackDef getTrackDef(TrackPath path);
 
   String utf8ToExtendedAscii(const String& utf8);
@@ -47,6 +47,8 @@ class ClientContext {
 
   JsonDocument config;
   std::map<String, String> params;
+
+ void resolvePath(const char* path, char* physical);
 
   friend class ClientContexts;
 };

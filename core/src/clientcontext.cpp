@@ -56,9 +56,7 @@ void ClientContext::init(Storage& storage, ClientId client) {
 
   LOG("messages: client=%d, count=%d", client, config["messages"].is<JsonObject>() ? config["messages"].as<JsonObject>().size() : 0);
   LOG("menus: client=%d, count=%d", client, config["menus"].is<JsonObject>() ? config["menus"].as<JsonObject>().size() : 0);
-  LOG("images: client=%d, count=%d", client, config["images"].is<JsonObject>() ? config["images"].as<JsonObject>().size() : 0);
-  LOG("data: client=%d, count=%d", client, config["data"].is<JsonObject>() ? config["data"].as<JsonObject>().size() : 0);
-  LOG("track aliases: client=%d, count=%d", client, config["tracks"]["alias"].is<JsonObject>() ? config["tracks"]["alias"].as<JsonObject>().size() : 0);
+  LOG("aliases: client=%d, count=%d", client, config["alias"].is<JsonObject>() ? config["alias"].as<JsonObject>().size() : 0);
 }
 
 void ClientContext::putParam(ParameterId name, const char* value, byte append) {
@@ -124,63 +122,37 @@ MenuDef ClientContext::getMenuDef(MenuId id) {
   return def;
 }
 
-ImageDef ClientContext::getImageDef(ImageId id) {
+ImageDef ClientContext::getImageDef(ImagePath path) {
   ImageDef def;
-  if (config["images"][id].is<const char*>()) {
-    sprintf(def.path, "/%02d/images/%s", client, config["images"][id].as<const char*>());
-  }
-  else if (config["images"][id].is<JsonObject>()) {
-    JsonObject object = config["images"][id].as<JsonObject>();
-    sprintf(def.path, "/%02d/images/%s", client, object["path"].as<const char*>());
-    if (object["width"].is<int>()) {
-      def.width = object["width"].as<int>();
-    }
-    if (object["height"].is<int>()) {
-      def.width = object["height"].as<int>();
-    }
-  }
-  else {
-    LOG("image id %s not found.", id);
-    strcpy(def.path, "/10/images/fallback.jpg");
-  }
+  resolvePath(path, def.path);
   return def;
 }
 
-DataDef ClientContext::getDataDef(DataId id) {
+DataDef ClientContext::getDataDef(DataPath path) {
   DataDef def;
-  if (config["data"][id].is<const char*>()) {
-    sprintf(def.path, "/%02d/data/%s", client, config["data"][id].as<const char*>());
-  }
-  else {
-    LOG("data id %s not found.", id);
-    strcpy(def.path, "/10/data/fallback.txt");
-  }
+  resolvePath(path, def.path);
   return def;
 }
 
 TrackDef ClientContext::getTrackDef(TrackPath path) {
   TrackDef def;
+  resolvePath(path, def.path);
+  return def;
+}
 
-  if (*path == '@') {
-    const char* alias = path + 1;
-    TrackPath realPath = config["tracks"]["alias"][alias].as<TrackPath>();
-    if (realPath) {
-      LOG("map track alias: %s => (%s)", alias, realPath);
-      return getTrackDef(realPath);
-    }
-    else {
-      LOG("track not found: alias=%s", alias);
-    }
+void ClientContext::resolvePath(const char* path, char* physical) {
+  if (!path || !*path) {
+    *physical = 0;
+  }
+  else if (*path == '@') {
+    resolvePath(config["alias"][path + 1].as<const char*>(), physical);
   }
   else if (*path == '/') {
-    strncpy(def.path, path, sizeof(def.path));
+    strcpy(physical, path);
   }
   else {
-    snprintf(trackPathBuffer, PATH_BUFFER_SIZE, "/%02d/%s", client, path);
-    return getTrackDef(trackPathBuffer);
+    sprintf(physical, "/%02d/%s", client, path);
   }
-
-  return def;
 }
 
 String ClientContext::utf8ToExtendedAscii(const String& utf8Str) {

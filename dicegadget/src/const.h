@@ -43,16 +43,15 @@ inline constexpr uint8_t JINGLE_START = 101;
 inline constexpr uint8_t INITIAL_JINGLE = 0;
 
 /* message identifiers */
-inline constexpr MessageId WELCOME_MESSAGE = "WELCOME";
-inline constexpr MessageId GUESS_MESSAGE = "GUESS";
-inline constexpr MessageId JINGLE_MESSAGE = "JINGLE";
-inline constexpr MessageId STARTED_MESSAGE = "STARTED";
-inline constexpr MessageId NUMBER_MESSAGE = "NUMBER";
-inline constexpr MessageId MATCH_MESSAGE = "MATCH";
-inline constexpr MessageId SORRY_MESSAGE = "SORRY";
+inline constexpr MessageId GUESS_MESSAGE = "guess";
+inline constexpr MessageId JINGLE_MESSAGE = "jingle";
+inline constexpr MessageId STARTED_MESSAGE = "started";
+inline constexpr MessageId NUMBER_MESSAGE = "number";
+inline constexpr MessageId MATCH_MESSAGE = "math";
+inline constexpr MessageId SORRY_MESSAGE = "sorry";
 
 /* image identifiers */
-inline constexpr ImageId STARTUP_IMAGE = "STARTUP";
+inline constexpr ImagePath STARTUP_IMAGE = "startup.jpg";
 
 /* parameter identifiers */
 inline constexpr ParameterId NUMBER_PARAMETER = "number";

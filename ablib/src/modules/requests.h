@@ -29,9 +29,10 @@ enum class StatusType : uint8_t {
 };
 
 struct __attribute__((packed)) BaseRequest {
-  BaseRequest(ClientId client, RequestType t)
-      : client(client),
-        type(t) {
+  BaseRequest(ClientId client, RequestType type, size_t requestSize) {
+    memset(this, 0, requestSize);
+    this->client = client;
+    this->type = type;
   }
   ClientId client;
   RequestType type;
@@ -39,7 +40,7 @@ struct __attribute__((packed)) BaseRequest {
 
 struct __attribute__((packed)) StatusRequest : public BaseRequest {
   StatusRequest(ClientId client, StatusType statusType)
-      : BaseRequest(client, RequestType::STATUS),
+      : BaseRequest(client, RequestType::STATUS, sizeof(StatusRequest)),
         statusType(statusType) {
   }
   StatusType statusType;
@@ -60,22 +61,22 @@ struct __attribute__((packed)) BaseStatus {
 /* ========================================================================= */
 
 struct __attribute__((packed)) InitCoreRequest : public BaseRequest {
-  InitCoreRequest(ClientId client, ImageId id)
-      : BaseRequest(client, RequestType::INIT) {
-    strlcpy(startupImage, id, ID_BUFFER_SIZE);
+  InitCoreRequest(ClientId client, ImagePath path)
+      : BaseRequest(client, RequestType::INIT, sizeof(InitCoreRequest)) {
+    strlcpy(startupImage, path, ID_BUFFER_SIZE);
   }
   char startupImage[ID_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) ClearDisplayRequest : public BaseRequest {
   ClearDisplayRequest(ClientId client)
-      : BaseRequest(client, RequestType::CLEAR_DISPLAY) {
+      : BaseRequest(client, RequestType::CLEAR_DISPLAY, sizeof(ClearDisplayRequest)) {
   }
 };
 
 struct __attribute__((packed)) ParameterRequest : public BaseRequest {
   ParameterRequest(ClientId client, ParameterId id, const char* value, bool append)
-      : BaseRequest(client, RequestType::PARAMETER) {
+      : BaseRequest(client, RequestType::PARAMETER,sizeof(ParameterRequest)) {
     strlcpy(this->id, id, PARAM_NAME_BUFFER_SIZE);
     strlcpy(this->value, value, PARAM_VALUE_BUFFER_SIZE);
     this->append = append;
@@ -87,23 +88,23 @@ struct __attribute__((packed)) ParameterRequest : public BaseRequest {
 
 struct __attribute__((packed)) DisplayMessageRequest : public BaseRequest {
   DisplayMessageRequest(ClientId client, MessageId id)
-      : BaseRequest(client, RequestType::DISPLAY_MESSAGE) {
+      : BaseRequest(client, RequestType::DISPLAY_MESSAGE, sizeof(DisplayMessageRequest)) {
     strlcpy(messageId, id, ID_BUFFER_SIZE);
   }
   char messageId[ID_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) DisplayImageRequest : public BaseRequest {
-  DisplayImageRequest(ClientId client, ImageId id)
-      : BaseRequest(client, RequestType::DISPLAY_IMAGE) {
-    strlcpy(imageId, id, ID_BUFFER_SIZE);
+  DisplayImageRequest(ClientId client, ImagePath path)
+      : BaseRequest(client, RequestType::DISPLAY_IMAGE,sizeof(DisplayImageRequest)) {
+    strlcpy(this->path, path, ID_BUFFER_SIZE);
   }
-  char imageId[ID_BUFFER_SIZE];
+  char path[ID_BUFFER_SIZE];
 };
 
 struct __attribute__((packed)) DisplayMenuRequest : public BaseRequest {
   DisplayMenuRequest(ClientId client, MenuId id, uint8_t selectedIndex)
-      : BaseRequest(client, RequestType::DISPLAY_MENU),
+      : BaseRequest(client, RequestType::DISPLAY_MENU, sizeof(DisplayMenuRequest)),
         selectedIndex(selectedIndex) {
     strlcpy(menuId, id, ID_BUFFER_SIZE);
   }
@@ -130,7 +131,8 @@ struct __attribute__((packed)) SoundControl : CoreFlags<SoundControl> {
 
 struct __attribute__((packed)) PlayTrackRequest : public BaseRequest {
   PlayTrackRequest(ClientId client, TrackPath path, SoundControl control)
-      : BaseRequest(client, RequestType::PLAY_TRACK), control(control) {
+      : BaseRequest(client, RequestType::PLAY_TRACK, sizeof(PlayTrackRequest)),
+        control(control) {
     strlcpy(this->path, path, ID_BUFFER_SIZE);
   }
 
@@ -140,16 +142,16 @@ struct __attribute__((packed)) PlayTrackRequest : public BaseRequest {
 
 struct __attribute__((packed)) StopSoundRequest : public BaseRequest {
   StopSoundRequest(ClientId client)
-      : BaseRequest(client, RequestType::STOP_SOUND) {
+      : BaseRequest(client, RequestType::STOP_SOUND, sizeof(StopSoundRequest)) {
   }
 };
 
 struct __attribute__((packed)) ReadDataRequest : public BaseRequest {
-  ReadDataRequest(ClientId client, DataId id)
-      : BaseRequest(client, RequestType::READ_DATA) {
-    strlcpy(dataId, id, ID_BUFFER_SIZE);
+  ReadDataRequest(ClientId client, DataPath path)
+      : BaseRequest(client, RequestType::READ_DATA, sizeof(ReadDataRequest)) {
+    strlcpy(this->path, path, ID_BUFFER_SIZE);
   }
-  char dataId[ID_BUFFER_SIZE];
+  char path[ID_BUFFER_SIZE];
 };
 
 /* ========================================================================= */

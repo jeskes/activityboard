@@ -6,6 +6,7 @@
 
 class NfcController {
  public:
+  NfcController(uint8_t rst);
   NfcController(uint8_t ss, uint8_t rst);
 
   bool setup();

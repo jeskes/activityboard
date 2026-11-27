@@ -6,7 +6,7 @@
 
 MusicGadget::MusicGadget()
     : core(MUSICGADGET_ID),
-      nfc(RC522_SS, RC522_RST),
+      nfc(RC522_RST),
       sequential{0} {
 }
 
@@ -26,6 +26,7 @@ void MusicGadget::setup() {
   core.setStatusHandler(this);
 
   category = categorySwitch.get();
+  LOG("got category: category=%d", category);
   resetDisplay();
 
   LOG("Music Gadget started: category=%d", category);
@@ -33,6 +34,7 @@ void MusicGadget::setup() {
 
 void MusicGadget::loop() {
   GadgetBase::loop();
+
   core.loop();
 
   RfidId rfid = nfc.loop();
@@ -85,7 +87,7 @@ void MusicGadget::handleInput(Input input) {
       break;
     default:
       if (input > 0 && input <= 10) {
-		sequential[category]= input-1;
+        sequential[category] = input - 1;
         playSequential(Sequential::REPEAT);
       }
       break;
@@ -93,8 +95,8 @@ void MusicGadget::handleInput(Input input) {
 }
 
 void MusicGadget::resetDisplay() {
-  char image[11];
-  sprintf(image, "category-%01d", category);
+  char image[ID_BUFFER_SIZE];
+  sprintf(image, "@category-image-%01d", category);
   core.displayImage(image);
 }
 
@@ -141,7 +143,7 @@ void MusicGadget::playSequential(Sequential index) {
 
 void MusicGadget::playRfidTrack(RfidId rfid) {
   char path[ID_BUFFER_SIZE];
-  sprintf(path, "@%s", rfid);
+  sprintf(path, "@rfid-track-%s", rfid);
   core.playTrack(path, SoundControl(SoundControl::DISPLAY_INFO));
   playing = true;
 }
@@ -151,7 +153,7 @@ void MusicGadget::onCategoryChanged(MusicCategory category) {
   this->category = category;
   resetDisplay();
   char alias[ID_BUFFER_SIZE];
-  sprintf(alias, "@category-%01d", category);
+  sprintf(alias, "@category-track-%01d", category);
   core.playTrack(alias);
 }
 

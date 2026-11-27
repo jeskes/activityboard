@@ -28,4 +28,5 @@ class StoryGadget : public GadgetBase, public CoreStatusHandler {
   StoryController storyController;
 
   bool resetPending = true;
+  void startStory(StoryId id);
 };

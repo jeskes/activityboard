@@ -31,11 +31,11 @@ inline constexpr uint8_t RC522_SCK = 18;
 
 #define MAX_STORIES 10
 
-inline constexpr MessageId LOADING_STORY = "LOADING_STORY";
-inline constexpr ImageId STARTUP_IMAGE = "STARTUP";
-inline constexpr TrackPath STARTUP_TRACK = "startup";
+inline constexpr MessageId LOADING_STORY = "loadingStory";
+inline constexpr ImagePath STARTUP_IMAGE = "startup.jpg";
+inline constexpr TrackPath STARTUP_TRACK = "startup.mp3";
 
-inline constexpr DataId STORIES_DATA = "stories";
+inline constexpr DataPath STORIES_DATA = "stories.json";
 
 inline constexpr unsigned long SELECTION_TIMEOUT = 10000;
 

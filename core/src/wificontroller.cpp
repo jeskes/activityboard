@@ -22,7 +22,7 @@ WifiController::WifiController(ClientContexts contexts)
 void WifiController::setup() {
   server.on("/", [&]() { handleRoot(); });
 
-  server.on(UriBraces("/{}/images/{}"), [&]() {
+  server.on(UriBraces("/{}/{}"), [&]() {
     String s = "/";
     s.concat(server.pathArg(0));
     s.concat("/images/");

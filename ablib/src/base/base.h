@@ -75,9 +75,9 @@ inline constexpr ClientId SYSTEM_CLIENT_ID = 10;
 using ParameterId = const char*;
 using TrackPath = const char*;
 using MessageId = const char*;
-using ImageId = const char*;
+using ImagePath = const char*;
 using MenuId = const char*;
-using DataId = const char*;
+using DataPath = const char*;
 using RfidId = const char*;
 using Input = uint8_t;
 
