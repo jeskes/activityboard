@@ -64,7 +64,7 @@ void CoreService::setup(uint8_t module) {
 
 void CoreService::loop() {
   PeriphericalService::loop();
-  
+
   if (!maintenanceController.isBusy()) {
     soundController.loop();
     rotary.loop();
@@ -104,6 +104,12 @@ void CoreService::processRequest(BaseRequest* request) {
       break;
     case RequestType::PLAY_TRACK:
       processRequest((PlayTrackRequest*)request);
+      break;
+    case RequestType::PAUSE_TRACK:
+      processRequest((PauseTrackRequest*)request);
+      break;
+    case RequestType::RESUME_TRACK:
+      processRequest((ResumeTrackRequest*)request);
       break;
     case RequestType::STOP_SOUND:
       processRequest((StopSoundRequest*)request);
@@ -178,14 +184,17 @@ void CoreService::processRequest(PlayTrackRequest* request) {
 }
 
 void CoreService::processRequest(PauseTrackRequest* request) {
+  LOG("pause track");
   soundController.pause();
 }
 
 void CoreService::processRequest(ResumeTrackRequest* request) {
+  LOG("resume track");
   soundController.resume();
 }
 
 void CoreService::processRequest(StopSoundRequest* request) {
+  LOG("stop track");
   soundController.stop();
 }
 
