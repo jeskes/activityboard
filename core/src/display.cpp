@@ -86,7 +86,7 @@ void Display::drawImage(const char* path, int16_t x, int16_t y, uint16_t width, 
     return;
   }
 
-  File file = storage.open(path);
+  File file = storage.open(normalizeImagePath(path));
   if (!file) {
     LOG("image file not found: file=%s", path);
     return;
@@ -116,4 +116,20 @@ void Display::toggleOff() {
   LOG("toggle off: off=%d", off);
   tft.setBrightness(off ? 0 : brightness);
   ledRing.updateBrightness(brightness, off);
+}
+
+const char* Display::normalizeImagePath(const char* path) {
+  if (!path) {
+    return "";
+  }
+
+  size_t len = strlen(path);
+  if (len >= 4 && !strcasecmp(path + (len - 4), ".jpg")) {
+    return path;
+  }
+
+  static char normalized[PATH_BUFFER_SIZE];
+  snprintf(normalized, sizeof(normalized), "%s.jpg", path);
+
+  return normalized;
 }

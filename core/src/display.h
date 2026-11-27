@@ -33,4 +33,6 @@ class Display {
   int brightness;
 
   uint16_t* buffer;
+
+  const char* normalizeImagePath(const char* path);
 };

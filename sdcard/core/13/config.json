@@ -1,15 +1,15 @@
 {
 	"alias": {
-		"category-image-0": "images/category-children.jpg",
-		"category-image-1": "images/category-animals.jpg",
-		"category-image-2": "images/category-classical.jpg",
-		"category-image-3": "images/category-funny.jpg",
-		"category-track-0": "category-children.mp3",
-		"category-track-1": "category-animals.mp3",
-		"category-track-2": "category-classical.mp3",
-		"category-track-3": "category-funny.mp3",
-		"rfid-track-8a5b8e4f": "/30/BongoBong.mp3",
-		"rfid-track-17bf224d": "/30/HamKumst.mp3",
-		"rfid-track-049e979ce42a81": "/30/Woid.mp3"
+		"category-image-0": "images/category-children",
+		"category-image-1": "images/category-animals",
+		"category-image-2": "images/category-classical",
+		"category-image-3": "images/category-funny",
+		"category-track-0": "category-children",
+		"category-track-1": "category-animals",
+		"category-track-2": "category-classical",
+		"category-track-3": "category-funny",
+		"rfid-track-8a5b8e4f": "/30/BongoBong",
+		"rfid-track-17bf224d": "/30/HamKumst",
+		"rfid-track-049e979ce42a81": "/30/Woid"
 	}
 }

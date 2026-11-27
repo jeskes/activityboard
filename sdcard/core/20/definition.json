@@ -3,27 +3,27 @@
 	"chapters": {
 		"langweilig": {
 			"track": "001",
-			"image": "langweilig.jpg",
+			"image": "langweilig",
 			"menu": "romanMenu1"
 		},
 		"schlafen": {
 			"track": "002",
-			"image": "schlafen.jpg",
+			"image": "schlafen",
 			"next": "gluecklich"
 		},
 		"spazieren": {
 			"track": "003",
-			"image": "spazieren.jpg",
+			"image": "spazieren",
 			"next": "gluecklich"
 		},
 		"gluecklich": {
 			"track": "004",
-			"image": "gluecklich.jpg",
+			"image": "gluecklich",
 			"next": "zuhause"
 		},
 		"zuhause": {
 			"track": "005",
-			"image": "zuhause.jpg"
+			"image": "zuhause"
 		}
 	},
 	"menus": {
