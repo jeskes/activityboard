@@ -177,6 +177,14 @@ void CoreService::processRequest(PlayTrackRequest* request) {
   }
 }
 
+void CoreService::processRequest(PauseTrackRequest* request) {
+  soundController.pause();
+}
+
+void CoreService::processRequest(ResumeTrackRequest* request) {
+  soundController.resume();
+}
+
 void CoreService::processRequest(StopSoundRequest* request) {
   soundController.stop();
 }
@@ -304,6 +312,12 @@ void CoreService::handleStreamCommand(StreamCommand cmd, const char* params) {
   }
   else if (!strcmp(cmd, SoundCom::STOP)) {
     soundController.stop();
+  }
+  else if (!strcmp(cmd, SoundCom::PAUSE)) {
+    soundController.pause();
+  }
+  else if (!strcmp(cmd, SoundCom::RESUME)) {
+    soundController.resume();
   }
   else if (!strcmp(cmd, SoundCom::START_MAINTENANCE)) {
     startStopMaintenance(true);

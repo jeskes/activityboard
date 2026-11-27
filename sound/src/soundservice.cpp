@@ -76,6 +76,14 @@ void SoundService::handleStreamCommand(StreamCommand cmd, const char* params) {
     audioPlayer.stop();
     uartController.send(SoundCom::INFO, "stopped");
   }
+  else if (!strcmp(cmd, SoundCom::PAUSE)) {
+    audioPlayer.pause();
+    uartController.send(SoundCom::INFO, "paused");
+  }
+  else if (!strcmp(cmd, SoundCom::RESUME)) {
+    audioPlayer.resume();
+    uartController.send(SoundCom::INFO, "resumed");
+  }
   else if (!strcmp(cmd, SoundCom::VOLUME)) {
     audioPlayer.setVolume(atoi(params));
     uartController.send(SoundCom::INFO, "volume set");

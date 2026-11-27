@@ -62,8 +62,20 @@ void ActivityCoreClient::playTrack(TrackPath path, SoundControl control) {
   blockCoreStatusProcessing(BLOCK_STATUS_PLAYSOUND);
 }
 
+void ActivityCoreClient::pauseTrack() {
+  LOG("send pause track request");
+  PauseTrackRequest request(client);
+  sendRequest(CORE_MODULE_ID, &request, sizeof(PauseTrackRequest));
+}
+
+void ActivityCoreClient::resumeTrack() {
+  LOG("send resume track request");
+  ResumeTrackRequest request(client);
+  sendRequest(CORE_MODULE_ID, &request, sizeof(ResumeTrackRequest));
+}
+
 void ActivityCoreClient::stopSound() {
-  LOG("send play stop request.");
+  LOG("send play stop request");
   StopSoundRequest request(client);
   sendRequest(CORE_MODULE_ID, &request, sizeof(StopSoundRequest));
 }

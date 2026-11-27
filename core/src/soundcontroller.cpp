@@ -80,6 +80,14 @@ void SoundController::play(TrackPath path) {
   awaitBusy(true);
 }
 
+void SoundController::pause() {
+  uartController.send(SoundCom::PAUSE);
+}
+
+void SoundController::resume() {
+  uartController.send(SoundCom::RESUME);
+}
+
 void SoundController::stop() {
   uartController.send(SoundCom::STOP);
   awaitBusy(false);

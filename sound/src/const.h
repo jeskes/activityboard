@@ -23,4 +23,5 @@ inline constexpr uint8_t AUDIO_BUSY = 10;  // LOW = playing, HIGH = idle
 
 /* startup */
 
+inline constexpr float INITIAL_GAIN = 0.05f;
 inline constexpr TrackPath STARTUP_TRACK = "/10/startup.mp3";

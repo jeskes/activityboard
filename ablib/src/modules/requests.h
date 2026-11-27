@@ -14,6 +14,8 @@ enum class RequestType : uint8_t {
   PARAMETER = 0x02,
   PLAY_TRACK = 0x10,
   STOP_SOUND = 0x11,
+  PAUSE_TRACK = 0x12,
+  RESUME_TRACK = 0x13,
   CLEAR_DISPLAY = 0x20,
   DISPLAY_MESSAGE = 0x21,
   DISPLAY_IMAGE = 0x22,
@@ -143,6 +145,18 @@ struct __attribute__((packed)) PlayTrackRequest : public BaseRequest {
 struct __attribute__((packed)) StopSoundRequest : public BaseRequest {
   StopSoundRequest(ClientId client)
       : BaseRequest(client, RequestType::STOP_SOUND, sizeof(StopSoundRequest)) {
+  }
+};
+
+struct __attribute__((packed)) PauseTrackRequest : public BaseRequest {
+  PauseTrackRequest(ClientId client)
+      : BaseRequest(client, RequestType::PAUSE_TRACK, sizeof(PauseTrackRequest)){
+  }
+};
+
+struct __attribute__((packed)) ResumeTrackRequest : public BaseRequest {
+  ResumeTrackRequest(ClientId client)
+      : BaseRequest(client, RequestType::RESUME_TRACK, sizeof(ResumeTrackRequest)){
   }
 };
 

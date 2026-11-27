@@ -20,6 +20,8 @@ class SoundController : public StreamCommandHandler {
   void loop();
 
   void play(TrackPath path);
+  void pause();
+  void resume();
   void stop();
 
   void startMaintenance();

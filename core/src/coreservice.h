@@ -45,6 +45,8 @@ class CoreService : public PeriphericalService, public StreamCommandHandler {
   void processRequest(InitCoreRequest* request);
   void processRequest(ParameterRequest* request);
   void processRequest(PlayTrackRequest* request);
+  void processRequest(PauseTrackRequest* request);
+  void processRequest(ResumeTrackRequest* request);
   void processRequest(StopSoundRequest* request);
   void processRequest(ClearDisplayRequest* request);
   void processRequest(DisplayMessageRequest* request);

@@ -33,6 +33,8 @@ class ActivityCoreClient : public PeriphericalClient {
   void putParam(ParameterId id, const char* value);
 
   void playTrack(TrackPath path, SoundControl control = SoundControl());
+  void pauseTrack();
+  void resumeTrack();
   void stopSound();
 
   void clearDisplay();
