@@ -7,6 +7,8 @@
 MusicGadget::MusicGadget()
     : core(MUSICGADGET_ID),
       nfc(RC522_RST),
+      mode(Mode::INITIAL),
+      paused(false),
       sequential{0} {
 }
 
@@ -27,7 +29,7 @@ void MusicGadget::setup() {
 
   category = categorySwitch.get();
   LOG("got category: category=%d", category);
-  resetDisplay();
+  reset(true);
 
   LOG("Music Gadget started: category=%d", category);
 }
@@ -56,8 +58,7 @@ void MusicGadget::loop() {
       notPlayingSince = millis();
     }
     else if (notPlayingSince && millis() > notPlayingSince + NOTPLAYING_RESET_TIMEOUT) {
-      resetDisplay();
-      notPlayingSince = 0;
+      reset(false);
     }
   }
   wasPlaying = playing;
@@ -88,56 +89,88 @@ void MusicGadget::handleInput(Input input) {
     default:
       if (input > 0 && input <= 10) {
         sequential[category] = input - 1;
-        playSequential(Sequential::REPEAT);
+        playTrack();
       }
       break;
   }
 }
 
-void MusicGadget::resetDisplay() {
-  char image[ID_BUFFER_SIZE];
-  sprintf(image, "@category-image-%01d", category);
-  core.displayImage(image);
+void MusicGadget::reset(bool playTrack) {
+  paused = false;
+  notPlayingSince = 0;
+  mode = Mode::INITIAL;
+
+  char buffer[ID_BUFFER_SIZE];
+  sprintf(buffer, "@category-image-%01d", category);
+  core.displayImage(buffer);
+
+  if (playTrack) {
+    sprintf(buffer, "@category-track-%01d", category);
+    core.playTrack(buffer);
+  }
 }
 
 void MusicGadget::start() {
   LOG("start");
-  playSequential(Sequential::RESET);
+  switch (mode) {
+    case Mode::INITIAL:
+      mode = Mode::SELECTION;
+      sequential[category] = 0;
+      break;
+    case Mode::SELECTION:
+      mode = Mode::SEQUENTIAL;
+      break;
+    case Mode::SEQUENTIAL:
+      if (paused) {
+        core.resumeTrack();
+      }
+      else {
+        core.pauseTrack();
+      }
+      paused = !paused;
+      return;
+  }
+  playTrack();
 }
 
 void MusicGadget::repeat() {
   LOG("repeat");
-  playSequential(Sequential::REPEAT);
+  if (mode != Mode::INITIAL) {
+    playTrack();
+  }
 }
 
 void MusicGadget::next() {
   LOG("next");
-  playSequential(Sequential::NEXT);
+  if (mode != Mode::INITIAL) {
+    sequential[category]++;
+    mode = Mode::SELECTION;
+    playTrack();
+  }
 }
 
 void MusicGadget::stop() {
   LOG("stop");
   core.stopSound();
   playing = false;
-  resetDisplay();
+  reset(false);
 }
 
-void MusicGadget::playSequential(Sequential index) {
-  switch (index) {
-    case Sequential::RESET:
-      sequential[category] = 0;
-      break;
-    case Sequential::REPEAT:
-      break;
-    case Sequential::NEXT:
-      sequential[category]++;
-      break;
+void MusicGadget::playTrack() {
+  paused = false;
+  char folder[10];
+  sprintf(folder, "%02d", CATEGORY_FOLDERS[category]);
+  if (mode == Mode::SELECTION) {
+    strcat(folder, "/teaser");
   }
 
-  LOG("play sequential track: category=%d, sequential=%d", category, sequential[category]);
+  LOG("play track: category=%d, sequential=%d, folder=%s", category, sequential[category], folder);
   char path[ID_BUFFER_SIZE];
-  sprintf(path, "/%02d/#%d", CATEGORY_FOLDERS[category], sequential[category]);
-  core.playTrack(path, SoundControl(SoundControl::DISPLAY_INFO));
+  sprintf(path, "/%s/#%d", folder, sequential[category]);
+
+  SoundControl soundControl(SoundControl::DISPLAY_INFO);
+  core.playTrack(path, soundControl);
+
   playing = true;
 }
 
@@ -151,10 +184,7 @@ void MusicGadget::playRfidTrack(RfidId rfid) {
 void MusicGadget::onCategoryChanged(MusicCategory category) {
   LOG("category changed: category=%d", category);
   this->category = category;
-  resetDisplay();
-  char alias[ID_BUFFER_SIZE];
-  sprintf(alias, "@category-track-%01d", category);
-  core.playTrack(alias);
+  reset(true);
 }
 
 void MusicGadget::handleCoreStatus(CoreStatus coreStatus) {
