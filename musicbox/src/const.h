@@ -34,7 +34,7 @@ inline constexpr uint8_t RC522_MISO = 12;
 inline constexpr uint8_t RC522_SCK = 13;
 
 /* reset timeout after not playing anymore */
-inline constexpr unsigned long NOTPLAYING_RESET_TIMEOUT = 5000;
+inline constexpr unsigned long NOTPLAYING_RESET_TIMEOUT = 15000;
 
 /* indicate no sequential plaing */
 inline constexpr int NO_SEQUENTIAL = -1;
