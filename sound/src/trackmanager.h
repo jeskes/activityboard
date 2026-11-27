@@ -18,4 +18,6 @@ class TrackManager {
 
   /* map folder to array of file paths */
   std::map<String, std::vector<String>> folders;
+
+  void initFolder(const char* path);
 };

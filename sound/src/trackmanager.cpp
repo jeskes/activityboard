@@ -11,35 +11,42 @@ TrackManager::TrackManager(SDFS& sd)
 void TrackManager::setup() {
   LOG("initialize trackmanager");
   folders.clear();
-  File root = sd.open("/");
-  if (!root || !root.isDirectory()) {
+  initFolder("/");
+}
+
+void TrackManager::initFolder(const char* path) {
+  File folder = sd.open(path);
+  if (!folder || !folder.isDirectory()) {
     return;
   }
 
-  File dir = root.openNextFile();
-  while (dir) {
-    String dirName = String(dir.path());  // includs leading "/"
-    if (dir.isDirectory() && !dirName.startsWith("/.")) {
-      std::vector<String> files;
-      File file = dir.openNextFile();
-      while (file) {
-        String fileName = String(file.name());
-        if (!file.isDirectory() && !fileName.startsWith(".") && fileName.endsWith(".mp3")) {
-          files.push_back(String(file.path()));
+  std::vector<String> files;
+  File file = folder.openNextFile();
+  while (file) {
+    String fileName = file.name();
+    bool isDir = file.isDirectory();
+    String fullPath = file.path();
+    file.close();
+
+    if (!fileName.startsWith(".")) {
+      if (isDir) {
+        initFolder(fullPath.c_str());
+      } else {
+        size_t len = fileName.length();
+        if (len >= 4 && strcasecmp(fileName.c_str() + len - 4, ".mp3") == 0) {
+          files.push_back(std::move(fullPath));
         }
-        file.close();
-        file = dir.openNextFile();
-      }
-      if (files.size()) {
-        LOG("add trackfolder: path=%s, tracks=%d", dirName.c_str(), files.size());
-        std::sort(files.begin(), files.end());
-        folders[dirName] = std::move(files);
       }
     }
-    dir.close();
-    dir = root.openNextFile();
+    file = folder.openNextFile();
   }
-  root.close();
+  folder.close();
+
+  if (!files.empty()) {
+    LOG("add trackfolder: path=%s, tracks=%d", path, files.size());
+    std::sort(files.begin(), files.end());
+    folders[path] = std::move(files);
+  }
 }
 
 const char* TrackManager::mapTrackPath(const char* path) const {
