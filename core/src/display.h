@@ -4,9 +4,9 @@
 
 #include "base/base.h"
 #include "clientcontext.h"
+#include "displayconfig.h"
 #include "ledring.h"
 #include "rotaryexpansion.h"
-#include "displayconfig.h"
 
 class Display {
  public:
@@ -34,5 +34,9 @@ class Display {
 
   uint16_t* buffer;
 
+  /* map folder to array of file paths */
+  std::map<String, std::vector<String>> folders;
+  void initFolder(const char* path);
+  const char* mapImagePath(const char* path) const;
   const char* normalizeImagePath(const char* path);
 };
