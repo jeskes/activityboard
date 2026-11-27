@@ -55,13 +55,11 @@ void ActivityLogger::print(const char* fmt, bool isFlash, va_list args) {
   }
 #endif
   Serial.print(buffer);
-  Serial.flush();
 }
 
 void ActivityLogger::println(const char* fmt, bool isFlash, va_list args) {
   print(fmt, isFlash, args);
   Serial.println();
-  Serial.flush();
 }
 
 void ActivityLogger::printLocation(const char* file, unsigned int line) {
@@ -100,5 +98,4 @@ void ActivityLogger::dump(const unsigned char* bytes, uint8_t length) {
   Serial.print(length);
   Serial.print(F("]"));
   Serial.println(buffer);
-  Serial.flush();
 }
