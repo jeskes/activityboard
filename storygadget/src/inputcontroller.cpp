@@ -11,15 +11,22 @@ void InputController::setup() {
 }
 
 Input InputController::get() {
+  startButton.update();
   if (startButton.pressed()) {
     return StdInput::START;
   }
+
+  repeatButton.update();
   if (repeatButton.pressed()) {
     return StdInput::REPEAT;
   }
+
+  nextButton.update();
   if (nextButton.pressed()) {
     return StdInput::NEXT;
   }
+
+  stopButton.update();
   if (stopButton.pressed()) {
     return StdInput::STOP;
   }

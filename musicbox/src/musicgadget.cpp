@@ -9,6 +9,7 @@ MusicGadget::MusicGadget()
       nfc(RC522_RST),
       mode(Mode::INITIAL),
       paused(false),
+      autoPlayTeaser(false),
       sequential{0} {
 }
 
@@ -77,6 +78,9 @@ void MusicGadget::handleInput(Input input) {
     case StdInput::START:
       start();
       break;
+    case MusicgadgetInput::START_AUTOPLAY:
+      startAutoplay();
+      break;
     case StdInput::REPEAT:
       repeat();
       break;
@@ -99,6 +103,7 @@ void MusicGadget::reset(bool playTrack) {
   paused = false;
   notPlayingSince = 0;
   mode = Mode::INITIAL;
+  autoPlayTeaser = false;
 
   char buffer[ID_BUFFER_SIZE];
   sprintf(buffer, "@category-image-%01d", category);
@@ -121,6 +126,7 @@ void MusicGadget::start() {
       mode = Mode::SEQUENTIAL;
       break;
     case Mode::SEQUENTIAL:
+    case Mode::AUTOPLAY:
       if (paused) {
         core.resumeTrack();
       }
@@ -133,20 +139,43 @@ void MusicGadget::start() {
   playTrack();
 }
 
-void MusicGadget::repeat() {
-  LOG("repeat");
-  if (mode != Mode::INITIAL) {
+void MusicGadget::startAutoplay() {
+  LOG("autoplay");
+  if (mode == Mode::INITIAL) {
+    mode = Mode::AUTOPLAY;
+    sequential[category] = 0;
+    autoPlayTeaser = true;
     playTrack();
   }
 }
 
+void MusicGadget::repeat() {
+  LOG("repeat");
+  switch (mode) {
+    case Mode::INITIAL:
+      return;
+    case Mode::AUTOPLAY:
+      autoPlayTeaser = true;
+  }
+  playTrack();
+}
+
 void MusicGadget::next() {
   LOG("next");
-  if (mode != Mode::INITIAL) {
-    sequential[category]++;
-    mode = Mode::SELECTION;
-    playTrack();
+  switch (mode) {
+    case Mode::INITIAL:
+      return;
+    case Mode::SELECTION:
+    case Mode::SEQUENTIAL:
+      mode = Mode::SELECTION;
+      sequential[category]++;
+      break;
+    case Mode::AUTOPLAY:
+      sequential[category]++;
+      autoPlayTeaser = true;
+      break;
   }
+  playTrack();
 }
 
 void MusicGadget::stop() {
@@ -160,7 +189,7 @@ void MusicGadget::playTrack() {
   paused = false;
   char folder[10];
   sprintf(folder, "%02d", CATEGORY_FOLDERS[category]);
-  if (mode == Mode::SELECTION) {
+  if (mode == Mode::SELECTION || autoPlayTeaser) {
     strcat(folder, "/teaser");
   }
 
@@ -189,6 +218,15 @@ void MusicGadget::onCategoryChanged(MusicCategory category) {
 
 void MusicGadget::handleCoreStatus(CoreStatus coreStatus) {
   playing = coreStatus.playerState == PlayerState::PLAYING;
+  if (!playing && mode == Mode::AUTOPLAY) {
+    if (autoPlayTeaser) {
+      autoPlayTeaser = false;
+      playTrack();
+    }
+    else {
+      next();
+    }
+  }
 
   if (coreStatus.control.has(CoreControl::STOP_ALL)) {
     stopAll = true;

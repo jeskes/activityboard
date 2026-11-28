@@ -14,12 +14,17 @@ void InputController::setup() {
 }
 
 Input InputController::get() {
+  startButton.update();
   if (startButton.pressed()) {
     return StdInput::START;
   }
+
+  guessButton.update();
   if (guessButton.pressed()) {
     return DiceInput::NEXT_GUESS;
   }
+
+  jingleButton.update();
   if (jingleButton.pressed()) {
     return DiceInput::NEXT_JINGLE;
   }

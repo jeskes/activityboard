@@ -45,3 +45,7 @@ inline constexpr uint8_t CATEGORY_FOLDERS[CATEGORY_COUNT] = {30, 31, 32, 33};
 
 using MusicCategory = uint8_t;
 inline constexpr MusicCategory CATEGORY_UNDEF = 0xFF;
+
+namespace MusicgadgetInput {
+inline constexpr Input START_AUTOPLAY = StdInput::CUSTOM + 0;
+}  // namespace MusicgadgetInput

@@ -29,6 +29,7 @@ class MusicGadget : public GadgetBase, public CoreStatusHandler {
   void reset(bool playTrack);
 
   void start();
+  void startAutoplay();
   void repeat();
   void next();
   void stop();
@@ -39,13 +40,16 @@ class MusicGadget : public GadgetBase, public CoreStatusHandler {
   enum class Mode {
     INITIAL,
     SELECTION,
-    SEQUENTIAL
+    SEQUENTIAL,
+    AUTOPLAY
   };
+
   Mode mode;
   bool paused;
+  bool autoPlayTeaser;
 
   int sequential[CATEGORY_COUNT];
-  
+
   void playTrack();
   void playRfidTrack(RfidId rfid);
 };
